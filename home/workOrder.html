@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>创建工单</title>
+<link href="css/index.css" rel="stylesheet"/>
+<script src="js/lib-flexible.js"></script>
+<script src="js/flexible.debug.js"></script>
+<script src="js/jquery-1.11.0.min.js"></script>
+</head>
+<body>
+    <div class="main">
+        <ul class="workTab clearfix">
+            <li class="active"><a href="javascript:void(0)"><i class="icon"></i>基本信息</a></li>
+            <li><a href="javascript:void(0)"><i class="icon"></i>关联资产</a></li>
+        </ul>
+        <div class="tabs-con ">
+            <div class="cellTable labbg">
+                <div class="cell">
+                    <div class="cellHd"><label class="workLabel">申请人</label></div>
+                    <div class="cellHd">
+                        <span class="workSpan">wangzhihui</span>
+                    </div>
+                </div>
+                <div class="cell">
+                    <div class="cellHd"><label class="workLabel">联系方式</label></div>
+                    <div class="cellHd">
+                        <span class="workSpan">wangzhihui</span>
+                    </div>
+                </div>
+                <div class="cell">
+                    <div class="cellHd"><label class="workLabel">申请时间</label></div>
+                    <div class="cellHd">
+                        <span class="workSpan">wangzhihui</span>
+                    </div>
+                </div>
+            </div>
+            <form method="POST">
+                <div class="groupOne labbg">
+                    <div class="cell">
+                        <label class="workLabel"><i class="red">*</i>客户</label>
+                        <input type="text" readonly placeholder="请选择">
+                    </div>
+                    <div class="cell">
+                        <label class="workLabel"><i class="red">*</i>工单类型</label>
+                        <input type="text" readonly placeholder="请选择">
+                    </div>
+                    <div class="cell">
+                        <label class="workLabel"><i class="red">*</i>结束时间</label>
+                        <input type="text" readonly placeholder="请选择">  
+                    </div>
+                </div>
+                <div class="groupOne labbg">
+                    <div class="cell">
+                        <label class="workLabel"><i class="red">*</i>紧急程度</label>
+                        <input type="text" readonly placeholder="请选择">
+                    </div>
+                    <div>
+                        <label class="workLabel"><i class="red">*</i>事件主题</label>
+                        <textarea placeholder="请输入"></textarea>
+                    </div>
+                </div>
+            </form>
+            <div class="groupButt">
+                <a href="javascript:void(0)">下一步</a>
+            </div>
+        </div>
+        <div class="tabs-con on">
+            <form method="POST">
+                <div class="groupOne labbg">
+                    <div class="cell">
+                        <label class="workLabel">项目</label>
+                        <input type="text" readonly placeholder="请选择">
+                    </div>
+                </div>
+                <div class="groupOne labbg">
+                    <div class="cell">
+                        <label class="workLabel">资产分类</label>
+                        <input type="text" readonly placeholder="请选择">
+                    </div>
+                    <div class="zc">
+                        <div class="zcTitle">
+                            <span>资产</span><i></i>
+                        </div>
+                        <ul class="zcList tabs-con">
+                            <li>dasdasdadsaddsadasdasdasdadsaddsadasdasdasdadsaddsadasdasdasdadsaddsadasdasdasdadsaddsadas<i></i></li>
+                            <li>dasdasdadsaddsadas<i></i></li>
+                            <li>dasdasdadsaddsadas<i></i></li>
+                        </ul>
+                    </div>
+                </div>
+            </form>
+            <div class="groupButt cell">
+                <a href="javascript:void(0)" class="up">上一步</a>
+                <a href="javascript:void(0)">确定</a>
+            </div>
+        </div>
+        <div class="eject">
+            <div class="ejectMain">
+
+            </div>
+        </div>
+    </div>
+    <script src="js/public.js"></script>
+    <script>
+
+    </script>
+</body>
+</html>

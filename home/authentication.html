@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>身份认证</title>
+<link href="css/index.css" rel="stylesheet"/>
+<script src="js/lib-flexible.js"></script>
+<script src="js/flexible.debug.js"></script>
+<script src="js/jquery-1.11.0.min.js"></script>
+<script src="js/jquery.validate.js"></script>
+<script src="js/common_param.js"></script>
+</head>
+<body>
+    <ul class="authen nomr">
+        <li class="ifAuth" id="auth">
+            <img src="">
+        </li>
+    </ul>
+    <form method="POST" action="" id="entityForm">
+        <ul class="authen">
+            <li>
+                <div class="authenTab">
+                    <label class="auTitle">客户名称<i>*</i></label>
+                    <input type="text" placeholder="请输入" id="orgName" name="orgName" value="">
+                </div>
+            </li>
+            <li>
+                <div class="authenTab">
+                    <label class="auTitle">姓名<i>*</i></label>
+                    <input type="text" placeholder="请输入" id="userName" name="userName" value="">
+                </div>
+            </li>
+            <li>
+                <div class="authenTab">
+                    <label class="auTitle">联系电话<i>*</i></label>
+                    <input type="text" placeholder="请输入" id="mobile" name="mobile">
+                </div>
+            </li>
+            <li>
+                <div class="authenTab">
+                    <label class="auTitle">房间号</label>
+                    <input type="text" placeholder="请输入" id="roomNo" name="roomNo">
+                </div>
+            </li>
+            <li>
+                <div class="authenTab">
+                    <label class="auTitle">职务</label>
+                    <input type="hidden" id="duty" name="duty">
+                    <input type="text" class="sele" placeholder="请选择" value="" id="dutyValue" name="dutyValue" readonly>
+                    <label id="auhx" style="display:none">1111</label>
+                </div>
+                <div class="selectTan">
+                    <div class="selectBox">
+                        <div class="selectTitle">
+                            <span class="sure">取消</span>
+                        </div>
+                        <ul class="selectList" id="selectModel"></ul>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div class="authenTab">
+                    <label class="auTitle">身份证号</label>
+                    <input type="text" placeholder="请输入" name="cardNo" id="cardNo">
+                </div>
+            </li>
+        </ul>
+    </form>
+    <div class="buttGroup" id="divButt">
+        <a href="javascript:void(0)" class="reset" id="reset" style="display:none;">重置</a>
+        <a href="javascript:void(0)" class="start" id="save" style="display:none;">开始认证</a>
+    </div>
+    <div class="verification">
+        <!-- <img src="images/ok.png"> -->
+        <img src="images/no.png">
+        <div class="verWord" id="showError"></div>
+    </div>
+    <!-- 已认证 结束-->
+    <script src="js/public.js"></script>
+    <script src="js/webJs/authentication.js"></script>
+    <!-- <script> publicPanel.loadJs("js/webJs/authentication.js", null); </script> -->
+</body>
+</html>

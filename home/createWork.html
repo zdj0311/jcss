@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+
+<meta charset="utf-8">
+<title>创建工单</title>
+<link href="css/index.css" rel="stylesheet"/>
+<link rel="stylesheet" href="css/mobileSelect.css">
+<link href="css/work.css" rel="stylesheet"/>
+
+<script src="js/lib-flexible.js"></script>
+<script src="js/flexible.debug.js"></script>
+<script src='js/zepto.js'></script>
+<script src="js/common_param.js"></script>
+<script src='js/rolldate.js'></script>
+<script src="js/mobileSelect.js"></script>
+<script src="js/layer.js"></script>
+
+</head>
+<body>
+    <form method="POST" action="" class="mb" id="ccgdForm">
+        <ul class="authen">
+            <li>
+                <div class="authenTab">
+                    <label class="auTitle">申请人</label>
+                    <label id="appUserName"></label>
+                </div>
+            </li>
+            <li>
+                <div class="authenTab">
+                    <label class="auTitle" >联系方式</label>
+                    <label id="appUserPhone"></label>
+                </div>
+            </li>
+            <li>
+                <div class="authenTab">
+                    <label class="auTitle">申请时间</label>
+                    <label id="startTime"></label>
+                </div>
+            </li>
+        </ul>
+        <ul class="authen nomr">
+            <li>
+                <div class="authenTab">
+                    <label class="auTitle">客户名称<i>*</i></label>
+                    <input type="hidden" id="customName">
+                    <input type="text" placeholder="请选择" value="" readonly id='customNameValue'>
+                </div>
+              
+               
+            </li>
+            <li>
+                    <div class="authenTab">
+                        <label class="auTitle">客户负责人<i>*</i></label>
+                        <input type="hidden" id="customer">
+                        <input type="text" placeholder="请选择" value="" readonly id='customerValue'>
+                    </div>
+                </li>
+            <li>
+                    <div class="authenTab">
+                        <label class="auTitle">工单类型<i>*</i></label>
+                        <input type="hidden" id="busiType">
+                        <input type="text" placeholder="请选择" value="" readonly id="busiTypeValue">
+                    </div>
+                   
+            </li>
+            <li>
+                    <div class="authenTab">
+                        <label class="auTitle">工单结束时间<i>*</i></label>
+                        <input readonly type="text" id="date4" placeholder="请选择">
+                    </div>
+                </li>
+            
+            
+        </ul>
+      
+        <div class="unfold" style="height:.15rem">
+            <ul class="authen nomr">
+                
+                <li>
+                    <div class="authenTab">
+                        <label class="auTitle">事件主题</label>
+                        <input type="text" placeholder="请输入" value="" id="subject">
+                    </div>
+                </li>
+                <li>
+                    <div class="authenTab">
+                        <label class="auTitle">事件描述</label>
+                        <textarea placeholder="请输入" id="billPlan"></textarea>
+                    </div>
+                </li>    
+                <li>
+                            <div class="authenTab">
+                                <label class="auTitle">紧急程度</label>
+                                <input type="hidden" id="urgency">
+                                <input type="text"  placeholder="请选择" value="" readonly id="urgencyValue">
+                            </div>
+                            
+                        </li>
+                
+                <li>
+                    <div class="authenTab">
+                        <label class="auTitle">项目名称</label>
+                        <input type="hidden" id="projectId">
+                        <input type="text"  placeholder="请选择" value="" readonly id="projectIdValue">
+                 
+                    </div>
+                </li>
+                <li>
+                    <div class="authenTab">
+                        <label class="auTitle">子项目</label>
+                        <input type="hidden" id="subProjectId">
+                        <input type="text"  placeholder="请选择" value="" readonly id="subProjectIdValue">
+
+                    </div>
+                </li>
+            </ul>
+            <ul class="authen nomr">
+                    <li>
+                        <div class="authenTab">
+                            <label class="auTitle">上传附件</label>
+                            <span class="fileinput-button">
+                                <a href="javascript:void(0)" class="clickUp">点击上传</a>
+                                <input type="file" id="files" class="files" multiple="multiple"/>
+                            </span>
+                           
+                            
+                        </div>
+                      
+                    </li>
+                    <ul id="fileList"></ul>
+                    
+                    
+                </ul>
+                
+        </div>
+        <div class="drop dropDown">展开选添项<i></i></div>
+        
+       
+        <div class="classification tabs">
+            <h2 class="zcflTitle">资产分类</h2>
+            <ul class="ificat clearfix tabsList" id="assetTypeId">
+                <script id="tpl-asset" type="text/html">
+                    {{each assetTypeList}}
+                    <li>
+                        <img src="{{$value.iconUrl}}">
+                        <span data-id="{{$value.assetsTypeCode}}">{{$value.assetsTypeName}}</span>
+                        <i></i>
+                    </li>
+                    {{/each}}
+                </script>
+            </ul>
+            <div>
+                <h2 class="zcflTitle">资产列表</h2>
+                <!-- <div class="selAll">全选<input type="checkbox" value=""></div> -->
+            </div>
+            <ul class="ificatList tabs-con on" id="assetsRelList">
+                
+                </ul>
+            
+            <ul class="tabs-con">
+                <li></li>
+            </ul>
+        </div>
+        <!-- <ul class="authen mb">
+            <li>
+                <div class="adDetail-bottom">
+                        <h3 class="bot-tit">下一步<i>*</i></h3>
+                        <ul id="nodesDiv">
+                                
+                        </ul>
+                        
+                        <div>
+                            <ul class="ChooseDepartmentUl" id="chooseUser">
+                                
+                            </ul>
+    
+                          
+                            <ul class="transactorUl" id="selectedUser">
+                                
+                            </ul>
+                        </div>
+                    </div>
+                </li>
+        </ul> -->
+       
+        <ul class="authen mb">
+            <li>
+                <div class="adDetail-bottom">
+                    <h2 class="downNode">节点选择<i>*</i></h2>
+                    <ul id="nodesDiv">
+                                
+                    </ul>
+                    
+                    <div>
+                        <ul class="nextNode clearfix" id="chooseUser"></ul>
+                        <ul class="nextNode clearfix" id="selectedUser"></ul>
+                    </div>
+                </div>
+            </li>
+        </ul>
+        
+        <div class="buttGroup" id="workflowFormButton">
+        </div>
+        <input type="hidden" id="deleteAttachFile" name="deleteAttachFile">
+
+        <input type="hidden" id="workflowBean.signInfoFlag_" value="false">
+        <input type="hidden" id="workflowBean.signInfo_" value="">
+        <input type="hidden" id="workflowBean.message" value="">
+        <input type="hidden" id="workflowBean.suggestId_" value="">
+        <input type="hidden" id="workflowBean.curNodeId_" value="">
+        <input type="hidden" id="workflowBean.definitionId_" value="">
+        <input type="hidden" id="workflowBean.flowStatus_" value="">
+        <input type="hidden" id="workflowBean.buttonOptJsonStr" value="">
+        <!-- 流程变量 -->
+        <input type="hidden" id="wUserType" itemname="wUserType" workflowform="hidden" flowvariable="wUserType" value="">
+        <input type="hidden" id="wCustomerUserId" itemname="wCustomerUserId" workflowform="hidden" flowvariable="wCustomerUserId" value="">
+    </form>
+    <script src='js/form.all.js'></script>
+    <script src='js/work.js'></script>
+    <script src='js/createWork.js'></script>
+    <script>
+      
+        
+     </script>
+</body>
+</html>

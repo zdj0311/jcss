@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>服务跟踪办理</title>
+<link href="css/index.css" rel="stylesheet"/>
+<link rel="stylesheet" href="css/mobileSelect.css">
+<link href="css/work.css" rel="stylesheet"/>
+<script src="js/lib-flexible.js"></script>
+<script src="js/flexible.debug.js"></script>
+<script src='js/jquery-1.11.0.min.js'></script>
+<script src='js/zepto.js'></script>
+<script src="js/common_param.js"></script>
+<script src='js/rolldate.js'></script>
+<script src="js/mobileSelect.js"></script>
+<script src="js/layer.js"></script>
+
+</head>
+<body>
+    <div class="comTitle nomr">
+        <h2 class="notTitle nopr txt-cut"><span class="noHandle colB statusValue"></span><span class="subject"></span></h2>
+    </div>
+    <div >
+            <ul class="authen">
+                    <li>
+                            <div class="authenTab">
+                                <label class="auTitle wid3">申请人</label>
+                                <label id="appUserName"></label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="authenTab">
+                                <label class="auTitle wid3">联系方式</label>
+                                <label id="appUserPhone"></label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="authenTab">
+                                <label class="auTitle wid3">申请时间</label>
+                                <label id="startTime"></label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="authenTab">
+                                <label class="auTitle wid3">编码</label>
+                                <label id="code"></label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="authenTab">
+                                <label class="auTitle wid3">客户</label>
+                                <input type="hidden" value="" id="customerOrg">
+                                <label id="customerOrgName"></label>
+                            </div>
+                        </li>
+                        <li>
+                                <div class="authenTab">
+                                    <label class="auTitle wid3">工单类型</label>
+                                    <label id="busiTypeName"></label>
+                                </div>
+                            </li>
+                        <li>
+            </ul>
+        <ul class="authen nomr unfold">
+                <li>
+                <div class="authenTab">
+                    <label class="auTitle wid3">客户负责人</label>
+                    <label id="customerName"></label>
+                </div>
+            </li>
+            
+            <li>
+                <div class="authenTab">
+                    <label class="auTitle wid3">紧急程度<i></i></label>
+                    <div id="urgencyEdit" class="urgency-edit"></div>
+                 
+                    
+                </div>
+            </li>
+            <li>
+                <div class="authenTab">
+                    <label class="auTitle wid3">工单结束时间</label>
+                    <label id="planEndTime"></label>
+                </div>
+            </li>
+            <li>
+                    <div class="authenTab">
+                        <label class="auTitle">项目名称</label>
+                        <label id="projectName"></label>
+                    </div>
+                </li>
+                <li>
+                        <div class="authenTab">
+                            <label class="auTitle">子项目名称</label>
+                            <label id="subProjectName"></label>
+                        </div>
+                    </li>
+                <li>
+                    <div class="authenTab">
+                        <label class="auTitle">资产分类</label>
+                        <label id="assetTypeName"></label>
+                        
+                    </div>
+                </li>
+                <li>
+                    <div class="authenTab">
+                        <label class="auTitle zcflTitle">资产列表<i></i></label>
+                        <div id="addRelAssetsListDlgButton" class="add-assets"><button class="assets">关联资产</button></div>
+                        <ul class="ificatList tabs-con on" id="assetsRelList"></ul>
+                    </div>
+                    
+                </li>
+                
+           
+        </ul>
+        <ul class="authen nomr">
+            <li>
+                <div class="authenTab">
+                    <label class="auTitle">上传附件<i></i></label>
+                    <span class="fileinput-button" id="uploadFile">
+                        <a href="javascript:void(0)" class="clickUp">点击上传</a>
+                        <input type="file" id="files" class="files" multiple="multiple"/>
+                    </span>
+                    
+                    <ul id="fileList"></ul>
+                </div>
+               
+            </li>
+           
+            
+            
+        </ul>
+
+   
+    <div class="drop dropDown">展开选添项<i></i></div>
+    <ul class="authen">
+        <li>
+            <div class="authenTab">
+                <label class="auTitle">事件主题</label>
+                <label class="subject"></label>
+               
+            </div>
+        </li>
+        <li>
+            <div class="authenTab">
+                <label class="auTitle">事件描述</label>
+                <label id="billPlan"></label>
+               
+            </div>
+        </li>
+        <li>
+            <div class="authenTab">
+                <label class="auTitle">事件结果<i></i></label>
+                <div id="billResult"></div>
+                
+            </div>
+        </li>
+    </ul>
+    <ul class="authen">
+        <li>
+            <div class="authenTab evaluate" >
+                <label class="auTitle">评价等级<i></i></label>
+                <div class="demo" id="publishSuggestScore">
+                        
+                      </div>
+            </div>
+            <input type="hidden" id="billAssess" value=""/>
+        </li>
+        <li>
+            <div class="authenTab">
+                <label class="auTitle">评价<i></i></label>
+                <div id="publishSuggest"></div>
+            </div>
+        </li>
+        <li>
+            <div class="authenTab">
+                <label class="auTitle">意见<i></i></label>
+                <div workflowsuggest="true" id="workOrderSuggest" itemid="workOrderSuggest" class="" style="width:100%;">
+                    
+                            <!-- <textarea class="comments placeholder" rows="4" cols="27" placeholder="请输入意见">
+                            </textarea> -->
+                    
+                </div>
+            </div>
+            
+        </li>
+    </ul>
+    
+    <ul class="authen mb">
+            <li>
+                <div class="adDetail-bottom">
+                    <h2 class="downNode">节点选择<i>*</i></h2>
+                    <ul id="nodesDiv">
+                                
+                    </ul>
+                    
+                    <div>
+                        <ul class="nextNode clearfix" id="chooseUser"></ul>
+                        <ul class="nextNode clearfix" id="selectedUser"></ul>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    
+    
+    <div class="buttGroup" id="workflowFormButton">
+        
+    </div>
+    <input type="hidden" id="deleteAttachFile" name="deleteAttachFile">
+    <input type="hidden" id="attachFileMode" name="attachFileMode">
+
+    <input type="hidden" id="workflowBean.signInfoFlag_" value="false">
+    <input type="hidden" id="workflowBean.signInfo_" value="">
+    <input type="hidden" id="workflowBean.message" value="">
+    <input type="hidden" id="workflowBean.suggestId_" value="">
+    <input type="hidden" id="workflowBean.curNodeId_" value="">
+    <input type="hidden" id="workflowBean.definitionId_" value="">
+    <input type="hidden" id="workflowBean.flowStatus_" value="">
+    <input type="hidden" id="workflowBean.buttonOptJsonStr" value="">
+    <input type="hidden" id="nextNodesType" value="">
+    <!-- 流程变量 -->
+    <input type="hidden" id="wUserType" itemname="wUserType" workflowform="hidden" flowvariable="wUserType" value="">
+    <input type="hidden" id="wCustomerUserId" itemname="wCustomerUserId" workflowform="hidden" flowvariable="wCustomerUserId" value="">
+   
+    
+    <script src="js/jquery.raty.js"></script>
+    <script src="js/form.all.js"></script>
+    <script src="js/work.js"></script>
+    <script src="js/handleWork.js"></script>
+    <script>
+        
+        </script>
+</body>
+</html>
