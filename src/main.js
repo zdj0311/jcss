@@ -8,9 +8,12 @@ import '@/css/reset.css'
 import axios from 'axios'
 import config from '../config'
 import utils from 'utils/rest'
+import Vant from 'vant';
+import 'vant/lib/index.css';
 
 
 Vue.config.productionTip = false
+Vue.use(Vant);
 if(process.env.NODE_ENV==='development' && config.dev.mock) {
   let Mock = require('mockjs')
   Vue.$mock = Vue.prototype.$mock = Mock
