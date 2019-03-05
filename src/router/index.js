@@ -1,6 +1,16 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import HomePage from '@/pages/home-page'
+import OrderList from '@/pages/order-list'
+import Feedback from '@/pages/feedback'
+import userCenter from '@/pages/user-center'
+import ServiceTrace from '@/pages/service-trace'
+import OrderCreate from '@/pages/order-create'
+import OrderResolver from '@/pages/order-resolver'
+import OrderDetail from '@/pages/order-detail'
+import Evaluation from '@/pages/evaluation'
+import Auth from '@/pages/auth'
+import DailyLog from '@/pages/daily-log'
 Vue.use(Router)
 
 export default new Router({
