@@ -12,7 +12,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/search': {
-        target: 'http://192.168.210.78:8088/smartCase', //目标接口域名
+        target: 'http://192.168.200.50:8080', //目标接口域名
 //      target: 'http://192.168.210.70:8080', //目标接口域名
         changeOrigin: true, //是否跨域
       }
