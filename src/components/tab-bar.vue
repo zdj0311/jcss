@@ -1,10 +1,10 @@
 <template>
   <div class="magix-header">
     <van-tabbar v-model="active" @change="change">
-    <van-tabbar-item icon="home-o">标签</van-tabbar-item>
-      <van-tabbar-item icon="search" dot>标签</van-tabbar-item>
-      <van-tabbar-item icon="friends-o" info="5">标签</van-tabbar-item>
-      <van-tabbar-item icon="setting-o" info="20">标签</van-tabbar-item>
+    <van-tabbar-item icon="home-o">首页</van-tabbar-item>
+      <van-tabbar-item icon="search">我的工单</van-tabbar-item>
+      <van-tabbar-item icon="friends-o">意见反馈</van-tabbar-item>
+      <van-tabbar-item icon="setting-o">个人中心</van-tabbar-item>
     </van-tabbar>
   </div>
 </template>

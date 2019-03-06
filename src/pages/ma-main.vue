@@ -31,6 +31,8 @@
     },
   }
 </script>
-<style lang='scss' scoped>
-
+<style lang='scss'>
+.ma-main {
+  height:100%;
+}
 </style>
