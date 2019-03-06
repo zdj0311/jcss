@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import maMain from '@/pages/ma-main'
 import HomePage from '@/pages/home-page'
 import OrderList from '@/pages/order-list'
 import Feedback from '@/pages/feedback'
@@ -23,23 +24,25 @@ export default new Router({
     },
     // 主页
     {
+      path:'/',
+      redirect: '/home-page',
+      component:maMain,
+      children:[{
       path: '/home-page',
       name: 'home_page',
       component: HomePage,
       meta: {
         keepAlive: true
       }
-    },
-    // 我的工单
+    },// 我的工单
     {
       path: '/order-list',
-      name: 'order-list',
+      name: 'order_list',
       component: OrderList,
       meta: {
         keepAlive: true
       }
-    },
-    // 意见反馈
+    },// 意见反馈
     {
       path: '/feedback',
       name: 'feedback',
@@ -47,20 +50,20 @@ export default new Router({
       meta: {
         keepAlive: true
       }
-    },
-    // 个人中心
+    },// 个人中心
     {
       path: '/user-center',
-      name: 'user-center',
+      name: 'user_center',
       component: userCenter,
       meta: {
         keepAlive: true
       }
+    },]
     },
     // 服务跟踪
     {
       path: '/service-trace',
-      name: 'service-trace',
+      name: 'service_trace',
       component: ServiceTrace,
       meta: {
         keepAlive: true
@@ -69,7 +72,7 @@ export default new Router({
     // 工单创建
     {
       path: '/order-create',
-      name: 'order-create',
+      name: 'order_create',
       component: OrderCreate,
       meta: {
         keepAlive: true
@@ -78,7 +81,7 @@ export default new Router({
     // 工单处理
     {
       path: '/order-resolver',
-      name: 'order-resolver',
+      name: 'order_resolver',
       component: OrderResolver,
       meta: {
         keepAlive: true
@@ -87,7 +90,7 @@ export default new Router({
     // 工单详情
     {
       path: '/order-detail',
-      name: 'order-detail',
+      name: 'order_detail',
       component: OrderDetail,
       meta: {
         keepAlive: true
@@ -114,7 +117,7 @@ export default new Router({
     // 日报
     {
       path: '/daily-log',
-      name: 'daily-log',
+      name: 'daily_log',
       component: DailyLog,
       meta: {
         keepAlive: true

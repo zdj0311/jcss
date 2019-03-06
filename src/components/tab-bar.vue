@@ -1,0 +1,61 @@
+<template>
+  <div class="magix-header">
+    <van-tabbar v-model="active" @change="change">
+    <van-tabbar-item icon="home-o">标签</van-tabbar-item>
+      <van-tabbar-item icon="search" dot>标签</van-tabbar-item>
+      <van-tabbar-item icon="friends-o" info="5">标签</van-tabbar-item>
+      <van-tabbar-item icon="setting-o" info="20">标签</van-tabbar-item>
+    </van-tabbar>
+  </div>
+</template>
+
+<script>
+  import uri from 'utils/uri'   
+  export default {
+    name: 'magix_header',
+    data() {
+      return {
+        active: 0,
+        dictionary:['home_page','order_list','feedback','user_center']
+      }
+    },
+    created() {
+      
+    },
+    computed: {
+      onRoute() {
+        return this.$route.name
+      }
+    },
+    methods: {
+      change(i) {
+        this.$router.push({name:this.dictionary[i]})
+      }
+    }
+  }
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style lang="scss">
+  .magix-header {
+    display:flex;
+    .options {
+      display:flex;
+      flex-grow: 1;
+      justify-content: flex-end;
+      align-items:center;
+      color: rgb(255, 255, 255);
+      background-color: rgb(64, 158, 255);
+    }
+    .option-item {
+      cursor: pointer;
+      padding:0 1.4rem;
+    }
+    .el-menu {
+      padding-left:3rem;
+    }
+    .el-menu.el-menu--horizontal {
+      border-bottom:none;
+    }
+  }
+</style>

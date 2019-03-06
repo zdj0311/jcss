@@ -1,6 +1,6 @@
 <template>
   <div class="user-center">
-    242143
+    usercenter
   </div>
 </template>
 
