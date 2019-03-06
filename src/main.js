@@ -5,12 +5,11 @@ import App from './App'
 import router from './router'
 import '@/css/normalize.css'
 import '@/css/reset.css'
-import axios from 'axios'
 import config from '../config'
 import utils from 'utils/rest'
 import Vant from 'vant';
 import 'vant/lib/index.css';
-
+import init from 'utils/init'
 
 Vue.config.productionTip = false
 Vue.use(Vant);
@@ -29,7 +28,6 @@ if(process.env.NODE_ENV==='development' && config.dev.mock) {
 //s.parentNode.insertBefore(hm, s);
 //})();
 
-Vue.$axios = Vue.prototype.$axios = axios
 Vue.mixin({
   methods:{
     cw() {

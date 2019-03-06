@@ -3,16 +3,16 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
 
 const path = require('path')
-
+const hostname = 'http://192.168.200.50:8080/jcss'
 module.exports = {
   dev: {
-
+    hostname:hostname,
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
-      '/search': {
-        target: 'http://192.168.210.70:8080', //目标接口域名
+      '/': {
+        target: 'http://192.168.200.70:8080', //目标接口域名
 //      target: 'http://192.168.210.50:8080', //目标接口域名
         changeOrigin: true, //是否跨域
       }
@@ -43,6 +43,7 @@ module.exports = {
   },
 
   build: {
+    hostname:hostname,
     // Template for index.html
     index: path.resolve(__dirname, '../dist/index.html'),
 

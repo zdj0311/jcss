@@ -32,7 +32,7 @@
       }
     },
     created() {
-      
+      console.log(this.addHost('/aaa'))
     },
     methods: {
       
