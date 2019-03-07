@@ -169,8 +169,8 @@
           }
         }
         .van-tabs{
-          width: 50%;
-          padding-top: 30px;
+          padding-top: 0px;
+          margin-top: -1.6rem;
           .van-hairline--top-bottom::after {
             border-width: 0px 0;
           }
@@ -179,6 +179,9 @@
           }
           .van-tabs__wrap{
             height: 1.5rem;
+            float: right;
+            position: relative;
+            margin-bottom: 0.8rem;
           }
           .van-tab{
             line-height: 1.5rem;
@@ -214,9 +217,9 @@
             }
           }
           .van-tabs__content{
-            margin-left: -50%;
             .work-con {
               display: flex;
+              width: 100%;
               li{
                 width: 32%;
                 margin-right: 2%;
@@ -309,6 +312,9 @@
     }
     .work{
       padding-bottom: 0.2rem;
+      .create-head{
+        display: block;
+      }
     }
   }
 </style>
