@@ -7,7 +7,6 @@ Vue.$axios = Vue.prototype.$axios = axios
 function axiosGet(url,data) {
   return new Promise((resolve,reject)=>{
     Vue.$axios.get(url,data).then(res=>{
-      console.log(res.data)
       if(res.data.code === '000000') {
         resolve(res.data.data)
       }else {

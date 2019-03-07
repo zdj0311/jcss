@@ -1,10 +1,13 @@
 <template>
-<div class=''></div>
+<div class='auth'>
+  鉴权
+</div>
 </template>
 
 <script>
 
 export default {
+  name:'auth',
 components: {},
 data() {
 return {
@@ -24,6 +27,6 @@ mounted() {
 },
 }
 </script>
-<style lang='scss' scoped>
+<style lang='scss'>
 
 </style>
