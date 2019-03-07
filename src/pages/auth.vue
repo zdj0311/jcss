@@ -5,7 +5,10 @@
       <span>魔法</span>
     </header>
     <van-cell-group>
-      <van-field v-for="(item,index) in table" :key="index" v-model="form[item.key_name]" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" @blur="item.validate(form,table,index)"/>
+      <template v-for="(item,index) in table">
+        <van-field v-if="item.key_name === 'dutyValue'" v-model="form[item.key_name]" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" @focus="showPicker" @blur="item.validate(index)"/>
+        <van-field v-else v-model="form[item.key_name]" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" @blur="item.validate(index)"/>
+      </template>
       <!--<van-field v-model="form.userName" label="姓名" placeholder="请输入姓名" error-message="" @blur="validateUserName(form.userName)"/>
       <van-field v-model="form.mobile" label="联系电话" placeholder="请输入联系电话" error-message="" @blur="validateMobile(form.mobile)"/>
       <van-field v-model="form.roomNo" label="房间号" placeholder="请输入房间号" error-message="" @blur="validateRoomNo(form.roomNo)"/>
@@ -24,12 +27,12 @@
   export default {
     name: 'user_center',
     data() {
-      let validateEmpty= function(form,table,index) {
-        let item = table[index]
-        if(!form[item.key_name]) {
-          item.message = '请输入' + item.title
-        }
-      }
+//    let validateEmpty= function(form,table,index) {
+//      let item = table[index]
+//      if(!form[item.key_name]) {
+//        item.message = '请输入' + item.title
+//      }
+//    }
       return {
         avatar,
         user:this.$store.state.admin.user,
@@ -42,48 +45,47 @@
           title:'客户名称',
           placeholder:'请输入客户名称',
           message:'',
-          validate:validateEmpty
+          validate:this.validateEmpty
         },{
           key_name:'userName',
           value:'',
           title:'姓名',
           placeholder:'请输入姓名',
           message:'',
-          validate:validateEmpty
+          validate:this.validateEmpty
         },{
           key_name:'mobile',
           value:'',
           title:'联系电话',
           placeholder:'请输入联系电话',
           message:'',
-          validate:validateEmpty
+          validate:this.validateEmpty
         },{
           key_name:'roomNo',
           value:'',
           title:'房间号',
           placeholder:'请输入房间号',
           message:'',
-          validate:validateEmpty
+          validate:this.validateEmpty
         },{
           key_name:'dutyValue',
           value:'',
           title:'职务',
           placeholder:'请输入职务',
           message:'',
-          validate:validateEmpty
+          validate:this.validateEmpty
         },{
           key_name:'cardNo',
           value:'',
           title:'身份证号',
           placeholder:'请输入身份证号',
           message:'',
-          validate:validateEmpty
+          validate:this.validateEmpty
         }]
       }
     },
     created() {
       this.initForm()
-      console.log(this.form)
     },
     methods: {
       initForm(form) {
@@ -110,7 +112,8 @@
       },
       // picker 确定时触发
       confirm(v) {
-        console.log(v)
+        this.form.dutyValue = v
+        this.show = false
       },
       validateOrgName(v) {
         
@@ -130,6 +133,14 @@
       validateCardNo(v) {
         
       },
+      validateEmpty(index) {
+        let item = this.table[index]
+        if(!this.form[item.key_name]) {
+          item.message = '请输入' + item.title
+        }else {
+          item.message = ''
+        }
+      }
     }
   }
 </script>
