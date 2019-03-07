@@ -85,29 +85,19 @@
     methods: {
       getInfo: function() {
         let _this = this;
-        this.$axios.get('jcss/api/wx/user/info.action').then(res=>{
-          if(res.data.code=='000000'){
-            let customerId = res.data.data.orgId;
-            return _this.$axios.get('jcss/api/wk/dic/assetsTypeList.action', {params: {customerId: customerId}})
-          }
-        })
-        .then(res=>{
-          if(res.data.code=='000000'){
-            let copyArr =  res.data.data.slice(0,res.data.data.length)
-            let len = Math.ceil(res.data.data.length/4);
-            for(var i=0;i<len;i++){
-              _this.assetsArray.push(copyArr.splice(0,4))
-            }
+        this.$get('jcss/api/wk/dic/assetsTypeList.action', {params: {customerId: _this.$store.state.admin.user.orgId}}).then(res=>{
+          let copyArr =  res.slice(0,res.length)
+          let len = Math.ceil(res.length/4);
+          for(var i=0;i<len;i++){
+             _this.assetsArray.push(copyArr.splice(0,4))
           }
         })
       },
       selectTab(index) {
         let dateType = this.statistics[index]['value'];
         let _this = this;
-        this.$axios.get('jcss/api/wk/statistiscCount.action', {params: {dateType: dateType}}).then(res=>{
-          if(res.data.code=='000000'){
-            _this.statisticsCount = res.data.data;
-          }
+        this.$get('jcss/api/wk/statistiscCount.action', {params: {dateType: dateType}}).then(res=>{
+          _this.statisticsCount = res;
         })
       }
     }
