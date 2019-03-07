@@ -2,37 +2,57 @@
   <div class="user-center">
     <header class="header">
       <img :src="avatar"/>
-      <span>魔法</span>
+      <span>{{ user.userName }}</span>
     </header>
-    <van-cell value="郑丹菊" icon="shop-o" is-link>
+    <van-cell :value="user.orgName" is-link>
       <template slot="title">
         <span class="custom-text">客户名称</span>
       </template>
     </van-cell>
-    <van-cell value="郑丹菊" icon="shop-o" is-link>
+    <van-cell :value="user.userName" is-link>
       <template slot="title">
-        <span class="custom-text">联系人</span>
+        <span class="custom-text">姓名</span>
       </template>
     </van-cell>
-    <van-cell value="郑丹菊" icon="shop-o" is-link>
+    <van-cell :value="user.mobile" is-link>
       <template slot="title">
         <span class="custom-text">联系电话</span>
       </template>
     </van-cell>
+    <van-cell :value="user.roomNo" is-link>
+      <template slot="title">
+        <span class="custom-text">房间号</span>
+      </template>
+    </van-cell>
+    <van-cell :value="user.dutyValue" is-link>
+      <template slot="title">
+        <span class="custom-text">职务</span>
+      </template>
+    </van-cell>
+    <van-cell :value="user.cardNo" is-link>
+      <template slot="title">
+        <span class="custom-text">身份证号</span>
+      </template>
+    </van-cell>
+    <!--<van-popup v-model="show" class="pop-container" position="bottom">
+      <van-picker :columns="columns" @change="onChange" show-toolbar @cancel="cancel" @confirm="confirm"/>
+    </van-popup>-->
+    
   </div>
 </template>
 
 <script>
-  import avatar from 'assets/2017.jpg'
+  import avatar from 'assets/person.png'
   export default {
     name: 'user_center',
     data() {
       return {
-        avatar
+        avatar,
+        user:this.$store.state.admin.user
       }
     },
     created() {
-      console.log(this.addHost('/aaa'))
+      console.log(this.user)
     },
     methods: {
       
@@ -58,6 +78,9 @@
       overflow: hidden;
       border-radius: 50%;
       margin-right:1rem;
+    }
+    .pop-container {
+      width:100%;
     }
   }
 </style>

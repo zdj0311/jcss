@@ -76,13 +76,15 @@ new Vue({
       }
     },
     created() {
-      this.$get('/jcss/api/wx/user/info.action').then(res=>{
-        if(res.userStatus === "UNRegister") {
-          this.$router.push('auth')
-        }else if(res.userStatus === "created") {
-          this.$store.commit('admin/updateUser',res)
-        }
-      })
+      if(!this.$store.state.admin.user) {
+        this.$get('/jcss/api/wx/user/info.action').then(res=>{
+          if(res.userStatus === "UNRegister") {
+            this.$router.push('auth')
+          }else if(res.userStatus === "created") {
+            this.$store.commit('admin/updateUser',res)
+          }
+        })
+      }
     },
     mounted() {
       const that = this
