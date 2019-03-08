@@ -10,8 +10,10 @@
     "build": "node build/build.js & gulp"
   },
   "dependencies": {
+    "@antv/f2": "^3.3.5",
     "axios": "^0.18.0",
     "babel-polyfill": "^6.26.0",
+    "element-ui": "^2.6.1",
     "qs": "^6.6.0",
     "vant": "^1.6.8",
     "vue": "^2.5.2",

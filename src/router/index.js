@@ -12,6 +12,7 @@ import OrderDetail from '@/pages/order-detail'
 import Evaluation from '@/pages/evaluation'
 import Auth from '@/pages/auth'
 import DailyLog from '@/pages/daily-log'
+import visualization from '@/pages/visualization'
 Vue.use(Router)
 
 export default new Router({
@@ -119,6 +120,15 @@ export default new Router({
       path: '/daily-log',
       name: 'daily_log',
       component: DailyLog,
+      meta: {
+        keepAlive: true
+      }
+    },
+    // 可视化 综合管理服务平台
+    {
+      path: '/visualization',
+      name: 'visualization',
+      component: visualization,
       meta: {
         keepAlive: true
       }

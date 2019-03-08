@@ -2,11 +2,25 @@
   <div class="auth">
     <header class="header">
       <img :src="avatar"/>
-      <span>魔法</span>
+      <!-- 未注册 -->
+      <div v-if="user.userStatus === 'UNRegister'" class="statu-mark">
+        <img :src="avatar"/>
+        <span>未认证</span>
+      </div>
+      <!-- 注册失败 -->
+      <div v-if="user.userStatus === 'deny'" class="statu-mark">
+        <img :src="avatar"/>
+        <span>认证失败</span>
+      </div>
+      <!-- 审核 -->
+      <div v-if="user.userStatus === 'register'" class="statu-mark">
+        <img :src="avatar"/>
+        <span>认证中</span>
+      </div>
     </header>
     <van-cell-group>
       <template v-for="(item,index) in table">
-        <van-field v-if="item.key_name === 'dutyValue'" v-model="form[item.key_name]" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" @focus="showPicker" @blur="item.validate(index)"/>
+        <van-field v-if="item.key_name === 'dutyValue'" v-model="form[item.key_name]['text']" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" @focus="showPicker" readonly/>
         <van-field v-else v-model="form[item.key_name]" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" @blur="item.validate(index)"/>
       </template>
       <!--<van-field v-model="form.userName" label="姓名" placeholder="请输入姓名" error-message="" @blur="validateUserName(form.userName)"/>
@@ -16,14 +30,20 @@
       <van-field v-model="form.cardNo" label="身份证号" placeholder="请输入身份证号" error-message="" @blur="validateCardNo(form.cardNo)"/>-->
     </van-cell-group>
     <van-popup v-model="show" class="pop-container" position="bottom">
-      <van-picker :columns="columns" @change="onChange" show-toolbar @cancel="cancel" @confirm="confirm"/>
+      <van-picker :columns="postDic" @change="onChange" show-toolbar @cancel="cancel" @confirm="confirm"/>
     </van-popup>
-    
+    <!-- 未注册 -->
+    <van-button v-if="user.userStatus === 'UNRegister'" class="submit-btn" size="large" @click="submit">认证</van-button>
+    <!-- 注册失败 -->
+    <van-button v-if="user.userStatus === 'deny'" class="submit-btn" size="large">重新认证</van-button>
+    <!-- 审核 -->
+    <van-button v-if="user.userStatus === 'register'" disabled class="submit-btn" size="large">努力认证中，请您稍等...</van-button>
   </div>
 </template>
 
 <script>
   import avatar from 'assets/2017.jpg'
+  import { getPostDic,bindUser } from 'controller/auth' // 职务列表
   export default {
     name: 'user_center',
     data() {
@@ -36,7 +56,8 @@
       return {
         avatar,
         user:this.$store.state.admin.user,
-        columns:[1,2,3],
+        postDic:[],
+        check:[],
         show:false,
         form:{},
         table:[{
@@ -80,11 +101,14 @@
           title:'身份证号',
           placeholder:'请输入身份证号',
           message:'',
-          validate:this.validateEmpty
+          validate:this.validateCardNo
         }]
       }
     },
     created() {
+      getPostDic.bind(this)('dutyId').then(res=>{
+        this.postDic = res
+      })
       this.initForm()
     },
     methods: {
@@ -96,6 +120,22 @@
           roomNo:'',
           dutyValue:'',
           cardNo:''
+        }
+        for(let item in this.form) {
+          this.check.push(false)
+        }
+      },
+      submit() {
+        let result = true
+        this.check.forEach((item,index)=>{
+          if(item === false) {
+            result = false
+          }
+        })
+        if(result) {
+          bindUser.bind(this)(this.form).then(res=>{
+            console.log(res)
+          })
         }
       },
       // 显示 picker
@@ -113,7 +153,9 @@
       // picker 确定时触发
       confirm(v) {
         this.form.dutyValue = v
+//      this.postActive = v.text
         this.show = false
+        this.validateEmpty(4)
       },
       validateOrgName(v) {
         
@@ -137,9 +179,27 @@
         let item = this.table[index]
         if(!this.form[item.key_name]) {
           item.message = '请输入' + item.title
+          this.setCheck(index,false)
         }else {
           item.message = ''
+          this.setCheck(index,true)
         }
+      },
+      validateCardNo(index) {
+        let item = this.table[index]
+        if(!this.form[item.key_name]) {
+          item.message = '请输入' + item.title
+          this.setCheck(index,false)
+        }else if(!/(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/.test(this.form[item.key_name])){
+          item.message = '请输入正确身份证号'
+          this.setCheck(index,false)
+        }else {
+          item.message = ''
+          this.setCheck(index,true)
+        }
+      },
+      setCheck(index,val) {
+        this.check[index] = val
       }
     }
   }
@@ -164,8 +224,27 @@
       border-radius: 50%;
       margin-right:1rem;
     }
+    .statu-mark {
+      display:flex;
+      align-items: center;
+      justify-content: space-around;
+      background:#cccccc;
+      border-radius:1.6rem;
+      padding:0 .4rem;
+      color:#fff;
+    }
+    .statu-mark img {
+      width:1.1rem;
+      height:1.1rem;
+      margin-right:.4rem;
+    }
     .pop-container {
       width:100%;
+    }
+    .submit-btn {
+      color:#fff;
+      background:#4a79df;
+      margin-top:2rem;
     }
   }
 </style>

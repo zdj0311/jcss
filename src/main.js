@@ -8,12 +8,16 @@ import '@/css/reset.css'
 import config from '../config'
 import utils from 'utils/rest'
 import Vant from 'vant'
+import ElementUI from 'element-ui';
+
+import 'element-ui/lib/theme-chalk/index.css';
 import 'vant/lib/index.css'
 import store from 'store'
 import init from 'utils/init'
 
 Vue.config.productionTip = false
 Vue.use(Vant);
+Vue.use(ElementUI);
 if(process.env.NODE_ENV==='development' && config.dev.mock) {
   let Mock = require('mockjs')
   Vue.$mock = Vue.prototype.$mock = Mock
@@ -76,12 +80,11 @@ new Vue({
       }
     },
     created() {
-      if(!this.$store.state.admin.user) {
+      if(!this.$store.state.admin.user || this.$store.state.admin.user.userStatus === 'UNRegister') {
         this.$get('/jcss/api/wx/user/info.action').then(res=>{
-          if(res.userStatus === "UNRegister") {
+          this.$store.commit('admin/updateUser',res)
+          if(res.userStatus !== "created") {
             this.$router.push('auth')
-          }else if(res.userStatus === "created") {
-            this.$store.commit('admin/updateUser',res)
           }
         })
       }
