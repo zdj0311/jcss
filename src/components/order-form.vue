@@ -2,7 +2,7 @@
     <div class="form">
       <van-cell-group>
         <template v-for="(item,index) in table" v-if="item.exist==true">
-            <van-field v-if="item.picker==true" v-model="form[item.key_name]['text']" :label="item.title" placeholder="请选择" :error-message="item.message" @focus="showPicker(item)" readonly/>
+            <van-field v-if="item.picker==true" v-model="form[item.key_name]" :label="item.title" placeholder="请选择" :error-message="item.message" @focus="showPicker(item)" readonly/>
             <!-- <van-field v-if="item.key_name === 'planEndTime'" 
             v-model="form[item.key_name]['text']" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" @focus="showPicker" readonly/> -->
             <van-field v-else :readonly="item.readonly" :type="item.type?item.type:'input'" v-model="form[item.key_name]" :label="item.title" placeholder="请输入" :error-message="item.message" @blur="item.validate(form,table,index)"/>
@@ -18,7 +18,7 @@
 <script>
 import {getCustomerOrgDic,getBtDic,getCustomerDic,getUrgencyDic,getProjectDic,getProjectSubDic,getAssetType,getAssetsList,loadWorkflow,updateWorkflow,upload}
  from 'controller/order-create'
- import form from 'utils/form-all'
+//  import form from 'utils/form-all'
 export default {
   components: {},
   props: {
@@ -204,7 +204,7 @@ export default {
       },
       // picker 确定时触发
       confirm(v) {
-        this.form[this.keyName] = v;
+        this.form[this.keyName] = v.text;
         if(this.keyName=='customerOrgName'){
           getCustomerDic.bind(this)(v.code).then(res=>{
             this.customerDic = res

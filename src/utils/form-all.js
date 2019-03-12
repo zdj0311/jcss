@@ -571,76 +571,72 @@ function all(data,users){
         
     }
 }
-    form.initButton = function (workflowBean) {
-        var openType = workflowBean.openType_;
-    
-        var lastOperType = workflowBean.lastOperType_;
-    
-        var buttonJsonStr = workflowBean.buttonJsonStr;
-        if (buttonJsonStr == "") {
-            return;
-        }
-        var buttonJson = eval("(" + buttonJsonStr + ")");
-        var buttonHtml = [];
-        //<button class='btn dark' id='workflowSubmitBtn' type='button'>提交</button>
-        //加载待办按钮
-        //1 Submit
-        //2 Save
-        //3 Reject
-        //4 Move
-        //5 Goto
-        //6 Stop
-        //7 Suspend
-        //8 Resume
-        //1001 GetBack
-        if (openType == "TODO") {
-            var todoButtonList = buttonJson.todoSystemList;
-            if (typeof todoButtonList != "undefined") {
-                for (var i = 0; i < todoButtonList.length; i++) {
-                    if (todoButtonList[i].selected) {
-                        if("TODO" == openType){
-                            //当前是暂停状态，则允许回复和拿回
-                            if("SUSPEND" == lastOperType){
-                                if(todoButtonList[i].id == '8'){
-                                    buttonHtml.push("<button class='btn dark' id='workflowButtonId" + todoButtonList[i].id + "' type='button'>" + todoButtonList[i].name + "</button>");
-                                }
-                            } else{
-                                //允许提交，转单，暂停
-                                if(todoButtonList[i].id == '1'){
-                                    buttonHtml.push("<button class='btn dark' id='workflowButtonId" + todoButtonList[i].id + "' type='button'>" + todoButtonList[i].name + "</button>");
-                                } else  if(todoButtonList[i].id == '4'){
-                                    buttonHtml.push("<button class='btn dark' id='workflowButtonId" + todoButtonList[i].id + "' type='button'>" + todoButtonList[i].name + "</button>");
-                                } if(todoButtonList[i].id == '7'){
-                                    buttonHtml.push("<button class='btn dark' id='workflowButtonId" + todoButtonList[i].id + "' type='button'>" + todoButtonList[i].name + "</button>");
-                                }
-                            }
-                        } else if("CREATE" == openType){
-                            //创建只允许提交
-                            if(todoButtonList[i].id == '1'){
+form.initButton = function (workflowBean) {
+    var openType = workflowBean.openType_;
+    var lastOperType = workflowBean.lastOperType_;
+    var buttonJsonStr = workflowBean.buttonJsonStr;
+    if (buttonJsonStr == "") {
+        return;
+    }
+    var buttonJson = eval("(" + buttonJsonStr + ")");
+    var buttonHtml = [];
+    //<button class='btn dark' id='workflowSubmitBtn' type='button'>提交</button>
+    //加载待办按钮
+    //1 Submit
+    //2 Save
+    //3 Reject
+    //4 Move
+    //5 Goto
+    //6 Stop
+    //7 Suspend
+    //8 Resume
+    //1001 GetBack
+    if (openType == "TODO") {
+        var todoButtonList = buttonJson.todoSystemList;
+        if (typeof todoButtonList != "undefined") {
+            for (var i = 0; i < todoButtonList.length; i++) {
+                if (todoButtonList[i].selected) {
+                    if("TODO" == openType){
+                        //当前是暂停状态，则允许回复和拿回
+                        if("SUSPEND" == lastOperType){
+                            if(todoButtonList[i].id == '8'){
                                 buttonHtml.push("<button class='btn dark' id='workflowButtonId" + todoButtonList[i].id + "' type='button'>" + todoButtonList[i].name + "</button>");
                             }
-                        } else {
+                        } else{
+                            //允许提交，转单，暂停
+                            if(todoButtonList[i].id == '1'){
+                                buttonHtml.push("<button class='btn dark' id='workflowButtonId" + todoButtonList[i].id + "' type='button'>" + todoButtonList[i].name + "</button>");
+                            } else  if(todoButtonList[i].id == '4'){
+                                buttonHtml.push("<button class='btn dark' id='workflowButtonId" + todoButtonList[i].id + "' type='button'>" + todoButtonList[i].name + "</button>");
+                            } if(todoButtonList[i].id == '7'){
+                                buttonHtml.push("<button class='btn dark' id='workflowButtonId" + todoButtonList[i].id + "' type='button'>" + todoButtonList[i].name + "</button>");
+                            }
+                        }
+                    } else if("CREATE" == openType){
+                        //创建只允许提交
+                        if(todoButtonList[i].id == '1'){
                             buttonHtml.push("<button class='btn dark' id='workflowButtonId" + todoButtonList[i].id + "' type='button'>" + todoButtonList[i].name + "</button>");
                         }
-                    }
-    
-                }
-            }
-        }
-        //加载已办按钮
-        else if (openType == "DONE") {
-            var doneButtonList = buttonJson.haveSystemList;
-            if (typeof doneButtonList != "undefined") {
-                for (var i = 0; i < doneButtonList.length; i++) {
-                    if (doneButtonList[i].selected) {
-                        buttonHtml.push("<button class='btn dark' id='workflowButtonId" + doneButtonList[i].id + "' type='button'>" + doneButtonList[i].name + "</button>");
+                    } else {
+                        buttonHtml.push("<button class='btn dark' id='workflowButtonId" + todoButtonList[i].id + "' type='button'>" + todoButtonList[i].name + "</button>");
                     }
                 }
             }
         }
-        $("#workflowFormButton").html(buttonHtml.join(''));
-    
     }
+    //加载已办按钮
+    else if (openType == "DONE") {
+        var doneButtonList = buttonJson.haveSystemList;
+        if (typeof doneButtonList != "undefined") {
+            for (var i = 0; i < doneButtonList.length; i++) {
+                if (doneButtonList[i].selected) {
+                    buttonHtml.push("<button class='btn dark' id='workflowButtonId" + doneButtonList[i].id + "' type='button'>" + doneButtonList[i].name + "</button>");
+                }
+            }
+        }
+    }
+    $("#workflowFormButton").html(buttonHtml.join(''));
+}    
 
 form.showRoute = function (type) {
     // var workId = $("#workId").val();
@@ -662,27 +658,27 @@ form.showRoute = function (type) {
     form.type[type].show();
 }
 
-Zepto(function ($) {
-    $("#workflowFormButton").on('click','button',function(){
-        if($(this).attr('id')=='workflowButtonId1'){
-            form.showRoute("Submit");
-        }else if($(this).attr('id')=='workflowButtonId2'){
-            form.showRoute("Save");
-        }else if($(this).attr('id')=='workflowButtonId3'){
-            form.showRoute("Reject");
-        }else if($(this).attr('id')=='workflowButtonId4'){
-            form.showRoute("Move");     
-        }else if($(this).attr('id')=='workflowButtonId5'){
-            form.showRoute("Goto");    
-        }else if($(this).attr('id')=='workflowButtonId6'){
-            form.showRoute("Stop");    
-        }else if($(this).attr('id')=='workflowButtonId7'){
-            form.showRoute("Suspend");       
-        }else if($(this).attr('id')=='workflowButtonId8'){
-            form.showRoute("Resume");
-        }else if($(this).attr('id')=='workflowButtonId1001'){
-            form.showRoute("GetBack");   
-        }
-    }) 
-});
+// Zepto(function ($) {
+//     $("#workflowFormButton").on('click','button',function(){
+//         if($(this).attr('id')=='workflowButtonId1'){
+//             form.showRoute("Submit");
+//         }else if($(this).attr('id')=='workflowButtonId2'){
+//             form.showRoute("Save");
+//         }else if($(this).attr('id')=='workflowButtonId3'){
+//             form.showRoute("Reject");
+//         }else if($(this).attr('id')=='workflowButtonId4'){
+//             form.showRoute("Move");     
+//         }else if($(this).attr('id')=='workflowButtonId5'){
+//             form.showRoute("Goto");    
+//         }else if($(this).attr('id')=='workflowButtonId6'){
+//             form.showRoute("Stop");    
+//         }else if($(this).attr('id')=='workflowButtonId7'){
+//             form.showRoute("Suspend");       
+//         }else if($(this).attr('id')=='workflowButtonId8'){
+//             form.showRoute("Resume");
+//         }else if($(this).attr('id')=='workflowButtonId1001'){
+//             form.showRoute("GetBack");   
+//         }
+//     }) 
+// });
 export default form
