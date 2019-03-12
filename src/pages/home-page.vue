@@ -7,21 +7,22 @@
           <span class="head-icon icon"></span>
           <span class="head-font">快速创建工单</span>
         </div>
-        <div class="head-b">
-          <a href="createWork.html">
-            <span class="head-font">手动创建</span>
-            <span class="head-icon icon-arrow"></span>
-          </a>
-          </div>
+        <div class="head-b" @click="routerTo">
+          <span class="head-font">手动创建</span>
+          <span class="head-icon icon-arrow"></span>
+        </div>
       </div> 
       <van-swipe :autoplay="3000">
         <van-swipe-item v-for="(item, index) in assetsArray" :key="index">
-          <div class="l-list" v-for="(it, index) in item" :key="index">
+          <div class="l-list" v-for="(it, index) in item" :key="index" @click="createOrder">
             <span class="l-icon"><img :src="addHost(it.iconUrl)"/></span>
             <span class="l-f">{{it.assetsTypeName}}</span>                                
           </div>
         </van-swipe-item>
       </van-swipe> 
+      <van-dialog v-model="show" show-cancel-button :before-close="beforeClose">
+        wwwww
+      </van-dialog>
     </div>  
     <div class="create work">
       <div class="create-head" ref="create">
@@ -46,14 +47,14 @@
               <li>
                 <span class="ico d-ico"></span>
                 <div class="w-con">
-                  <span class="w-num">{{statisticsCount.UN_END}}</span>
+                  <span class="w-num">{{statisticsCount.TODO}}</span>
                   <span class="w-f">待办工单</span>
                 </div>
               </li>
               <li>
                 <span class="ico b-ico"></span>
                 <div class="w-con">
-                  <span class="w-num">{{statisticsCount.END}}</span>
+                  <span class="w-num">{{statisticsCount.DONE}}</span>
                   <span class="w-f">办理工单</span>
                 </div>
               </li>
@@ -66,6 +67,7 @@
 </template>
 
 <script> 
+  import { Dialog } from 'vant';
   export default {
     name: 'home_page',
     data() {
@@ -74,16 +76,15 @@
         statistics: [{name:'本日',value:'Day'},{name:'本周',value:'Week'},{name:'本月',value:'Month'}],
         active: 0,
         statisticsCount: {},
-        width: ''
+        show: false
       }
     },
     mounted() {
       this.getInfo();
       this.selectTab(this.active);
-      this.width == this.$refs.create.offsetWidth;
     },
     methods: {
-      getInfo: function() {
+      getInfo(){
         let _this = this;
         this.$get('jcss/api/wk/dic/assetsTypeList.action', {params: {customerId: _this.$store.state.admin.user.orgId}}).then(res=>{
           let copyArr =  res.slice(0,res.length)
@@ -99,6 +100,17 @@
         this.$get('jcss/api/wk/statistiscCount.action', {params: {dateType: dateType}}).then(res=>{
           _this.statisticsCount = res;
         })
+      },
+      routerTo() {
+        this.$router.push({
+          name: 'order_create'
+        })
+      },
+      createOrder(){
+        this.show = true;
+      },
+      beforeClose(){
+        alert(1)
       }
     }
   }

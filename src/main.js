@@ -14,6 +14,7 @@ import 'element-ui/lib/theme-chalk/index.css';
 import 'vant/lib/index.css'
 import store from 'store'
 import init from 'utils/init'
+import tool from 'utils/tool'
 
 Vue.config.productionTip = false
 Vue.use(Vant);
