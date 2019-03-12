@@ -13,9 +13,11 @@ import Evaluation from '@/pages/evaluation'
 import Auth from '@/pages/auth'
 import DailyLog from '@/pages/daily-log'
 import visualization from '@/pages/visualization'
+import proxy from 'config/proxy'
 Vue.use(Router)
 
 export default new Router({
+  base:proxy?'/jcss/jcss_app':'',
   routes: [
     {
       path:'*',

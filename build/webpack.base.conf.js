@@ -8,8 +8,6 @@ function resolve (dir) {
   return path.join(__dirname, '..', dir)
 }
 
-
-
 module.exports = {
   context: path.resolve(__dirname, '../'),
   entry: ["babel-polyfill", "./src/main.js"],
@@ -30,6 +28,7 @@ module.exports = {
       'assets':resolve('src/assets'),
       'components':resolve('src/components'),
       'store':resolve('src/store'),
+      'config':resolve('config'),
     }
   },
   module: {

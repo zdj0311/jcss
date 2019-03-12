@@ -1,42 +1,52 @@
 <template>
   <div class='visualization'>
-    <van-tabs v-model="active">
+    <van-tabs v-model="active" @change="change">
       <van-tab title="本日工单">
-        <div class="content" v-if="source.length>0">
-          <charts geom="pie" :source="source" @chart_tap="tap"></charts>
+        <div class="content" v-if="source[0].length>0">
+          <charts geom="pie" :source="source[0]" @chart_tap="tap"></charts>
           <header class="header">
             <div class="border-line"></div>
-            <span>资产分类</span>
+            <span>工单列表</span>
           </header>
-          <el-table class="table"
-            :data="tableData" size="mini"
-            border
-            style="width: 100%">
-            <el-table-column
-              prop="date"
-              label="日期"
-              width="80">
-            </el-table-column>
-            <el-table-column
-              prop="name"
-              label="姓名"
-              width="80">
-            </el-table-column>
-            <el-table-column
-              prop="address"
-              label="地址">
-            </el-table-column>
+          <el-table class="table" :data="tableData[0]" size="mini" border style="width: 100%">
+            <el-table-column prop="orgName" label="客户名称" width="80"></el-table-column>
+            <el-table-column prop="userName" label="姓名" width="80"></el-table-column>
+            <el-table-column prop="createUser" label="创建人"></el-table-column>
+            <el-table-column prop="resolveUser" label="处理人"></el-table-column>
           </el-table>
+          <el-pagination class="pagination" background layout="pager" :page-size="5" :total="10"></el-pagination>
         </div>
       </van-tab>
       <van-tab title="本周工单">
-        <div class="content">
-          <charts geom="pie" :source="source1"></charts>
+        <div class="content" v-if="source[1].length>0">
+          <charts geom="pie" :source="source[1]" @chart_tap="tap"></charts>
+          <header class="header">
+            <div class="border-line"></div>
+            <span>工单列表</span>
+          </header>
+          <el-table class="table" :data="tableData[1]" size="mini" border style="width: 100%">
+            <el-table-column prop="orgName" label="客户名称" width="80"></el-table-column>
+            <el-table-column prop="userName" label="姓名" width="80"></el-table-column>
+            <el-table-column prop="createUser" label="创建人"></el-table-column>
+            <el-table-column prop="resolveUser" label="处理人"></el-table-column>
+          </el-table>
+          <el-pagination class="pagination" background layout="pager" :page-size="5" :total="10"></el-pagination>
         </div>
       </van-tab>
       <van-tab title="本月工单">
-        <div class="content">
-          <charts geom="pie" :source="source2"></charts>
+        <div class="content" v-if="source[2].length>0">
+          <charts geom="pie" :source="source[2]" @chart_tap="tap"></charts>
+          <header class="header">
+            <div class="border-line"></div>
+            <span>工单列表</span>
+          </header>
+          <el-table class="table" :data="tableData[2]" size="mini" border style="width: 100%">
+            <el-table-column prop="orgName" label="客户名称" width="80"></el-table-column>
+            <el-table-column prop="userName" label="姓名" width="80"></el-table-column>
+            <el-table-column prop="createUser" label="创建人"></el-table-column>
+            <el-table-column prop="resolveUser" label="处理人"></el-table-column>
+          </el-table>
+          <el-pagination class="pagination" background layout="pager" :page-size="5" :total="10"></el-pagination>
         </div>
       </van-tab>
     </van-tabs>
@@ -51,83 +61,104 @@
     components: { charts },
     data() {
       return {
-        active:0,
-        source: [],
-        source1: [
-          { name: '李', x:'1', y: 0.1 },
-          { name: '王', x:'1', y: 0.1 },
-          { name: '夏侯', x:'1', y: 0.1 },
-          { name: '知乎', x:'1', y: 0.1 },
-          { name: '掘金', x:'1', y: 0.6 },
-        ],
-        source2: [
-          { name: '李', x:'1', y: 0.2 },
-          { name: '王', x:'1', y: 0.2 },
-          { name: '夏侯', x:'1', y: 0.4 },
-          { name: '知乎', x:'1', y: 0.1 },
-          { name: '掘金', x:'1', y: 0.1 },
-        ],
-        tableData: [{
-          date: '2016',
-          name: '王小虎',
-          address: '上海弄'
-        }, {
-          date: '2016',
-          name: '阿斯顿撒多',
-          address: '金沙江路'
-        }, {
-          date: '2016',
-          name: '王小虎',
-          address: '普陀区'
-        }, {
-          date: '2016',
-          name: '王小虎',
-          address: '上海市'
-        }]
+        active:0, // tab 触发
+        orderType:['Day','Week','Month'], // 工单类型
+        canTouch: true, // 是否可以点击饼图
+        sum: 0,
+        source: [[],[],[]], // 为方便后续扩展路由及切换不请求接口，做此结构
+        tableData: [[],[],[]],
       };
     },
     created() {
-      let promiseGetStatistic = 
-      // dateType = Week 本周，Month 本月，Day 本日
-      getStatistic.bind(this)({
-        dateType: 'Day',
-        mode: 'CREATE'
-      }).then(res=>{
-        
-      })
-      // modeList=CREATE,UN_END,END,OUTTIME
-      getStatisticCount.bind(this)({
+      // 初始化 table source 数据
+      this.getAll({
         modeList:'CREATE,UN_END,END,OUTTIME',
         dateType: 'Day',
-      }).then(res=>{
-        this.source = this.setSource(res.CREATE,res.END,res.UN_END,res.OUTTIME)
+      },{
+        dateType: 'Day',
+        mode: 'CREATE'
       })
     },
     methods: {
-      getStatistic() {
-        console.log(111)
+      // 返回 Promise 获取工单列表
+      getStatistic(params) {
+        return getStatistic.bind(this)(params)
       },
-      getStatisticCount() {
-        
+      // 返回 Promise 获取工单数量
+      getStatisticCount(params) {
+        return getStatisticCount.bind(this)(params)
       },
-      setSource(create,un_end,end,outtime) {
+      // 封装 获取数量和列表 设置 source 及 table 的值
+      getAll(countParams,params) {
+        // dateType = Week 本周，Month 本月，Day 本日
+        let promiseGetStatistic = this.getStatistic(params)
+        // modeList=CREATE,UN_END,END,OUTTIME
+        let promisegetStatisticCount = this.getStatisticCount(countParams)
+        Promise.all([promiseGetStatistic,promisegetStatisticCount]).then(res=>{
+          this.source[this.active] = this.setSource(res[1].CREATE,res[1].END,res[1].UN_END,res[1].OUTTIME)
+          this.$set(this.source,this.active,this.setSource(res[1].CREATE,res[1].END,res[1].UN_END,res[1].OUTTIME))
+          this.setTable(res[0].data)
+        })
+      },
+      // 设置 table 格式
+      setTable(arr) {
+        let newArr = []
+        if(arr&&arr.length>0) {
+            arr.forEach((item,index)=>{
+              newArr.push({
+                orgName:item.customerOrgName,
+                userName:item.assetTypeName,
+                createUser:item.appUserName,
+                resolveUser:item.customerName,
+              })
+            })
+          this.tableData[this.active] = newArr
+          this.$set(this.tableData,this.active,newArr)
+        }
+      },
+      // 设置 source 格式
+      setSource(create,end,un_end,outtime) {
         let source = null
         let sum = create + un_end + end + outtime
+        if(sum === 0) source = []
         source = [{
-            name: '新建 ' + create, x:'1', y: create / sum, value:'create'
+            name: '新建 ' + create, x:'1', y: create / sum, value:'CREATE',count:create
         },{
-            name: '完成 ' + end, x:'1', y: end / sum, value:'end'
+            name: '完成 ' + end, x:'1', y: end / sum, value:'END',count:end
         },{
-            name: '未完成 ' + un_end, x:'1', y: un_end / sum, value:'un_end'
+            name: '未完成 ' + un_end, x:'1', y: un_end / sum, value:'UN_END',count:un_end
         },{
-            name: '超时 ' + outtime, x:'1', y: outtime / sum, value:'outtime'
+            name: '超时 ' + outtime, x:'1', y: outtime / sum, value:'OUTTIME',count:outtime
         }]
         return source
       },
+      // tab 切换事件
+      change(i) {
+        this.getAll({
+          modeList:'CREATE,UN_END,END,OUTTIME',
+          dateType: this.orderType[this.active],
+        },{
+          dateType: this.orderType[this.active],
+          mode: 'CREATE'
+        })
+      },
+      // 饼图点击事件
       tap(v) {
-        if(v._origin && v._origin.value) {
-          this.getStatistic()
+        if(v && v._origin) {
+          if(this.canTouch) {
+            this.canTouch = false
+            this.getStatistic({
+              dateType: this.orderType[this.active],
+              mode: v._origin.value
+            }).then(res=>{
+              console.log(res.data)
+              // customerOrgName assetTypeName appUserName nowUserValue@desc[Array]
+              this.canTouch = true
+              this.setTable(res.data)
+            })
+          }
         }
+        
       }
     }
   }
@@ -155,6 +186,10 @@
     }
     .van-tabs__line {
       background:#5889e6;
+    }
+    .pagination {
+      text-align: center;
+      margin-top:1rem;
     }
   }
 </style>

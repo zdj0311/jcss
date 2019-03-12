@@ -1,12 +1,14 @@
 import Vue from 'vue' 
 import axios from 'axios'
 import errorMessage from 'utils/error-message'
+import config from 'config'
 
 Vue.$axios = Vue.prototype.$axios = axios
 
 function axiosGet(url,data) {
+  console.log(config)
   return new Promise((resolve,reject)=>{
-    Vue.$axios.get(url,data).then(res=>{
+    Vue.$axios.get(config.hostname + url,data).then(res=>{
       if(res.data.code === '000000') {
         resolve(res.data.data)
       }else {
@@ -20,7 +22,7 @@ function axiosGet(url,data) {
 }
 function axiosPost(url, data) {
   return new Promise((resolve, reject) => {
-    Vue.$axios.post(url, data).then(res => {
+    Vue.$axios.post(config.hostname + url, data).then(res => {
       if(res.data.code === '000000') {
         resolve(res.data.data)
       } else {
