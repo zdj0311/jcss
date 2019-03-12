@@ -1,12 +1,11 @@
 <template>
   <div class="charts">
-    <canvas ref="myChart" :width="width" :height="height"></canvas>
+    <canvas ref="myChart" :width="width" :height="height" @click="tap"></canvas>
   </div>
 </template>
 
 <script>
   import F2 from '@antv/f2'
-  
   const config = [
     'padding',
     'animate'
@@ -53,13 +52,14 @@
 
     data() {
       return {
-        
+        chart:null
       };
     },
     
     mounted() {
       // 饼图 
       if(this.geom === 'pie') {
+        let geomtryPie = null
         jcharts = this.$refs.myChart
         let merge = {
           id: jcharts,
@@ -91,7 +91,7 @@
         });
         chart.axis(false);
         // Step 3：创建图形语法，绘制柱状图，由 genre 和 sold 两个属性决定图形位置，genre 映射至 x 轴，sold 映射至 y 轴
-        chart.interval().position('x*y').color('name', ['#1890FF', '#13C2C2', '#2FC25B', '#FACC14', '#F04864', '#8543E0']).adjust('stack').style({
+        geomtryPie = chart.interval().position('x*y').color('name', ['#1890FF', '#13C2C2', '#2FC25B', '#FACC14', '#F04864', '#8543E0']).adjust('stack').style({
           lineWidth: 1,
           stroke: '#fff',
           lineJoin: 'round',
@@ -104,6 +104,7 @@
         });
         // Step 4: 渲染图表
         chart.render();
+        this.chart = chart
       }else { // 柱图 折线图
         jcharts = this.$refs.myChart
         let merge = {
@@ -128,7 +129,10 @@
     },
 
     methods: {
-      
+      tap(event) {
+        let tapArea = this.chart.getSnapRecords({x:event.layerX,y:event.layerY})[0]
+        this.$emit('chart_tap',tapArea)
+      }
     }
   }
 

@@ -20,8 +20,8 @@
     </header>
     <van-cell-group>
       <template v-for="(item,index) in table">
-        <van-field v-if="item.key_name === 'dutyValue'" v-model="form[item.key_name]['text']" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" @focus="showPicker" readonly/>
-        <van-field v-else v-model="form[item.key_name]" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" @blur="item.validate(index)"/>
+        <van-field v-if="item.key_name === 'dutyValue'" v-model="form[item.key_name]&&form[item.key_name]['text']" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" :readonly="item.readonly" @focus="showPicker" />
+        <van-field v-else v-model="form[item.key_name]" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" @blur="!item.readonly?item.validate(index):''" :readonly="item.readonly" />
       </template>
       <!--<van-field v-model="form.userName" label="姓名" placeholder="请输入姓名" error-message="" @blur="validateUserName(form.userName)"/>
       <van-field v-model="form.mobile" label="联系电话" placeholder="请输入联系电话" error-message="" @blur="validateMobile(form.mobile)"/>
@@ -35,8 +35,8 @@
     <!-- 未注册 -->
     <van-button v-if="user.userStatus === 'UNRegister'" class="submit-btn" size="large" @click="submit">认证</van-button>
     <!-- 注册失败 -->
-    <van-button v-if="user.userStatus === 'deny'" class="submit-btn" size="large">重新认证</van-button>
-    <!-- 审核 -->
+    <van-button v-if="user.userStatus === 'deny'" class="submit-btn" size="large" @click="submit">重新认证</van-button>
+    <!-- 审核 user.userStatus === 'register'-->
     <van-button v-if="user.userStatus === 'register'" disabled class="submit-btn" size="large">努力认证中，请您稍等...</van-button>
   </div>
 </template>
@@ -66,69 +66,92 @@
           title:'客户名称',
           placeholder:'请输入客户名称',
           message:'',
-          validate:this.validateEmpty
+          validate:this.validateEmpty,
+          readonly:false
         },{
           key_name:'userName',
           value:'',
           title:'姓名',
           placeholder:'请输入姓名',
           message:'',
-          validate:this.validateEmpty
+          validate:this.validateEmpty,
+          readonly:false
         },{
           key_name:'mobile',
           value:'',
           title:'联系电话',
           placeholder:'请输入联系电话',
           message:'',
-          validate:this.validateEmpty
+          validate:this.validateEmpty,
+          readonly:false
         },{
           key_name:'roomNo',
           value:'',
           title:'房间号',
           placeholder:'请输入房间号',
           message:'',
-          validate:this.validateEmpty
+          validate:this.validateEmpty,
+          readonly:false
         },{
           key_name:'dutyValue',
           value:'',
           title:'职务',
           placeholder:'请输入职务',
           message:'',
-          validate:this.validateEmpty
+          validate:this.validateEmpty,
+          readonly:true
         },{
           key_name:'cardNo',
           value:'',
           title:'身份证号',
           placeholder:'请输入身份证号',
           message:'',
-          validate:this.validateCardNo
+          validate:this.validateCardNo,
+          readonly:false
         }]
       }
     },
     created() {
+      // 获取职务字典项 dutyId
       getPostDic.bind(this)('dutyId').then(res=>{
         this.postDic = res
       })
-      this.initForm()
+      this.initForm({
+        orgName:this.user.orgName,
+        userName:this.user.userName,
+        mobile:this.user.mobile,
+        roomNo:this.user.roomNo,
+        dutyValue:this.user.dutyValue,
+        cardNo:this.user.cardNo
+      })
+      this.readonlyTable()
     },
     methods: {
       initForm(form) {
-        this.form = form?form:{
-          orgName:'',
-          userName:'',
-          mobile:'',
-          roomNo:'',
-          dutyValue:'',
-          cardNo:''
-        }
+        this.form = form
+        // 初始化校验数组，长度为form-item条数
         for(let item in this.form) {
           this.check.push(false)
         }
       },
+      // 将整个form置为readonly
+      readonlyTable() {
+        if(this.userStatus === 'register') {
+            this.table.forEach(item=>{
+            item.readonly = true
+          })
+        }
+      },
+      // 提交表单
       submit() {
         let result = true
         this.check.forEach((item,index)=>{
           if(item === false) {
+            if(index === 5) {
+              this.validateCardNo(index)
+            }else {
+              this.validateEmpty(index)
+            }
             result = false
           }
         })
@@ -140,7 +163,11 @@
       },
       // 显示 picker
       showPicker() {
-        this.show = true
+        if(this.userStatus === 'register') {
+            this.show = false
+        }else {
+          this.show = true
+        }
       },
       // 获取picker值
       onChange(v) {
@@ -157,24 +184,7 @@
         this.show = false
         this.validateEmpty(4)
       },
-      validateOrgName(v) {
-        
-      },
-      validateUserName(v) {
-        
-      },
-      validateMobile(v) {
-        
-      },
-      validateRoomNo(v) {
-        
-      },
-      validateDutyValue(v) {
-        
-      },
-      validateCardNo(v) {
-        
-      },
+      // 校验非空
       validateEmpty(index) {
         let item = this.table[index]
         if(!this.form[item.key_name]) {
@@ -185,6 +195,7 @@
           this.setCheck(index,true)
         }
       },
+      // 校验身份证号
       validateCardNo(index) {
         let item = this.table[index]
         if(!this.form[item.key_name]) {
@@ -198,6 +209,7 @@
           this.setCheck(index,true)
         }
       },
+      // 判断当前校验项是否通过
       setCheck(index,val) {
         this.check[index] = val
       }

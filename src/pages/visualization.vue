@@ -2,8 +2,8 @@
   <div class='visualization'>
     <van-tabs v-model="active">
       <van-tab title="本日工单">
-        <div class="content">
-          <charts geom="pie" :source="source"></charts>
+        <div class="content" v-if="source.length>0">
+          <charts geom="pie" :source="source" @chart_tap="tap"></charts>
           <header class="header">
             <div class="border-line"></div>
             <span>资产分类</span>
@@ -45,19 +45,14 @@
 
 <script>
   import charts from 'components/charts'
+  import { getStatistic,getStatisticCount } from 'controller/visualization' // 职务列表
   export default {
     name: 'visualization',
     components: { charts },
     data() {
       return {
         active:0,
-        source: [
-          { name: '李', x:'1', y: 0.2 },
-          { name: '王', x:'1', y: 0.2 },
-          { name: '夏侯', x:'1', y: 0.2 },
-          { name: '知乎', x:'1', y: 0.2 },
-          { name: '掘金', x:'1', y: 0.2 },
-        ],
+        source: [],
         source1: [
           { name: '李', x:'1', y: 0.1 },
           { name: '王', x:'1', y: 0.1 },
@@ -91,17 +86,50 @@
         }]
       };
     },
-    computed: {},
-    watch: {},
-    methods: {
-
-    },
     created() {
-
+      let promiseGetStatistic = 
+      // dateType = Week 本周，Month 本月，Day 本日
+      getStatistic.bind(this)({
+        dateType: 'Day',
+        mode: 'CREATE'
+      }).then(res=>{
+        
+      })
+      // modeList=CREATE,UN_END,END,OUTTIME
+      getStatisticCount.bind(this)({
+        modeList:'CREATE,UN_END,END,OUTTIME',
+        dateType: 'Day',
+      }).then(res=>{
+        this.source = this.setSource(res.CREATE,res.END,res.UN_END,res.OUTTIME)
+      })
     },
-    mounted() {
-
-    },
+    methods: {
+      getStatistic() {
+        console.log(111)
+      },
+      getStatisticCount() {
+        
+      },
+      setSource(create,un_end,end,outtime) {
+        let source = null
+        let sum = create + un_end + end + outtime
+        source = [{
+            name: '新建 ' + create, x:'1', y: create / sum, value:'create'
+        },{
+            name: '完成 ' + end, x:'1', y: end / sum, value:'end'
+        },{
+            name: '未完成 ' + un_end, x:'1', y: un_end / sum, value:'un_end'
+        },{
+            name: '超时 ' + outtime, x:'1', y: outtime / sum, value:'outtime'
+        }]
+        return source
+      },
+      tap(v) {
+        if(v._origin && v._origin.value) {
+          this.getStatistic()
+        }
+      }
+    }
   }
 </script>
 <style lang='scss'>
