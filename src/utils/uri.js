@@ -4,6 +4,7 @@ export default{
   bindUser:'jcss/api/wx/user/maintain.action', // 绑定用户
   getStatisticCount:'jcss/api/wk/statistiscCount.action', // 获取工单数量
   getStatistic:'jcss/api/wk/statistisc.action', // 获取饼状统计图、工单列表
+  statistiscByPage:'jcss/api/wk/statistiscByPage.action', // 获取分页饼状统计图、工单列表
   getCustomerOrgDic:'jcss/api/wk/dic/customerDicList.action', // 获取客户名称字典列表
   getCustomerDic:'jcss/api/jcdept/getCustomerDeptAndUser.action', // 获取客户负责人字典列表
   getBtDic:'jcss/api/wk/dic/btDicList.action', // 获取工单类型字典列表

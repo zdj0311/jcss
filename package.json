@@ -6,6 +6,7 @@
   "private": true,
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
+    "proxy": "webpack-dev-server --inline --progress --config build/webpack.proxy.conf.js",
     "start": "npm run dev",
     "build": "node build/build.js & gulp"
   },

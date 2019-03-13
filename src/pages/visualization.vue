@@ -14,7 +14,7 @@
             <el-table-column prop="createUser" label="创建人"></el-table-column>
             <el-table-column prop="resolveUser" label="处理人"></el-table-column>
           </el-table>
-          <el-pagination class="pagination" background layout="pager" :page-size="5" :total="10"></el-pagination>
+          <el-pagination @current-change="changePage" :current-page.sync="currentPage" class="pagination" background layout="pager" :page-size="count" :total="total"></el-pagination>
         </div>
       </van-tab>
       <van-tab title="本周工单">
@@ -30,7 +30,7 @@
             <el-table-column prop="createUser" label="创建人"></el-table-column>
             <el-table-column prop="resolveUser" label="处理人"></el-table-column>
           </el-table>
-          <el-pagination class="pagination" background layout="pager" :page-size="5" :total="10"></el-pagination>
+          <el-pagination @current-change="changePage" :current-page.sync="currentPage" class="pagination" background layout="pager" :page-size="count" :total="total"></el-pagination>
         </div>
       </van-tab>
       <van-tab title="本月工单">
@@ -46,7 +46,7 @@
             <el-table-column prop="createUser" label="创建人"></el-table-column>
             <el-table-column prop="resolveUser" label="处理人"></el-table-column>
           </el-table>
-          <el-pagination class="pagination" background layout="pager" :page-size="5" :total="10"></el-pagination>
+          <el-pagination @current-change="changePage" :current-page.sync="currentPage" class="pagination" background layout="pager" :page-size="count" :total="total"></el-pagination>
         </div>
       </van-tab>
     </van-tabs>
@@ -62,11 +62,15 @@
     data() {
       return {
         active:0, // tab 触发
+        currentPie:null,
+        currentPage:0,
         orderType:['Day','Week','Month'], // 工单类型
         canTouch: true, // 是否可以点击饼图
         sum: 0,
         source: [[],[],[]], // 为方便后续扩展路由及切换不请求接口，做此结构
         tableData: [[],[],[]],
+        count:5,
+        total:0,
       };
     },
     created() {
@@ -76,7 +80,9 @@
         dateType: 'Day',
       },{
         dateType: 'Day',
-        mode: 'CREATE'
+        mode: 'CREATE',
+        pageRows:this.count,
+        page:0
       })
     },
     methods: {
@@ -97,14 +103,16 @@
         Promise.all([promiseGetStatistic,promisegetStatisticCount]).then(res=>{
           this.source[this.active] = this.setSource(res[1].CREATE,res[1].END,res[1].UN_END,res[1].OUTTIME)
           this.$set(this.source,this.active,this.setSource(res[1].CREATE,res[1].END,res[1].UN_END,res[1].OUTTIME))
-          this.setTable(res[0].data)
+          this.setTable(res[0])
+          this.currentPie = 'CREATE'
+          this.currentPage = 0
         })
       },
       // 设置 table 格式
-      setTable(arr) {
+      setTable(res) {
         let newArr = []
-        if(arr&&arr.length>0) {
-            arr.forEach((item,index)=>{
+        if(res.data&&res.data.length>0) {
+            res.data.forEach((item,index)=>{
               newArr.push({
                 orgName:item.customerOrgName,
                 userName:item.assetTypeName,
@@ -114,13 +122,13 @@
             })
           this.tableData[this.active] = newArr
           this.$set(this.tableData,this.active,newArr)
+          this.total = res.totalCount
         }
       },
       // 设置 source 格式
       setSource(create,end,un_end,outtime) {
         let source = null
         let sum = create + un_end + end + outtime
-        if(sum === 0) source = []
         source = [{
             name: '新建 ' + create, x:'1', y: create / sum, value:'CREATE',count:create
         },{
@@ -130,6 +138,7 @@
         },{
             name: '超时 ' + outtime, x:'1', y: outtime / sum, value:'OUTTIME',count:outtime
         }]
+        if(sum === 0) source = []
         return source
       },
       // tab 切换事件
@@ -139,7 +148,9 @@
           dateType: this.orderType[this.active],
         },{
           dateType: this.orderType[this.active],
-          mode: 'CREATE'
+          mode: 'CREATE',
+          pageRows:this.count,
+          page:0
         })
       },
       // 饼图点击事件
@@ -149,16 +160,31 @@
             this.canTouch = false
             this.getStatistic({
               dateType: this.orderType[this.active],
-              mode: v._origin.value
+              mode: v._origin.value,
+              pageRows:this.count,
+              page:0
             }).then(res=>{
-              console.log(res.data)
+              this.currentPie = v._origin.value
               // customerOrgName assetTypeName appUserName nowUserValue@desc[Array]
               this.canTouch = true
-              this.setTable(res.data)
+              this.setTable(res)
+              this.currentPage = 0
             })
           }
         }
-        
+      },
+      changePage(i) {
+        this.getStatistic({
+          dateType: this.orderType[this.active],
+            mode: this.currentPie,
+            pageRows:this.count,
+            page:i-1
+          }).then(res=>{
+            this.currentPage = i
+            console.log(res.data)
+            // customerOrgName assetTypeName appUserName nowUserValue@desc[Array]
+            this.setTable(res)
+          })
       }
     }
   }

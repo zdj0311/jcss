@@ -5,7 +5,7 @@ import uri from 'utils/uri'
  * */
 function getStatistic(params) {
   return new Promise((resolve,reject)=>{
-    this.$get(uri.getStatistic,{params:params}).then(res=>{
+    this.$get(uri.statistiscByPage,{params:params}).then(res=>{
       resolve(makeData(res))
     })
     .catch(err=>{

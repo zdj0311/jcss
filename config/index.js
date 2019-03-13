@@ -1,64 +1,65 @@
 'use strict'
 // Template version: 1.3.1
 // see http://vuejs-templates.github.io/webpack for documentation.
-const proxy = require('./proxy')
 const path = require('path')
-const hostname = proxy ? 'http://www.jiachengnet.com/':''
+var hostname = null
+var route_proxy = false
+if(process.env.NODE_ENV === 'proxy') {
+  hostname = 'http://www.jiachengnet.com/'
+  route_proxy = true
+}else {
+  hostname = ''
+}
 
-var dev = {
-    hostname:hostname,
+module.exports = {
+  hostname:hostname,
+  route_proxy:route_proxy,
+  proxy: {
+    assetsSubDirectory: 'static',
+    assetsPublicPath: '/jcss/jcss_app/',
+    proxyTable: {
+    },
+    host: '0.0.0.0', // can be overwritten by process.env.HOST
+    port: 8081, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
+    autoOpenBrowser: false,
+    errorOverlay: true,
+    notifyOnErrors: true,
+    poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
+    mock: false,
+    devtool: 'cheap-module-eval-source-map',
+    cacheBusting: true,
+    cssSourceMap: true
+  },
+  dev: {
     // Paths
     assetsSubDirectory: 'static',
-    assetsPublicPath: '/',
+    assetsPublicPath: '',
     proxyTable: {
       '/': {
         target: 'http://192.168.200.50:8080', //目标接口域名
         changeOrigin: true, //是否跨域
       }
     },
-    
     // Various Dev Server settings
     host: '0.0.0.0', // can be overwritten by process.env.HOST
-    port: 8081, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
+    port: 8082, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: false,
     errorOverlay: true,
     notifyOnErrors: true,
     poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
     mock: false,
-    
     /**
      * Source Maps
      */
 
     // https://webpack.js.org/configuration/devtool/#development
     devtool: 'cheap-module-eval-source-map',
-
     // If you have problems debugging vue-files in devtools,
     // set this to false - it *may* help
     // https://vue-loader.vuejs.org/en/options.html#cachebusting
     cacheBusting: true,
-
     cssSourceMap: true
-  }
-  var proxyConfig = {
-    hostname:hostname,
-    assetsSubDirectory: 'static',
-    assetsPublicPath: '/jcss/jcss_app/',
-    host: '0.0.0.0', // can be overwritten by process.env.HOST
-    port: 8081, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
-    autoOpenBrowser: false,
-    errorOverlay: true,
-    notifyOnErrors: true,
-    poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
-    mock: false,
-    devtool: 'cheap-module-eval-source-map',
-    cacheBusting: true,
-    cssSourceMap: true
-  }
-  
-module.exports = {
-  hostname:hostname,
-  dev:proxy?proxyConfig:dev,
+  },
   build: {
     hostname:hostname,
     // Template for index.html
