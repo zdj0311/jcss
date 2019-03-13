@@ -560,16 +560,14 @@ form.showAll = function(data,user){
     return user;
 }
 function all(data,users){
-    for (var i=0;i<data.length;i++) {
-        if(data[i].subDept){
-            all(data[i].subDept,users)
+    data.forEach(function(v,k){
+        if(v.subDept){
+            all(v.subDept,users)
         }
-        
-        for(var j=0;j<data[i]['user'].length;j++){
-            users.push(data[i]['user'][j]);
-        }
-        
-    }
+        v.user.forEach(function(j){
+            users.push(j);
+        })
+    })
 }
 form.initButton = function (workflowBean) {
     var openType = workflowBean.openType_;
@@ -635,6 +633,7 @@ form.initButton = function (workflowBean) {
             }
         }
     }
+    console.log($("#workflowFormButton"))
     $("#workflowFormButton").html(buttonHtml.join(''));
 }    
 

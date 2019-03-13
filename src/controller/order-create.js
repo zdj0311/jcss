@@ -1,4 +1,8 @@
 import uri from 'utils/uri'
+import Vue from 'vue'
+import axios from 'axios'
+
+Vue.$axios = Vue.prototype.$axios = axios
 
 /**
  * @desc 获取客户名称
@@ -35,8 +39,8 @@ function getBtDic() {
 function getCustomerDic(nowCustomerOrgId) {
   return new Promise((resolve,reject)=>{
     let data = {nowCustomerOrgId:nowCustomerOrgId}
-    this.$get(uri.getCustomerDic,{params:data}).then(res=>{
-      resolve(makeData(res))
+    Vue.$axios.get(uri.getCustomerDic,data).then(res=>{
+      resolve(res.data)
     })
     .catch(err=>{
       reject(err)
@@ -122,7 +126,7 @@ function makeData(res,pro) {
 function getAssetType(customerId) {
   return new Promise((resolve,reject)=>{
     let data = {customerId:customerId}
-    this.$get(uri.getAssetType,data).then(res=>{
+    this.$get(uri.getAssetType,{params:data}).then(res=>{
       resolve(res)
     })
     .catch(err=>{
@@ -138,7 +142,23 @@ function getAssetType(customerId) {
 function getAssetsList(customerId,assetsTypeId) {
   return new Promise((resolve,reject)=>{
     let data = {customerId:customerId,assetsTypeId:assetsTypeId}
-    this.$get(uri.getAssetsList,data).then(res=>{
+    this.$get(uri.getAssetsList,{params:data}).then(res=>{
+      resolve(res)
+    })
+    .catch(err=>{
+      reject(err)
+    })
+  })
+}
+
+/**
+ * @desc 开始创建工作流
+ * @params
+ */
+function startWorkflow(customerOrg,busiTypeCode) {
+  return new Promise((resolve,reject)=>{
+    let data = {customerOrg:customerOrg,busiTypeCode:busiTypeCode}
+    this.$get(uri.startWorkflow,{params:data}).then(res=>{
       resolve(res)
     })
     .catch(err=>{
@@ -209,7 +229,7 @@ function upload(formData) {
 }
 
 export {
-  getCustomerOrgDic,getBtDic,getCustomerDic,getUrgencyDic,getProjectDic,getProjectSubDic,getAssetType,getAssetsList,loadWorkflow,updateWorkflow,upload
+  getCustomerOrgDic,getBtDic,getCustomerDic,getUrgencyDic,getProjectDic,getProjectSubDic,getAssetType,getAssetsList,startWorkflow,loadWorkflow,updateWorkflow,upload
 }
 
 

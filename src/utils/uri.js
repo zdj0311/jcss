@@ -14,6 +14,7 @@ export default{
   upload:'jcss/api/wx/attach/upload.action', // 上传
   getAssetType:'jcss/api/wk/dic/assetsTypeList.action', // 获取资产列表
   getAssetsList:'jcss/api/wk/dic/assetsList.action', // 获取子资产列表
+  startWorkflow:'jcss/api/wk/startWorkflow.action', // 开始创建工作流
   saveWorkflow:'jcss/api/wk/saveWorkflow.action', // 保存工单
   loadWorkflow:'jcss/api/wk/loadWorkflow.action', // 获取工单
   updateWorkflow:'jcss/api/wk/updateWorkflow.action', // 修改工单
