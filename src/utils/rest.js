@@ -33,5 +33,23 @@ function axiosPost(url, data) {
     })
   })
 }
+
+function axiosUpload(url, data) {
+  return new Promise((resolve, reject) => {
+    Vue.$axios({
+        method:"post",
+        url:config.hostname + url,
+        data:data,
+        cache: false,
+        contentType: false,
+        processData: false,
+        dataType: "json",
+        mimeType:"multipart/form-data",  
+    }).then(res => {
+       resolve(res.data)
+    })
+  })
+}
 Vue.$get = Vue.prototype.$get = axiosGet
 Vue.$post = Vue.prototype.$post = axiosPost
+Vue.$postUpload = Vue.prototype.$postUpload = axiosUpload

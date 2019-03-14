@@ -14,14 +14,36 @@
       </div> 
       <van-swipe :autoplay="3000">
         <van-swipe-item v-for="(item, index) in assetsArray" :key="index">
-          <div class="l-list" v-for="(it, index) in item" :key="index" @click="createOrder">
+          <div class="l-list" v-for="(it, index) in item" :key="index" @click="createOrder(it)">
             <span class="l-icon"><img :src="addHost(it.iconUrl)"/></span>
             <span class="l-f">{{it.assetsTypeName}}</span>                                
           </div>
         </van-swipe-item>
       </van-swipe> 
       <van-dialog v-model="show" show-cancel-button :before-close="beforeClose">
-        wwwww
+        <div class="model">
+          <div class="model-header" v-if="form.assets">
+            <span class="l-icon"><img :src="addHost(form.assets.iconUrl)"/></span>
+            <span class="l-f">{{form.assets.assetsTypeName}}</span>   
+          </div>
+          <div class="model-content">
+            <h2 class="downNode">下一节点</h2>
+              <ul class="nextNode">
+                <li v-for="(item,index) in nextNodesList" :key="index" @click="toSelectUser()">
+                  <input v-if="curNode.choice=='single'" type='radio' v-model='selectNodes' :value='item.componentId'/>
+                  <input v-else type='checkbox' v-model='selectNodes' :value='item.componentId'/>
+                  <span>{{item.name}}</span>
+                </li>        
+              </ul>
+              <ul class="nextUser clearfix">
+                <li v-for="(item,index) in chooseUser" :key="index">
+                  <input v-if="chooseUser.choice=='single'" v-model="selectUsers" class="users" type="radio" :value='item.id'>
+                  <input v-else v-model="selectUsers" class="users" type="checkbox" :value='item.id'>
+                  <span>{{item.displayName}}</span>
+                </li>
+              </ul>
+          </div>
+        </div>
       </van-dialog>
     </div>  
     <div class="create work">
@@ -68,6 +90,9 @@
 
 <script> 
   import { Dialog } from 'vant';
+  import tool from 'utils/tool'
+  import {getCustomerDic,startWorkflow,saveWorkflow} from 'controller/order-create'
+  import form from 'utils/form-all'
   export default {
     name: 'home_page',
     data() {
@@ -76,7 +101,13 @@
         statistics: [{name:'本日',value:'Day'},{name:'本周',value:'Week'},{name:'本月',value:'Month'}],
         active: 0,
         statisticsCount: {},
-        show: false
+        show: false,
+        form: {},
+        nextNodesList:[],
+        curNode:{},
+        selectNodes:'',
+        chooseUser:[],
+        selectUsers:[]
       }
     },
     mounted() {
@@ -106,11 +137,121 @@
           name: 'order_create'
         })
       },
-      createOrder(){
-        this.show = true;
+      createOrder(it){
+        this.form.assets = it;
+        startWorkflow.bind(this)(this.$store.state.admin.user.orgId,'FW').then(res=>{
+          this.form.curNodeId_ = res.workflowBean.curNodeId_;
+          this.form.definitionId_ = res.workflowBean.definitionId_;
+          this.form.wUserType = res.wUserType;
+          tool.getNextNode.bind(this)().then(res=>{
+            this.nextNodesList = res.nextNodesList;
+            this.curNode = res.curNode;
+            this.selectNodes = res.nextNodesList[0].componentId;  
+            this.show = true;
+            this.toSelectUser();
+          })
+        })
       },
-      beforeClose(){
-        alert(1)
+      // 选人
+      toSelectUser(){
+        let nextNodeId = this.selectNodes;
+        let _this = this;
+        this.nextNodesList.forEach(function(v){
+          if (v.componentId == nextNodeId) {
+            let confirmSequences = "";
+            v.channel.forEach(function(item) {
+              if(confirmSequences == "") {
+                confirmSequences = item.sequenceId;
+              }else{
+                confirmSequences += "&" + item.sequenceId;
+              }
+            })
+            _this.form.confirmNodeId_ = nextNodeId;
+            _this.form.confirmRouteId_ = confirmSequences;
+            if(v.type == "end") {
+              return;
+            }
+            if (v.userType == "2") {
+              if (v.assignees.length != 0) {
+                _this.chooseUser = v.assignees;
+                _this.chooseUser.choice = 'multiple'
+              }
+            }
+            //配置人员为空,显示人员选择
+            if(v.assignees.length == 0) {
+              _this.getAllUser(v);    
+            }else{
+              let assignees = v.assignees;
+              let assigneesIds = "", assigneesNames = "";
+              assigness.forEach(function(k){
+                if(assigneesIds!= ""){
+                  if (k.oldName!= null) {
+                    assigneesIds+= "," + k.oldId;
+                    assigneesNames+=",(" + k.oldName + ")委托给(" + k.name + ")";
+                  } else {
+                    assigneesIds += "," + k.id;
+                    assigneesNames += "," + k.name;
+                  }
+                }else{
+                  if (k.oldName != null) {
+                    assigneesIds = k.oldId;
+                    assigneesNames += "(" + k.oldName + ")委托给(" + k.name + ")";
+                  } else {
+                    assigneesIds = k.id;
+                    assigneesNames += k.name;
+                  }
+                }
+                _this.selectUsers = assigneesIds;
+              })
+            } 
+          }
+        })
+      },
+      // 获取所有人
+      getAllUser(nextNodesList){
+        getCustomerDic.bind(this)().then(res=>{
+          let user = [];
+          let assignees = form.showAll(res,user); 
+          //单一签核(人员树单选)
+          if (nextNodesList.dealType == 4) {
+            this.chooseUser = assignees;
+            this.chooseUser.choice = 'single'
+          }
+          //多人处理及多人单一签核(人员树多选)
+          else {
+            this.chooseUser = assignees;
+            this.chooseUser.choice = 'multiple'
+          }
+          this.selectUsers = assignees[0].id;
+        })
+      },
+      getForm(){
+        var formData = new FormData();
+        formData.append('customerOrg',this.$store.state.admin.user.orgId)
+        formData.append('customerOrgName',this.$store.state.admin.user.orgIdValue)
+        formData.append('busiTypeCode','FW')
+        formData.append('busiTypeName','服务')
+        formData.append('assetTypeId',this.form.assets.id)
+        formData.append('assetTypeName',this.form.assets.assetsTypeName)
+        formData.append('attachFileMode','EDIT')
+        formData.append("workflowBean.curNodeId_",this.form.curNodeId_)
+        formData.append("workflowBean.definitionId_",this.form.definitionId_)
+        formData.append("workflowBean.confirmUserId_",this.selectUsers)
+        formData.append("workflowBean.confirmNodeId_",this.form.confirmNodeId_)
+        formData.append("workflowBean.confirmRouteId_",this.form.confirmRouteId_)
+        formData.append("workflowBean.submitType_",'SUBMIT')
+        formData.append("workflowBean.workflowVar_[wUserType]",this.form.wUserType)
+        return formData;
+      },
+      beforeClose(action, done) {
+        if (action === 'confirm') {
+          var formData = this.getForm();
+          saveWorkflow.bind(this)(formData).then(res=>{
+            console.log(res)
+          })
+        } else {
+          done();
+        }
       }
     }
   }
@@ -316,6 +457,73 @@
       padding-bottom: 0.2rem;
       .create-head{
         display: block;
+      }
+    }
+    .model{
+      .model-header{
+        height:5.18rem;
+        background: linear-gradient(to bottom right, #573bc2 , #9639b4);
+        line-height: 5.18rem;
+        padding-left: 0.8rem;
+        .l-icon{
+          width: 3rem;
+          height: 3rem;
+          display: inline-block;
+          vertical-align: middle;
+          margin-top: -3px;
+          img{
+            width: 100%;
+            height: 100%;
+          }
+        }
+        .l-f{
+          font-size: 1.5rem;
+          font-weight: bold;
+          color: #fff;
+          margin-left: 0.8rem;
+        }
+      }
+      .model-content{
+        padding:0.8rem;
+        .downNode{
+          font-size: 1rem;
+          font-weight: bold;
+          color:#000;
+        }
+        .nextNode{
+          display: flex;
+          li{
+            width:49%;
+            height:2.5rem;
+            line-height: 2.5rem;
+            background:#f5f5f5;
+            border:solid 1px #e9e9e9;
+            border-radius: 3px;
+            &:first-child{
+              margin-right:2%;
+            }
+            padding-left:0.8rem;
+          }
+          padding-bottom:0.8rem;
+          border-bottom:dashed 1px #ddd;
+        }
+        .nextUser{
+          display: flex;
+          padding-top:0.8rem;
+          li{
+            width:32%;
+            margin-right:2%;
+            height:2.5rem;
+            line-height: 2.5rem;
+            background:#f5f5f5;
+            border:solid 1px #e9e9e9;
+            border-radius: 3px;
+            padding-left:0.8rem;
+            &:last-child{
+              margin-right:0;
+            }
+          }
+        }
       }
     }
   }

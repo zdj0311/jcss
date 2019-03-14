@@ -1,3 +1,4 @@
+import {getNextNodes}from 'controller/order-create'
 let getQueryString = function(name){
     var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); 
     var r = window.location.search.substr(1).match(reg); 
@@ -19,10 +20,22 @@ function getQueryVariable(variable) {
   return false;
 }
 
-const tool = {
-    getQueryString:getQueryString,
-    getQueryVariable:getQueryVariable
+
+// 获取下一节点
+let getNextNode = function(){
+    var formData = new FormData();
+    formData.append('curNodeId_',this.fData && this.fData.workflowBean?this.fData.workflowBean.curNodeId_:this.form.curNodeId_)
+    formData.append('definitionId_',this.fData && this.fData.workflowBean?this.fData.workflowBean.definitionId_:this.form.definitionId_)
+    formData.append("workflowVar_['wUserType']",this.fData && this.fData.workflowBean?this.fData.wUserType:this.form.wUserType)
+    formData.append("workflowVar_['wCustomerUserId']",this.fData && this.fData.workflowBean?this.fData.wCustomerUserId:'')
+    return getNextNodes.bind(this)(formData)   
 }
+const tool = {
+  getQueryString:getQueryString,
+  getQueryVariable:getQueryVariable,
+  getNextNode:getNextNode
+}
+
 
 Date.prototype.Format = function (fmt) { 
     var o = {

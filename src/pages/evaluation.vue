@@ -1,20 +1,26 @@
 <template>
-<div class=''></div>
+    <div class='evaluation'>
+        <order-form :mode="'evaluation'" v-on:update="update"></order-form>
+    </div>
 </template>
 
 <script>
-
+import {updateWorkflow}
+ from 'controller/order-create'
+import orderForm from 'components/order-form'
 export default {
-components: {},
+components: {orderForm},
 data() {
 return {
 
 };
 },
-computed: {},
-watch: {},
 methods: {
-
+    update(formData){
+      updateWorkflow.bind(this)(formData).then(res=>{
+        console.log(res)
+      })
+    }
 },
 created() {
 

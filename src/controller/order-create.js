@@ -65,6 +65,22 @@ function getUrgencyDic(code,parentCode) {
 }
 
 /**
+ * @desc 评价
+ * @params
+ */
+function evaluation(code,parentCode) {
+  return new Promise((resolve,reject)=>{
+    let data = {code:code,parentCode:parentCode}
+    this.$get(uri.evaluation,{params:data}).then(res=>{
+      resolve(res)
+    })
+    .catch(err=>{
+      reject(err)
+    })
+  })
+}
+
+/**
  * @desc 获取项目
  * @params
  */
@@ -89,6 +105,53 @@ function getProjectSubDic(customerId,projectId) {
     let data = {customerId:customerId,projectId:projectId}
     this.$get(uri.getProjectSubDic,{params:data}).then(res=>{
       resolve(makeData(res,'projectSub'))
+    })
+    .catch(err=>{
+      reject(err)
+    })
+  })
+}
+
+/**
+ * @desc 获取调查问卷
+ * @params
+ */
+function paperList() {
+  return new Promise((resolve,reject)=>{
+    Vue.$axios.get(uri.paperList,).then(res=>{
+      resolve(res)
+    })
+    .catch(err=>{
+      reject(err)
+    })
+  })
+}
+
+/**
+ * @desc 是否有权限答题
+ * @params
+ */
+function cananswer(paperId) {
+  return new Promise((resolve,reject)=>{
+    let formData = new FormData();
+    formData.append('paperId',paperId)
+    Vue.$axios.post(uri.cananswer,formData).then(res=>{
+      resolve(res)
+    })
+    .catch(err=>{
+      reject(err)
+    })
+  })
+}
+
+/**
+ * @desc 获取问卷
+ * @params
+ */
+function submitPaper(formData) {
+  return new Promise((resolve,reject)=>{
+    Vue.$axios.post(uri.submitPaper,formData).then(res=>{
+      resolve(res)
     })
     .catch(err=>{
       reject(err)
@@ -214,12 +277,42 @@ function updateWorkflow(formData) {
 }
 
 /**
+ * @desc 获取下一节点
+ * @params
+ */
+function getNextNodes(formData) {
+  return new Promise((resolve,reject)=>{
+    this.$post(uri.getNextNodes,formData).then(res=>{
+      resolve(res)
+    })
+    .catch(err=>{
+      reject(err)
+    })
+  })
+}
+
+/**
  * @desc 上传
  * @params
  */
 function upload(formData) {
   return new Promise((resolve,reject)=>{
-    this.$post(uri.upload,formData).then(res=>{
+    this.$postUpload(uri.upload,formData).then(res=>{
+      resolve(res)
+    })
+    .catch(err=>{
+      reject(err)
+    })
+  })
+}
+
+/**
+ * @desc 上传
+ * @params
+ */
+function deleteFile(formData) {
+  return new Promise((resolve,reject)=>{
+    Vue.$axios.post(uri.deleteFile,formData).then(res=>{
       resolve(res)
     })
     .catch(err=>{
@@ -229,7 +322,8 @@ function upload(formData) {
 }
 
 export {
-  getCustomerOrgDic,getBtDic,getCustomerDic,getUrgencyDic,getProjectDic,getProjectSubDic,getAssetType,getAssetsList,startWorkflow,loadWorkflow,updateWorkflow,upload
+  getCustomerOrgDic,getBtDic,getCustomerDic,getUrgencyDic,getProjectDic,getProjectSubDic,getAssetType,getAssetsList,startWorkflow,saveWorkflow,loadWorkflow,updateWorkflow,upload,getNextNodes,deleteFile,evaluation,
+  paperList,cananswer,submitPaper
 }
 
 
