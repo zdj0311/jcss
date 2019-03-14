@@ -14,6 +14,8 @@ import Auth from '@/pages/auth'
 import DailyLog from '@/pages/daily-log'
 import visualization from '@/pages/visualization'
 import config from 'config'
+import surveyList from '@/pages/survey-list'
+import surveyDetail from '@/pages/survey-detail'
 Vue.use(Router)
 export default new Router({
   base:config.route_proxy?'/jcss/jcss_app':'',
@@ -121,6 +123,24 @@ export default new Router({
       path: '/daily-log',
       name: 'daily_log',
       component: DailyLog,
+      meta: {
+        keepAlive: true
+      }
+    },
+    // 问卷列表
+    {
+      path: '/survey-list',
+      name: 'survey_list',
+      component: surveyList,
+      meta: {
+        keepAlive: true
+      }
+    },
+    // 问卷详细
+    {
+      path: '/survey-detail',
+      name: 'survey_detail',
+      component: surveyDetail,
       meta: {
         keepAlive: true
       }

@@ -20,4 +20,9 @@ export default{
   saveWorkflow:api + 'api/wk/saveWorkflow.action', // 保存工单
   loadWorkflow:api + 'api/wk/loadWorkflow.action', // 获取工单
   updateWorkflow:api + 'api/wk/updateWorkflow.action', // 修改工单
+  getNextNodes:api + 'api/wk/getNextNodes.action', // 获取下一节点
+  evaluation: api + 'api/wk/dic/dicList.action', //评价
+  paperList: api + 'api/wx/question/paperList.action', //调查问卷列表
+  cananswer: api + 'api/wx/question/check/cananswer.action', //是否有权限答题
+  submitPaper: api + 'api/wx/question/submit.action' // 提交问卷
 }
