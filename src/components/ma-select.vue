@@ -2,8 +2,8 @@
   <div class="ma-select">
     <van-popup v-model="isShow" @close="close" position="top">
       <div class="properties">
-        <div class="property-item" v-for="(item,index) in arr">
-          {{item}}
+        <div class="property-item" :class="active===index?'check':'uncheck'" v-for="(item,index) in arr" @click="select(item,index)">
+          {{item.name}}
         </div>
       </div>
     </van-popup>
@@ -26,7 +26,8 @@
     data() {
       return {
         isShow: false,
-        arr: []
+        arr: [],
+        active:''
       };
     },
     
@@ -44,6 +45,11 @@
     methods: {
       close() {
         this.$emit('input',this.isShow)
+      },
+      select(item,index) {
+        this.active = index
+        this.$emit('change',item)
+        this.isShow = false
       }
     }
   }
@@ -70,6 +76,13 @@
       background:#fff;
       margin-right:1rem;
       padding:.6rem;
+    }
+    .check {
+      color:#fff;
+      background:#4a79df;
+    }
+    .uncheck {
+      
     }
   }
 </style>
