@@ -33,30 +33,38 @@ router.beforeEach((to, from, next) => {
   if(info && to.name === 'auth') {
     next()
   }else if(user && JSON.parse(user).userStatus === 'created') {
-    if(process.env.NODE_ENV !== 'proxy') {
-      getUser('dev').then(res=>{
+    if(process && process.env && process.env.NODE_ENV === 'proxy') {
+      getUser('proxy').then(res=>{
         store.commit('admin/updateUser',res.data.data)
         next()
       })
     }else {
-      getUser('proxy').then(res=>{
+      getUser('dev').then(res=>{
         store.commit('admin/updateUser',res.data.data)
         next()
       })
     }
   }else {
-    if(process.env.NODE_ENV !== 'proxy') {
-      getUser('dev').then(res=>{
-        store.commit('admin/updateUser',res.data.data)
-        info = true
-        router.push('auth')
-      })
-    }else {
+    if(process && process.env && process.env.NODE_ENV === 'proxy') {
       // 如果是代理服务器
       getUser('proxy').then(res=>{
         store.commit('admin/updateUser',res.data.data)
         info = true
-        router.push('auth')
+        if(res.data.data.userStatus !== 'created') {
+          router.push('auth')
+        }else {
+          next()
+        }
+      })
+    }else {
+      getUser('dev').then(res=>{
+        store.commit('admin/updateUser',res.data.data)
+        info = true
+        if(res.data.data.userStatus !== 'created') {
+          router.push('auth')
+        }else {
+          next()
+        }
       })
     }
     

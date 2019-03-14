@@ -98,7 +98,7 @@
           title:'房间号',
           placeholder:'请输入房间号',
           message:'',
-          validate:this.validateEmpty,
+          validate:function(){},
           readonly:false
         },{
           key_name:'duty',
@@ -106,7 +106,7 @@
           title:'职务',
           placeholder:'请输入职务',
           message:'',
-          validate:this.validateEmpty,
+          validate:function(){},
           readonly:true
         },{
           key_name:'cardNo',
@@ -125,17 +125,7 @@
       getPostDic.bind(this)('dutyId').then(res=>{
         this.postDic = res
       })
-      this.initForm({
-        orgName:this.user.orgName,
-        userName:this.user.userName,
-        mobile:this.user.mobile,
-        roomNo:this.user.roomNo,
-        duty:{
-          code:this.user.duty,
-          text:this.user.dutyValue
-        },
-        cardNo:this.user.cardNo
-      })
+      this.initForm()
       this.readonlyTable()
     },
     methods: {
@@ -146,22 +136,22 @@
           console.log(res.data.data)
           this.$store.commit('admin/updateUser',res.data.data)
           this.user = this.$store.state.admin.user
-          this.initForm({
-            orgName:this.user.orgName,
-            userName:this.user.userName,
-            mobile:this.user.mobile,
-            roomNo:this.user.roomNo,
-            duty:{
-              code:this.user.duty,
-              text:this.user.dutyValue
-            },
-            cardNo:this.user.cardNo
-          })
+          this.initForm()
           this.readonlyTable()
         })
       },
       initForm(form) {
-        this.form = form
+        this.form = {
+          orgName:this.user.orgName||'',
+          userName:this.user.userName||'',
+          mobile:this.user.mobile||'',
+          roomNo:this.user.roomNo||'',
+          duty:{
+            code:this.user.duty||'',
+            text:this.user.dutyValue||''
+          },
+          cardNo:this.user.cardNo||''
+        }
         // 初始化校验数组，长度为form-item条数
         for(let item in this.form) {
           this.check.push(false)
@@ -179,16 +169,16 @@
       submit() {
         let result = true
         this.check.forEach((item,index)=>{
-          if(item === false) {
-            if(index === 5) {
-              this.validateCardNo(index)
-            }else {
-              this.validateEmpty(index)
-            }
+          if(index < 3 && item === false) {
+            this.validateEmpty(index)
             result = false
+          }else if(index === 5 && item === false) {
+            result = this.validateCardNo(index)
+            result = this.check[5]
           }
         })
         if(result) {
+          alert(result)
           bindUser.bind(this)(this.form).then(res=>{
             this.$toast('已提交认证，请耐心等待')
             this.init() 
@@ -232,9 +222,13 @@
       // 校验身份证号
       validateCardNo(index) {
         let item = this.table[index]
+//      if(!this.form[item.key_name]) {
+//        item.message = '请输入' + item.title
+//        this.setCheck(index,false)
+//      }else
         if(!this.form[item.key_name]) {
-          item.message = '请输入' + item.title
-          this.setCheck(index,false)
+          item.message = ''
+          this.setCheck(index,true)
         }else if(!/(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/.test(this.form[item.key_name])){
           item.message = '请输入正确身份证号'
           this.setCheck(index,false)

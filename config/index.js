@@ -7,7 +7,7 @@ var route_proxy = false
 if(process.env.NODE_ENV === 'proxy') {
   hostname = 'http://www.jiachengnet.com/'
   route_proxy = true
-}else {
+}else{
   hostname = ''
 }
 

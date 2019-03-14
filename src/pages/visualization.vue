@@ -16,6 +16,7 @@
           </el-table>
           <el-pagination @current-change="changePage" :current-page.sync="currentPage" class="pagination" background layout="pager" :page-size="count" :total="total"></el-pagination>
         </div>
+        <empty v-else></empty>
       </van-tab>
       <van-tab title="本周工单">
         <div class="content" v-if="source[1].length>0">
@@ -32,6 +33,7 @@
           </el-table>
           <el-pagination @current-change="changePage" :current-page.sync="currentPage" class="pagination" background layout="pager" :page-size="count" :total="total"></el-pagination>
         </div>
+        <empty v-else></empty>
       </van-tab>
       <van-tab title="本月工单">
         <div class="content" v-if="source[2].length>0">
@@ -48,6 +50,7 @@
           </el-table>
           <el-pagination @current-change="changePage" :current-page.sync="currentPage" class="pagination" background layout="pager" :page-size="count" :total="total"></el-pagination>
         </div>
+        <empty v-else></empty>
       </van-tab>
     </van-tabs>
   </div>
@@ -55,10 +58,11 @@
 
 <script>
   import charts from 'components/charts'
+  import empty from 'components/empty'
   import { getStatistic,getStatisticCount } from 'controller/visualization' // 职务列表
   export default {
     name: 'visualization',
-    components: { charts },
+    components: { charts,empty },
     data() {
       return {
         active:0, // tab 触发
@@ -209,6 +213,9 @@
       border-left:4px solid #5889e6;
       height:1.1rem;
       margin-right:.4rem;
+    }
+    .van-tabs, .van-tabs__content, .van-tab__pane {
+      height:100%;
     }
     .van-tabs__line {
       background:#5889e6;
