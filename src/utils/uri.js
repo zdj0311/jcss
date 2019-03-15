@@ -24,5 +24,6 @@ export default{
   evaluation: api + 'api/wk/dic/dicList.action', //评价
   paperList: api + 'api/wx/question/paperList.action', //调查问卷列表
   cananswer: api + 'api/wx/question/check/cananswer.action', //是否有权限答题
-  submitPaper: api + 'api/wx/question/submit.action' // 提交问卷
+  submitPaper: api + 'api/wx/question/submit.action', // 提交问卷
+  getHistory:api + '/api/wk/getHistory.action',//流转详情
 }

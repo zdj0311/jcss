@@ -93,7 +93,7 @@ export default new Router({
     },
     // 工单详情
     {
-      path: '/order-detail',
+      path: '/order-detail/:_id',
       name: 'order_detail',
       component: OrderDetail,
       meta: {
