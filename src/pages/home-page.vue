@@ -211,7 +211,7 @@
       getAllUser(nextNodesList){
         getCustomerDic.bind(this)().then(res=>{
           let user = [];
-          let assignees = form.showAll(res,user); 
+          let assignees = tool.showAll(res,user); 
           //单一签核(人员树单选)
           if (nextNodesList.dealType == 4) {
             this.chooseUser = assignees;

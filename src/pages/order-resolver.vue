@@ -1,6 +1,6 @@
 <template>
     <div class="order-resolver">
-      <order-form :existList="existList" :readonlyList="readonlyList" :mode="'edit'" v-on:update="update"></order-form>
+      <order-form :existList="existList" :readonlyList="readonlyList" :modeView="'edit'" v-on:update="update"></order-form>
     </div>
 </template>
 

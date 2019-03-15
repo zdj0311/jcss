@@ -19,7 +19,22 @@ function getQueryVariable(variable) {
   }
   return false;
 }
-
+let showAll = function(data,user){
+  all(data,user);
+  return user;
+}
+function all(data,users){
+  for (var i=0;i<data.length;i++) {
+      if(data[i].subDept){
+          all(data[i].subDept,users)
+      }
+      
+      for(var j=0;j<data[i]['user'].length;j++){
+          users.push(data[i]['user'][j]);
+      }
+      
+  }
+}
 
 // 获取下一节点
 let getNextNode = function(){
@@ -33,7 +48,8 @@ let getNextNode = function(){
 const tool = {
   getQueryString:getQueryString,
   getQueryVariable:getQueryVariable,
-  getNextNode:getNextNode
+  getNextNode:getNextNode,
+  showAll:showAll
 }
 
 

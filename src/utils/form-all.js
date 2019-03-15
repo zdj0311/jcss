@@ -560,82 +560,87 @@ form.showAll = function(data,user){
     return user;
 }
 function all(data,users){
-    data.forEach(function(v,k){
-        if(v.subDept){
-            all(v.subDept,users)
+    for (var i=0;i<data.length;i++) {
+        if(data[i].subDept){
+            all(data[i].subDept,users)
         }
-        v.user.forEach(function(j){
-            users.push(j);
-        })
-    })
-}
-form.initButton = function (workflowBean) {
-    var openType = workflowBean.openType_;
-    var lastOperType = workflowBean.lastOperType_;
-    var buttonJsonStr = workflowBean.buttonJsonStr;
-    if (buttonJsonStr == "") {
-        return;
+        
+        for(var j=0;j<data[i]['user'].length;j++){
+            users.push(data[i]['user'][j]);
+        }
+        
     }
-    var buttonJson = eval("(" + buttonJsonStr + ")");
-    var buttonHtml = [];
-    //<button class='btn dark' id='workflowSubmitBtn' type='button'>提交</button>
-    //加载待办按钮
-    //1 Submit
-    //2 Save
-    //3 Reject
-    //4 Move
-    //5 Goto
-    //6 Stop
-    //7 Suspend
-    //8 Resume
-    //1001 GetBack
-    if (openType == "TODO") {
-        var todoButtonList = buttonJson.todoSystemList;
-        if (typeof todoButtonList != "undefined") {
-            for (var i = 0; i < todoButtonList.length; i++) {
-                if (todoButtonList[i].selected) {
-                    if("TODO" == openType){
-                        //当前是暂停状态，则允许回复和拿回
-                        if("SUSPEND" == lastOperType){
-                            if(todoButtonList[i].id == '8'){
-                                buttonHtml.push("<button class='btn dark' id='workflowButtonId" + todoButtonList[i].id + "' type='button'>" + todoButtonList[i].name + "</button>");
+}
+    form.initButton = function (workflowBean) {
+        var openType = workflowBean.openType_;
+    
+        var lastOperType = workflowBean.lastOperType_;
+    
+        var buttonJsonStr = workflowBean.buttonJsonStr;
+        if (buttonJsonStr == "") {
+            return;
+        }
+        var buttonJson = eval("(" + buttonJsonStr + ")");
+        var buttonHtml = [];
+        //<button class='btn dark' id='workflowSubmitBtn' type='button'>提交</button>
+        //加载待办按钮
+        //1 Submit
+        //2 Save
+        //3 Reject
+        //4 Move
+        //5 Goto
+        //6 Stop
+        //7 Suspend
+        //8 Resume
+        //1001 GetBack
+        if (openType == "TODO") {
+            var todoButtonList = buttonJson.todoSystemList;
+            if (typeof todoButtonList != "undefined") {
+                for (var i = 0; i < todoButtonList.length; i++) {
+                    if (todoButtonList[i].selected) {
+                        if("TODO" == openType){
+                            //当前是暂停状态，则允许回复和拿回
+                            if("SUSPEND" == lastOperType){
+                                if(todoButtonList[i].id == '8'){
+                                    buttonHtml.push("<button class='btn dark' id='workflowButtonId" + todoButtonList[i].id + "' type='button'>" + todoButtonList[i].name + "</button>");
+                                }
+                            } else{
+                                //允许提交，转单，暂停
+                                if(todoButtonList[i].id == '1'){
+                                    buttonHtml.push("<button class='btn dark' id='workflowButtonId" + todoButtonList[i].id + "' type='button'>" + todoButtonList[i].name + "</button>");
+                                } else  if(todoButtonList[i].id == '4'){
+                                    buttonHtml.push("<button class='btn dark' id='workflowButtonId" + todoButtonList[i].id + "' type='button'>" + todoButtonList[i].name + "</button>");
+                                } if(todoButtonList[i].id == '7'){
+                                    buttonHtml.push("<button class='btn dark' id='workflowButtonId" + todoButtonList[i].id + "' type='button'>" + todoButtonList[i].name + "</button>");
+                                }
                             }
-                        } else{
-                            //允许提交，转单，暂停
+                        } else if("CREATE" == openType){
+                            //创建只允许提交
                             if(todoButtonList[i].id == '1'){
                                 buttonHtml.push("<button class='btn dark' id='workflowButtonId" + todoButtonList[i].id + "' type='button'>" + todoButtonList[i].name + "</button>");
-                            } else  if(todoButtonList[i].id == '4'){
-                                buttonHtml.push("<button class='btn dark' id='workflowButtonId" + todoButtonList[i].id + "' type='button'>" + todoButtonList[i].name + "</button>");
-                            } if(todoButtonList[i].id == '7'){
-                                buttonHtml.push("<button class='btn dark' id='workflowButtonId" + todoButtonList[i].id + "' type='button'>" + todoButtonList[i].name + "</button>");
                             }
-                        }
-                    } else if("CREATE" == openType){
-                        //创建只允许提交
-                        if(todoButtonList[i].id == '1'){
+                        } else {
                             buttonHtml.push("<button class='btn dark' id='workflowButtonId" + todoButtonList[i].id + "' type='button'>" + todoButtonList[i].name + "</button>");
                         }
-                    } else {
-                        buttonHtml.push("<button class='btn dark' id='workflowButtonId" + todoButtonList[i].id + "' type='button'>" + todoButtonList[i].name + "</button>");
+                    }
+    
+                }
+            }
+        }
+        //加载已办按钮
+        else if (openType == "DONE") {
+            var doneButtonList = buttonJson.haveSystemList;
+            if (typeof doneButtonList != "undefined") {
+                for (var i = 0; i < doneButtonList.length; i++) {
+                    if (doneButtonList[i].selected) {
+                        buttonHtml.push("<button class='btn dark' id='workflowButtonId" + doneButtonList[i].id + "' type='button'>" + doneButtonList[i].name + "</button>");
                     }
                 }
             }
         }
+        $("#workflowFormButton").html(buttonHtml.join(''));
+    
     }
-    //加载已办按钮
-    else if (openType == "DONE") {
-        var doneButtonList = buttonJson.haveSystemList;
-        if (typeof doneButtonList != "undefined") {
-            for (var i = 0; i < doneButtonList.length; i++) {
-                if (doneButtonList[i].selected) {
-                    buttonHtml.push("<button class='btn dark' id='workflowButtonId" + doneButtonList[i].id + "' type='button'>" + doneButtonList[i].name + "</button>");
-                }
-            }
-        }
-    }
-    console.log($("#workflowFormButton"))
-    $("#workflowFormButton").html(buttonHtml.join(''));
-}    
 
 form.showRoute = function (type) {
     // var workId = $("#workId").val();
@@ -657,27 +662,127 @@ form.showRoute = function (type) {
     form.type[type].show();
 }
 
-// Zepto(function ($) {
-//     $("#workflowFormButton").on('click','button',function(){
-//         if($(this).attr('id')=='workflowButtonId1'){
-//             form.showRoute("Submit");
-//         }else if($(this).attr('id')=='workflowButtonId2'){
-//             form.showRoute("Save");
-//         }else if($(this).attr('id')=='workflowButtonId3'){
-//             form.showRoute("Reject");
-//         }else if($(this).attr('id')=='workflowButtonId4'){
-//             form.showRoute("Move");     
-//         }else if($(this).attr('id')=='workflowButtonId5'){
-//             form.showRoute("Goto");    
-//         }else if($(this).attr('id')=='workflowButtonId6'){
-//             form.showRoute("Stop");    
-//         }else if($(this).attr('id')=='workflowButtonId7'){
-//             form.showRoute("Suspend");       
-//         }else if($(this).attr('id')=='workflowButtonId8'){
-//             form.showRoute("Resume");
-//         }else if($(this).attr('id')=='workflowButtonId1001'){
-//             form.showRoute("GetBack");   
-//         }
-//     }) 
-// });
-export default form
+
+//转办相关
+form.type["Move"] = {
+    show: function () {
+        $.ajax({
+            url: baseUrl + '/api/jcdept/getCustomerDeptAndUser.action',
+            data: {
+                nowCustomerOrgId:$('#customerOrg').val()
+            },
+            success: function(data){
+                var user = [];
+                var assigness = form.showAll(data,user);
+                var personHtml = '';
+                for (var j = 0; j < assigness.length; j++) {
+                    personHtml += '<li>'
+                        +'<input name="users" type="radio" value='+assigness[j].id+'>'
+                        +'<span>'+assigness[j].displayName+'</span>'
+                        +'</li>';
+                }
+                layer.open({
+                    type: 1
+                    ,content: '<ul id="chooseUserModal">'+personHtml+'</ul>'
+                    ,style: 'width: 600px;'
+                    ,btn: ['确定', '取消']
+                    ,yes: function(index){
+                        var selectUsers = ($('#chooseUserModal input[name="users"]').filter(':checked'));
+                        if (selectUsers.length == 0) {
+                            layer.open({
+                                content: '请选择转办人'
+                                ,btn: '确定'
+                            });
+                            return;
+                        }else{
+                            $.each($('#chooseUserModal input[name="users"]'),function(){
+                                if($(this).index()==0){
+                                    form.confirmUserId_ = $(this).val();
+                                }else{
+                                    form.confirmUserId_ += ','+$(this).val();
+                                }
+                            })
+                            form.type["Move"].submit()
+                            layer.close(index);
+                        }                        
+                    }
+                });
+            }
+        })       
+    },
+    submit: function () {      
+        form.submitType_ = "MOVE";
+        form.signInfo_ = $("#workflowBean\\.signInfo_").val();
+        form.message_ = $("#workflowBean\\.message_").val();
+        form.suggestId_ = $("#workflowBean\\.suggestId_").val();
+        var flowStatus = $("#workflowBean\\.flowStatus_").val();
+        if (flowStatus == "CREATE") {
+            if (insert(flowStatus)) {
+            }
+        } else {
+            if (update(flowStatus)) {
+            }
+        }
+    }
+}
+//跳转相关
+form.type["Goto"] = {
+    show: function () {
+        $.ajax({
+            type: "POST",
+            url: baseUrl + '/api/wk/getGotoNodes.action',
+            async: false,
+            data: {
+                "definitionId_": createWork.definitionId_,
+                "subProcessId_": createWork.subProcessId_
+            },
+            dataType: "json",
+            success: function (data) {
+                var gotoNodesList = data.data.gotoNodesList;
+                var curNodeId = $("#workflowBean\\.curNodeId_").val()
+                var gotoSelectHtml = ["<div class='table'>"];
+                for (var i = 0; i < gotoNodesList.length; i++) {
+                    if (gotoNodesList[i].componentId.toUpperCase().indexOf("USERTASK") != -1 && gotoNodesList[i].componentId.toUpperCase() != curNodeId.toUpperCase()) {
+                        gotoSelectHtml.push("<li><input type='radio' name='gotoSelectRadio' value='" + gotoNodesList[i].componentId + "' />" + gotoNodesList[i].name +"</li>");
+                    }
+                }
+                gotoSelectHtml.push("</div>");
+                gotoSelectHtml = gotoSelectHtml.join('')
+                layer.open({
+                    type: 1
+                    ,content: '<div id="gotoSelectDiv">'+gotoSelectHtml+'</div>'
+                    ,style: 'width: 600px;'
+                    ,btn: ['确定', '取消']
+                    ,yes: function(index){
+                        var selectNode = ($('input[name="gotoSelectRadio"]').filter(':checked'));
+                        if (selectNode.length == 0) {
+                            layer.open({
+                                content: "请选节点信息"
+                                ,btn: '确定'
+                            });
+                            return;
+                        }else{
+                            form.confirmNodeId_ = $(selectNode[0]).val();
+                            form.toSelectGotoUser();
+                            layer.close(index);
+                        }                        
+                    }
+                  });
+            }
+        });
+    },
+    submit: function () {     
+        form.submitType_ = "GOTO";
+        form.signInfo_ = $("#workflowBean\\.signInfo_").val();
+        form.message_ = $("#workflowBean\\.message_").val();
+        form.suggestId_ = $("#workflowBean\\.suggestId_").val();
+        var flowStatus = $("#workflowBean\\.flowStatus_").val();
+        if (flowStatus == "CREATE") {
+            if (insert(flowStatus)) {
+            }
+        } else {
+            if (update(flowStatus)) {
+            }
+        }
+    }
+}
