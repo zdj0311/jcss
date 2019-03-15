@@ -14,6 +14,7 @@
 <script>
 import { saveWorkflow } from "controller/order-create";
 import orderForm from "components/order-form";
+import {Dialog} from 'vant';
 export default {
   components: { orderForm },
   data() {
@@ -21,7 +22,7 @@ export default {
       existList: [12, 13, 14, 15, 16],
       readonlyList: [0, 1, 2],
       pickerList: [3, 4, 5, 6, 9, 10, 11, 12],
-      required: [3,5,7,8]
+      required: [3,4,7,8]
     };
   },
   methods: {
@@ -29,7 +30,13 @@ export default {
       saveWorkflow
         .bind(this)(formData)
         .then(res => {
-          console.log(res);
+          if(res=='success'){
+            Dialog.alert({
+              message: "提交成功"
+            }).then(() => {
+              this.$router.push({name:'order_list'})
+            });
+          }
         });
     }
   },

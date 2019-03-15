@@ -8,6 +8,7 @@
 import {updateWorkflow}
  from 'controller/order-create'
 import orderForm from 'components/order-form'
+import {Dialog} from 'vant';
 export default {
   components: {orderForm},
   data() {
@@ -19,7 +20,13 @@ export default {
   methods: {
     update(formData){
       updateWorkflow.bind(this)(formData).then(res=>{
-        console.log(res)
+        if(res=='success'){
+          Dialog.alert({
+            message: "提交成功"
+          }).then(() => {
+            this.$router.push({name:'order_list'})
+          });
+        }
       })
     }
   },

@@ -15,7 +15,7 @@
       <van-cell-group>
         <template v-for="(item,index) in table">
           <template v-if="item.exist==true">
-           <div v-if="item.picker==true" :key="index">
+           <div v-if="item.picker==true && item.key_name !== 'planEndTime'" :key="index">
               <van-field
                 v-model="form[item.key_name]['text']"
                 :label="item.title"
@@ -24,7 +24,7 @@
                 readonly
                 :required="item.required"
                 :error-message="item.message" 
-                @blur="!item.readonly?item.validate(index):''"
+                @blur="item.validate?item.validate(index):''"
               />
             </div>
            <div v-else-if="item.key_name === 'planEndTime' && item.picker==true" :key="index">
@@ -100,7 +100,7 @@
                 :placeholder="item.readonly?'':'请输入'"
                 :required="item.required"
                 :error-message="item.message" 
-                @blur="!item.readonly?item.validate(index):''"
+                @blur="item.validate?item.validate(index):''"
               />
             </div>
           </template>
@@ -296,6 +296,7 @@ export default {
   },
   data() {
     return {
+      check:[],
       gotoNodesList: [],
       showGoto: false,
       nodeGoto: [],
@@ -360,13 +361,13 @@ export default {
           validate:this.validateEmpty
         },
         {
-          key_name: "customerName",
-          title: "客户负责人"
-        },
-        {
           key_name: "busiTypeName",
           title: "工单类型",
           validate:this.validateEmpty
+        },
+        {
+          key_name: "customerName",
+          title: "客户负责人"
         },
         {
           key_name: "planEndTime",
@@ -375,13 +376,15 @@ export default {
         {
           key_name: "subject",
           title: "事件主题",
-          validate:this.validateEmpty
+          validate:this.validateEmpty,
+          readonly: false
         },
         {
           key_name: "billPlan",
           title: "事件描述",
           type: "textarea",
-          validate:this.validateEmpty
+          validate:this.validateEmpty,
+          readonly: false
         },
         {
           key_name: "urgencyValue",
@@ -447,7 +450,7 @@ export default {
     } else {
       // 工作流初始化
       loadWorkflow
-        .bind(this)(tool.getQueryString("id") ? tool.getQueryString("id") : 12)
+        .bind(this)(this.$route.id?this.$route.id: 20)
         .then(res => {
           this.fData = res;
           this.initButton(res.workflowBean);
@@ -469,10 +472,11 @@ export default {
                 this.urgencyDic = res; 
               });
           }
-          // if(res.workflowBean.openType_=='VIEW' && res.workflowConfig.canEditEvaluate=='edit'){
-          // this.mode = "evaluation";
-          // this.getStar();
-          // }
+          // 是否跳评价页
+          if(res.workflowBean.openType_=='VIEW' && res.workflowConfig.canEditEvaluate=='edit'){
+            this.mode = "evaluation";
+            this.getStar();
+          }
         });
     }
   },
@@ -523,6 +527,8 @@ export default {
     confirm(v) {
       let _this = this;
       this.form[this.keyName] = v;
+      this.validateEmpty(3);
+      this.validateEmpty(4);
       if (this.keyName == "customerOrgName") {
         getCustomerDic
           .bind(this)(v.code)
@@ -613,14 +619,18 @@ export default {
     },
     // 校验非空
     validateEmpty(index) {
-      let item = this.table[index]
-      if(!this.form[item.key_name]) {
+      let item = this.table[index];
+      if(!this.form[item.key_name]) {  
         item.message = '请输入' + item.title
         this.setCheck(index,false)
       }else {
         item.message = ''
         this.setCheck(index,true)
       }
+    },
+    // 判断当前校验项是否通过
+    setCheck(index,val) {
+      this.check[index] = val
     },
     // 初始化按钮
     initButton(workflowBean) {
@@ -632,7 +642,6 @@ export default {
         return;
       }
       let buttonJson = eval("(" + buttonJsonStr + ")");
-      //<button class='btn dark' id='workflowSubmitBtn' type='button'>提交</button>
       //加载待办按钮
       //1 Submit
       //2 Save
@@ -721,8 +730,7 @@ export default {
       } else if (id == "3") {
         this.showRoute("Reject");
       } else if (id == "4") {
-        // this.showRoute("Move")
-        this.showRoute("Goto");
+        this.showRoute("Move")
       } else if (id == "5") {
         this.showRoute("Goto");
       } else if (id == "6") {
@@ -739,7 +747,6 @@ export default {
       return it&&'null' != it?it:"";
     },
     getForm() {
-      console.log(typeof(this.isNull(this.form.planEndTime)))
       this.selectUsers = Array.isArray(this.selectUsers)
         ? this.selectUsers.join(",")
         : this.selectUsers;
@@ -905,7 +912,6 @@ export default {
           this.nextNodesList = res.nextNodesList;
           this.curNode = res.curNode;
           this.selectNodes = res.nextNodesList[0].componentId;
-          this.show = true;
           this.toSelectUser();
         });
     },
@@ -1060,6 +1066,17 @@ export default {
         }
       });
     },
+    // 提交校验
+    validateSumit(){
+      let result = true
+      this.check.forEach((item,index)=>{
+        if(item === false) {
+          this.validateEmpty(index)
+          result = false
+        }
+      })
+      return result;
+    },
     // 按钮点击
     showRoute(type) {
       let flowStatus = this.fData
@@ -1069,7 +1086,9 @@ export default {
       if (type == "Submit") {
         this.form.submitType_ = "SUBMIT";
         if (flowStatus == "CREATE") {
-          this.$emit("insest", this.getForm());
+          if(this.validateSumit()){
+              this.$emit("insest", this.getForm());
+          }
         } else {
           this.$emit("update", this.getForm());
         }
@@ -1080,7 +1099,9 @@ export default {
         }).then(() => {
           this.form.submitType_ = "SAVE";
           if (flowStatus == "CREATE") {
-            this.$emit("insest", this.getForm());
+            if(this.validateSumit()){
+              this.$emit("insest", this.getForm());
+            }
           } else {
             this.$emit("update", this.getForm());
           }
@@ -1092,7 +1113,9 @@ export default {
         }).then(() => {
           this.form.submitType_ = "GETBACK";
           if (flowStatus == "CREATE") {
-            this.$emit("insest", this.getForm());
+            if(this.validateSumit()){
+              this.$emit("insest", this.getForm());
+            }
           } else {
             this.$emit("update", this.getForm());
           }
@@ -1104,7 +1127,9 @@ export default {
         }).then(() => {
           this.form.submitType_ = "STOP";
           if (flowStatus == "CREATE") {
-            this.$emit("insest", this.getForm());
+            if(this.validateSumit()){
+              this.$emit("insest", this.getForm());
+            }
           } else {
             this.$emit("update", this.getForm());
           }
@@ -1116,7 +1141,9 @@ export default {
         }).then(() => {
           this.form.submitType_ = "SUSPEND";
           if (flowStatus == "CREATE") {
-            this.$emit("insest", this.getForm());
+            if(this.validateSumit()){
+              this.$emit("insest", this.getForm());
+            }
           } else {
             this.$emit("update", this.getForm());
           }
@@ -1128,7 +1155,9 @@ export default {
         }).then(() => {
           this.form.submitType_ = "RESUME";
           if (flowStatus == "CREATE") {
-            this.$emit("insest", this.getForm());
+            if(this.validateSumit()){
+              this.$emit("insest", this.getForm());
+            }
           } else {
             this.$emit("update", this.getForm());
           }
@@ -1201,14 +1230,13 @@ export default {
           this.form.confirmNodeId_ = this.nodeReject;
           this.form.submitType_ = "REJECT";
           if (flowStatus == "CREATE") {
-            this.$emit("insest", this.getForm());
+            if(this.validateSumit()){
+              this.$emit("insest", this.getForm());
+            }
           } else {
             this.$emit("update", this.getForm());
           }
           done();
-          // Dialog.alert({
-          //   message: "提交成功"
-          // });
         }
       } else {
         done();
@@ -1228,14 +1256,13 @@ export default {
           this.selectUsers = this.usersMove;
           this.form.submitType_ = "Move";
           if (flowStatus == "CREATE") {
-            this.$emit('insest', this.getForm())
+            if(this.validateSumit()){
+              this.$emit("insest", this.getForm());
+            }
           } else {
             this.$emit('update', this.getForm())
           }
           done();
-          // Dialog.alert({
-          //   message: "提交成功"
-          // });
         }
       } else {
         done();
@@ -1255,14 +1282,13 @@ export default {
           this.form.confirmNodeId_ = this.nodeGoto;
           this.form.submitType_ = "Goto";
           if (flowStatus == "CREATE") {
-            this.$emit("insest", this.getForm());
+            if(this.validateSumit()){
+              this.$emit("insest", this.getForm());
+            }
           } else {
             this.$emit("update", this.getForm());
           }
           done();
-          // Dialog.alert({
-          //   message: "提交成功"
-          // }); 
         }
       } else {
         done();
