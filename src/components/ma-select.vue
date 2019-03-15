@@ -20,7 +20,8 @@
         default() {
           return []
         }
-      }
+      },
+      current: Number
     },
     
     data() {
@@ -33,6 +34,7 @@
     
     created() {
       this.arr = this.properties
+      this.active = this.current
     },
     watch:{
       value(n) {
@@ -40,6 +42,9 @@
       },
       properties(n) {
         this.arr = n
+      },
+      current(n) {
+        this.active = n
       }
     },
     methods: {

@@ -1,13 +1,15 @@
 <template>
   <div class='order-list'>
   <div class="menus">
-    <div class="menu-item" v-for="(item,index) in menus" @click="showPannel(index)">
-      <span>{{ item.text }}</span><img :src="sele"/>
+    <div class="menu-item" v-for="(item,index) in menus" @click="showPannel(index)" :ref="flwoUp">
+      <span>{{ item.text }}{{index}}</span><img :src="sele"/>
+      
     </div>
+    <ma-select v-model="show" :properties="variable" @change="change"></ma-select>
   </div>
   <div class="content" v-for="(item,index) in orderList">
     <header>
-      <span class="statu" >{{item.statusValue}}</span>
+      <span :class="item.status==0?'statu':'overtime'" >{{item.statusValue}}</span>
       <h2>{{item.subject}}</h2>
     </header>
     <div class="body">
@@ -18,21 +20,23 @@
       <div class="flow">
         <div class="flow-details" @click="showFlow(item.id)">
           流转详情
-          <img :src="showDetails?flwoUp:flwoDown"/>
+          <img :src="showDetails[item.id]?flwoUp:flwoDown"/>
         </div>
         <div class="flow-btn">
-          <span @click="routeTo(item)">查看</span>
+          <span>查看</span>
           <span>处理</span>
         </div>
       </div>
-      <el-steps :active="1" v-if="showDetails" finish-status="success">
-        <el-step title="创建" description="这是一段很长<br>很长很长的描述性文字"></el-step>
-        <el-step title="客户审批" description="这是一段很长很长很长的描述性文字"></el-step>
-        <el-step title="工作分配" description="这段就没那么长了"></el-step>
-      </el-steps>
+      <ul class="history-list" v-show="showDetails[item.id]">
+          <li v-for="obj in orderHistoryList">
+            <h2>{{obj.actName}}</h2>
+            <p>{{obj.endTime}}</p>
+            <p>{{obj.assigneeValue}}</p>
+          </li>
+          <div></div>
+      </ul>
     </div>
   </div>
-    <ma-select v-model="show" :properties="variable" @change="change"></ma-select>
     
   </div>
 </template>
@@ -59,8 +63,7 @@
           text:'时间'
         }],
         order_list:[],
-        showDetails:false,
-        active: 1,
+        showDetails:[],
         show:false,
         variable:[
           {name:'我的',dataScope:'MyBill'},
@@ -73,17 +76,15 @@
             
           ],
           1:[
-            {name:'待办'},
-            {name:'未完成'},
-            {name:'已完成'},
-            {name:'已超时'}
-            
-            
+            {name:'待办',mode:'create'},
+            {name:'未完成',mode:'un_end'},
+            {name:'已完成',mode:'end'},
+            {name:'已超时',mode:'outtime'}
           ],
           2:[
-            {name:'当日'},
-            {name:'本周'},
-            {name:'本月'}
+            {name:'当日',dateType:'week'},
+            {name:'本周',dateType:'month'},
+            {name:'本月',dateType:'day'}
           ],
         },
         getAll:{
@@ -94,29 +95,32 @@
           dataScope:'MyBill'
         },
         orderList:[],
-        orderHistory:{}
+        orderHistoryList:[]
       };
     },
     methods: {
       showPannel(i) {
-        console.log(i);
         this.show = true;
         this.variable = this.properties[i];
       },
       showFlow(id){
-        this.showDetails = !this.showDetails;
-        console.log(id);
+        this.showDetails[id] = !this.showDetails[id];
         this.getHistory(id);
       },
       change(obj){
-        console.log(obj);
+        for (var key in obj) {
+          if(key == 'mode' || key ==  'dateType' || key ==  'dataScope'){
+              this.getAll[key] = obj[key]
+          }
+      }
+        console.log(this.getAll);
       },
       // 返回 Promise 获取工单列表
       getStatistic(params) {
         let _this = this;
         getStatistic.bind(this)(params).then(res=>{
-          console.log(res);
           _this.orderList = res.data;
+          console.log(_this.orderList);
         })
         .catch(err=>{
           console.log(err);
@@ -125,24 +129,16 @@
       getHistory(id) {
         let _this = this;
         getHistory.bind(this)(id).then(res=>{
-          console.log(res);
-          _this.orderHistory = res;
+          _this.orderHistoryList = res;
+          console.log(_this.orderHistoryList);
         })
         .catch(err=>{
           console.log(err);
         })
       },
-      routeTo(obj) {
-        console.log(obj.id)
-        this.$router.push({
-          name:'order_detail',
-          params: {
-            _id:obj.id
-          }
-        })
-      }
     },
     created() {
+
     },
     mounted() {
         this.getStatistic(this.getAll);
@@ -181,6 +177,12 @@
         color:#fff;
         padding:.3rem .8rem;
         background: linear-gradient(left, #4a79df, #7db6ff);
+        border-radius: 5px;
+      }
+      .overtime {
+        color:#fff;
+        padding:.3rem .8rem;
+        background: linear-gradient(left, #ff322f, #ff6a2f);
         border-radius: 5px;
       }
       h2 {
@@ -226,77 +228,46 @@
         
       }
     }
+    .history-list{
+      display: flex;
+      justify-content: space-between;
+      padding:0 1rem;
+      position: relative;
+      color:#8494ac;
+      overflow-x: scroll;
+      width:100%;
+      li{
+        position: relative;
+        z-index: 1;
+      }
+      li h2{
+        width:5.71rem;
+        height: 1.5rem;
+        border:1px solid #e0e7f3;
+        border-radius: 1.79rem;
+        display: inline-block;
+        text-align: center;
+        line-height: 1.5rem;
+        background-color:#eaeff7;
+        margin:0 ;
+      }
+      p{
+        margin:0.5rem 0;
+      }
+      li:last-child h2{
+        color: #fff;
+        background-color:#4a79df;
+      }
+      div{
+        position:absolute;
+        left:0;
+        top:10px;
+        height: 1px;
+        background: #eaeff7;
+        width: 100%;
+        z-index: 0;
+      }
+    }
   }
-   .van-step--horizontal .van-step__title{
-    width:5.71rem;
-    height: 1.5rem;
-    border:1px solid #e0e7f3;
-    border-radius: 1.79rem;
-    display: inline-block;
-    text-align: center;
-    line-height: 1.5rem;
-  }
-  /* .van-step--horizontal.van-step--finish .van-step__circle, .van-step--horizontal.van-step--finish .van-step__line{
-        border: 1px solid #eaeff7;
-  }
-  .van-step--horizontal .van-step__line{
-    background-color: transparent;
-    border: 1px dashed #eaeff7;
-  }
-  .van-step--horizontal .van-step__line{
-    top:10px;
-    z-index: -1;
-  }  */
-  .el-steps{
-    padding:0 1rem;
-  }
-  .el-step__head.is-success{
-    color:#8494ac;
-    border-color: #8494ac;
-  }
-  .el-step__description.is-success,.el-step__title.is-success{
-    color:#8494ac;
-  }
-  .el-step__title.is-process {
-    font-weight: 700;
-    color: #fff;
-    background-color:#4a79df;
-}
-.el-step__icon.is-text{
-  border-color: #4a79df;
-  display: none;
-}
-.el-step__title{
-  width:5.71rem;
-    height: 1.9rem;
-    border:1px solid #e0e7f3;
-    border-radius: 1.79rem;
-    display: inline-block;
-    text-align: center;
-    line-height: 1.7rem;
-    font-size: 1rem;
-}
-.el-step__line{
-background-color: transparent;
-  border:1px dashed #eaeff7;
-}
-.is-success .el-step__line{
-  background-color: #eaeff7;
-}
-.el-step__title.is-success{
-  background-color:#eaeff7;
-}
-.el-step.is-horizontal .el-step__line{
-  left: 5.71rem;
-  width: 4.75rem;
-}
-.el-step__description.is-success,
-.el-step__description.is-process,
-.el-step__description.is-wait{
-  color:#8494ac;
-  margin-top: .5rem;
-}
-.el-step__title.is-wait{
-  background: #fff;
-}
+  
 </style>
