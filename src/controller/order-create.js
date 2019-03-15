@@ -292,6 +292,21 @@ function getNextNodes(formData) {
 }
 
 /**
+ * @desc 跳转节点
+ * @params
+ */
+function getGotoNodes(formData) {
+  return new Promise((resolve,reject)=>{
+    this.$post(uri.getGotoNodes,formData).then(res=>{
+      resolve(res)
+    })
+    .catch(err=>{
+      reject(err)
+    })
+  })
+}
+
+/**
  * @desc 上传
  * @params
  */
@@ -322,7 +337,7 @@ function deleteFile(formData) {
 }
 
 export {
-  getCustomerOrgDic,getBtDic,getCustomerDic,getUrgencyDic,getProjectDic,getProjectSubDic,getAssetType,getAssetsList,startWorkflow,saveWorkflow,loadWorkflow,updateWorkflow,upload,getNextNodes,deleteFile,evaluation,
+  getCustomerOrgDic,getBtDic,getCustomerDic,getUrgencyDic,getProjectDic,getProjectSubDic,getAssetType,getAssetsList,startWorkflow,saveWorkflow,loadWorkflow,updateWorkflow,upload,getNextNodes,getGotoNodes,deleteFile,evaluation,
   paperList,cananswer,submitPaper
 }
 

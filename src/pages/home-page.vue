@@ -29,15 +29,15 @@
           <div class="model-content">
             <h2 class="downNode">下一节点</h2>
               <ul class="nextNode">
-                <li v-for="(item,index) in nextNodesList" :key="index" @click="toSelectUser()">
-                  <input v-if="curNode.choice=='single'" type='radio' v-model='selectNodes' :value='item.componentId'/>
+                <li v-for="(item,index) in nextNodesList" :key="index">
+                  <input v-if="curNode.choice=='single'" type='radio' v-model='selectNodes' :value='item.componentId' name="nodes"/>
                   <input v-else type='checkbox' v-model='selectNodes' :value='item.componentId'/>
                   <span>{{item.name}}</span>
                 </li>        
               </ul>
               <ul class="nextUser clearfix">
                 <li v-for="(item,index) in chooseUser" :key="index">
-                  <input v-if="chooseUser.choice=='single'" v-model="selectUsers" class="users" type="radio" :value='item.id'>
+                  <input v-if="chooseUser.choice=='single'" v-model="selectUsers" class="users" type="radio" :value='item.id' name="users">
                   <input v-else v-model="selectUsers" class="users" type="checkbox" :value='item.id'>
                   <span>{{item.displayName}}</span>
                 </li>
@@ -59,25 +59,11 @@
               <span class="filter-f">{{item.name}}</span>
             </div>
             <ul class="work-con">
-              <li>
+              <li v-for="(item,index) in census" :key="index" @click="toList(item)">
                 <span class="ico c-ico"></span>
                 <div class="w-con">
-                  <span class="w-num">{{statisticsCount.CREATE}}</span>
-                  <span class="w-f">创建工单</span>
-                </div>
-              </li>
-              <li>
-                <span class="ico d-ico"></span>
-                <div class="w-con">
-                  <span class="w-num">{{statisticsCount.TODO}}</span>
-                  <span class="w-f">待办工单</span>
-                </div>
-              </li>
-              <li>
-                <span class="ico b-ico"></span>
-                <div class="w-con">
-                  <span class="w-num">{{statisticsCount.DONE}}</span>
-                  <span class="w-f">办理工单</span>
+                  <span class="w-num">{{getNum(item.value)}}</span>
+                  <span class="w-f">{{item.name}}</span>
                 </div>
               </li>
             </ul>
@@ -92,13 +78,14 @@
   import banner from 'assets/banner.jpg'
   import { Dialog } from 'vant';
   import tool from 'utils/tool'
-  import {getCustomerDic,startWorkflow,saveWorkflow} from 'controller/order-create'
+  import {getCustomerDic,getBtDic,startWorkflow,saveWorkflow} from 'controller/order-create'
   import form from 'utils/form-all'
   export default {
     name: 'home_page',
     data() {
       return {
         banner,
+        census:[{name:'创建工单',value:'CREATE'},{name:'待办工单',value:'TODO'},{name:'办理工单',value:'DONE'}],
         assetsArray:[],
         statistics: [{name:'本日',value:'Day'},{name:'本周',value:'Week'},{name:'本月',value:'Month'}],
         active: 0,
@@ -109,7 +96,13 @@
         curNode:{},
         selectNodes:'',
         chooseUser:[],
-        selectUsers:[]
+        selectUsers:[],
+        dateType:''
+      }
+    },
+    watch:{
+      selectNodes(){
+        this.toSelectUser();
       }
     },
     mounted() {
@@ -126,9 +119,17 @@
              _this.assetsArray.push(copyArr.splice(0,4))
           }
         })
+        getBtDic.bind(this)().then(res=>{
+          this.form.busiTypeCode = res[0].code;
+          this.form.busiTypeName = res[0].text;
+        })
+      },
+      getNum(status){
+        return this.statisticsCount[status];
       },
       selectTab(index) {
         let dateType = this.statistics[index]['value'];
+        this.dateType = dateType;
         let _this = this;
         this.$get('/jcss/api/wk/statistiscCount.action', {params: {dateType: dateType}}).then(res=>{
           _this.statisticsCount = res;
@@ -139,9 +140,18 @@
           name: 'order_create'
         })
       },
+      toList(item){
+        this.$router.push({
+          name: 'order_list',
+          params: {
+            dateType: this.dateType,
+            mode: item.value
+          }
+        })
+      },
       createOrder(it){
         this.form.assets = it;
-        startWorkflow.bind(this)(this.$store.state.admin.user.orgId,'FW').then(res=>{
+        startWorkflow.bind(this)(this.$store.state.admin.user.orgId,this.form.busiTypeCode).then(res=>{
           this.form.curNodeId_ = res.workflowBean.curNodeId_;
           this.form.definitionId_ = res.workflowBean.definitionId_;
           this.form.wUserType = res.wUserType;
@@ -156,10 +166,11 @@
       },
       // 选人
       toSelectUser(){
+        this.chooseUser = [];
         let nextNodeId = this.selectNodes;
         let _this = this;
         this.nextNodesList.forEach(function(v){
-          if (v.componentId == nextNodeId) {
+          if (v.componentId == nextNodeId) { 
             let confirmSequences = "";
             v.channel.forEach(function(item) {
               if(confirmSequences == "") {
@@ -185,7 +196,7 @@
             }else{
               let assignees = v.assignees;
               let assigneesIds = "", assigneesNames = "";
-              assigness.forEach(function(k){
+              assignees.forEach(function(k){
                 if(assigneesIds!= ""){
                   if (k.oldName!= null) {
                     assigneesIds+= "," + k.oldId;
@@ -231,8 +242,10 @@
         var formData = new FormData();
         formData.append('customerOrg',this.$store.state.admin.user.orgId)
         formData.append('customerOrgName',this.$store.state.admin.user.orgIdValue)
-        formData.append('busiTypeCode','FW')
-        formData.append('busiTypeName','服务')
+        formData.append('busiTypeCode',this.form.busiTypeCode)
+        formData.append('busiTypeName',this.form.busiTypeName)
+        formData.append('subject',this.$store.state.admin.user.orgIdValue+this.form.assets.assetsTypeName)
+        formData.append('billPlan',this.$store.state.admin.user.orgIdValue+this.form.assets.assetsTypeName)
         formData.append('assetTypeId',this.form.assets.id)
         formData.append('assetTypeName',this.form.assets.assetsTypeName)
         formData.append('attachFileMode','EDIT')
@@ -249,7 +262,8 @@
         if (action === 'confirm') {
           var formData = this.getForm();
           saveWorkflow.bind(this)(formData).then(res=>{
-            console.log(res)
+            this.$router.push({name:'order_list'})
+            done();
           })
         } else {
           done();
@@ -511,8 +525,9 @@
         .nextUser{
           display: flex;
           padding-top:0.8rem;
+          flex-wrap: wrap;
           li{
-            width:32%;
+            width:31%;
             margin-right:2%;
             height:2.5rem;
             line-height: 2.5rem;
@@ -520,6 +535,7 @@
             border:solid 1px #e9e9e9;
             border-radius: 3px;
             padding-left:0.8rem;
+            margin-bottom: 0.4rem;
             &:last-child{
               margin-right:0;
             }

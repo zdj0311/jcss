@@ -5,6 +5,7 @@
       :readonlyList="readonlyList"
       :pickerList="pickerList"
       :modeView="'create'"
+      :required="required"
       v-on:insest="insest"
     ></order-form>
   </div>
@@ -19,7 +20,8 @@ export default {
     return {
       existList: [12, 13, 14, 15, 16],
       readonlyList: [0, 1, 2],
-      pickerList: [3, 4, 5, 6, 9, 10, 11, 12]
+      pickerList: [3, 4, 5, 6, 9, 10, 11, 12],
+      required: [3,5,7,8]
     };
   },
   methods: {

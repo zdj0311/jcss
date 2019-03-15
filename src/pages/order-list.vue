@@ -143,7 +143,6 @@
       }
     },
     created() {
-
     },
     mounted() {
         this.getStatistic(this.getAll);

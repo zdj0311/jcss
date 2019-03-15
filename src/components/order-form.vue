@@ -15,16 +15,19 @@
       <van-cell-group>
         <template v-for="(item,index) in table">
           <template v-if="item.exist==true">
-            <div v-if="item.picker==true" :key="index">
+           <div v-if="item.picker==true" :key="index">
               <van-field
                 v-model="form[item.key_name]['text']"
                 :label="item.title"
                 placeholder="请选择"
                 @focus="showPicker(item)"
                 readonly
+                :required="item.required"
+                :error-message="item.message" 
+                @blur="!item.readonly?item.validate(index):''"
               />
             </div>
-            <div v-else-if="item.key_name === 'planEndTime' && item.picker==true" :key="index">
+           <div v-else-if="item.key_name === 'planEndTime' && item.picker==true" :key="index">
               <van-field
                 v-model="form[item.key_name]"
                 :label="item.title"
@@ -72,14 +75,14 @@
             <div v-else-if="item.key_name === 'urgencyValue'">
               <div v-if="!fData || (fData && fData.workflowConfig.canEditUrgency=='edit')">
                 <van-field
-                  v-model="form[item.key_name]['text']"
+                  v-model="urgencyValueText"
                   :label="item.title"
                   placeholder="请选择"
                   @focus="showPicker(item)"
                   readonly
                 />
               </div>
-              <div v-if="fData && fData.workflowConfig.canEditUrgency=='readonly'">
+             <div v-if="fData && fData.workflowConfig.canEditUrgency=='readonly'">
                 <van-field
                   readonly
                   :type="item.type?item.type:'input'"
@@ -95,6 +98,9 @@
                 v-model="form[item.key_name]"
                 :label="item.title"
                 :placeholder="item.readonly?'':'请输入'"
+                :required="item.required"
+                :error-message="item.message" 
+                @blur="!item.readonly?item.validate(index):''"
               />
             </div>
           </template>
@@ -147,12 +153,13 @@
           <div class="adDetail-bottom">
             <h2 class="downNode">下一节点</h2>
             <ul class="nextNode">
-              <li v-for="(item,index) in nextNodesList" :key="index" @click="toSelectUser()">
+              <li v-for="(item,index) in nextNodesList" :key="index">
                 <input
                   v-if="curNode.choice=='single'"
                   type="radio"
                   v-model="selectNodes"
                   :value="item.componentId"
+                  name="nodes"
                 >
                 <input v-else type="checkbox" v-model="selectNodes" :value="item.componentId">
                 <span>{{item.name}}</span>
@@ -166,6 +173,7 @@
                   class="users"
                   type="radio"
                   :value="item.id"
+                  name="users"
                 >
                 <input v-else v-model="selectUsers" class="users" type="checkbox" :value="item.id">
                 <span>{{item.displayName}}</span>
@@ -177,7 +185,7 @@
       <ul class="authen nomr">
         <li>
           <div class="authenTab">
-            <label class="auTitle">上传附件</label>{{fData}}
+            <label class="auTitle">上传附件</label>
             <template v-if="!fData || (fData && fData.workflowConfig.canEditAttach=='edit')">
               <span class="fileinput-button">
                 <a href="javascript:void(0)" class="clickUp">点击上传</a>
@@ -214,10 +222,20 @@
     <van-dialog v-model="showReject" show-cancel-button :before-close="beforeCloseReject">
       <ul class="table">
         <li v-for="(item,index) in rejectNodeList" :key="index">
-          <!-- <template v-if="item.id != fData.workflowBean.curNodeId && item.selected"> -->
-          <input type="radio" name="rejectSelectRadio" :value="item.id" v-model="nodeReject">
-          {{item.name}}
-          <!-- </template> -->
+          <template v-if="isReject(item)"> 
+            <input type="radio" name="rejectSelectRadio" :value="item.id" v-model="nodeReject">
+            {{item.name}}
+          </template>
+        </li>
+      </ul>
+    </van-dialog>
+    <van-dialog v-model="showGoto" show-cancel-button :before-close="beforeCloseGoto">
+      <ul class="table">
+        <li v-for="(item,index) in gotoNodesList" :key="index">
+          <template v-if="isGoto(item)">
+            <input type="radio" name="gotoSelectRadio" :value="item.componentId" v-model="nodeGoto">
+            {{item.name}}
+          </template>
         </li>
       </ul>
     </van-dialog>
@@ -247,6 +265,7 @@ import {
   updateWorkflow,
   upload,
   getNextNodes,
+  getGotoNodes,
   deleteFile,
   evaluation
 } from "controller/order-create";
@@ -270,10 +289,16 @@ export default {
     },
     modeView: {
       type: String
+    },
+    required: {
+      type: Array
     }
   },
   data() {
     return {
+      gotoNodesList: [],
+      showGoto: false,
+      nodeGoto: [],
       userMove: [],
       showMove: false,
       usersMove: "",
@@ -331,7 +356,8 @@ export default {
         },
         {
           key_name: "customerOrgName",
-          title: "客户名称"
+          title: "客户",
+          validate:this.validateEmpty
         },
         {
           key_name: "customerName",
@@ -339,7 +365,8 @@ export default {
         },
         {
           key_name: "busiTypeName",
-          title: "工单类型"
+          title: "工单类型",
+          validate:this.validateEmpty
         },
         {
           key_name: "planEndTime",
@@ -347,12 +374,14 @@ export default {
         },
         {
           key_name: "subject",
-          title: "事件主题"
+          title: "事件主题",
+          validate:this.validateEmpty
         },
         {
           key_name: "billPlan",
           title: "事件描述",
-          type: "textarea"
+          type: "textarea",
+          validate:this.validateEmpty
         },
         {
           key_name: "urgencyValue",
@@ -391,6 +420,11 @@ export default {
       ]
     };
   },
+  watch:{
+    selectNodes(){
+      this.toSelectUser();
+    }
+  },
   created() {
     if (this.modeView == "create") {
       getCustomerOrgDic
@@ -413,7 +447,7 @@ export default {
     } else {
       // 工作流初始化
       loadWorkflow
-        .bind(this)(tool.getQueryString("id") ? tool.getQueryString("id") : 280)
+        .bind(this)(tool.getQueryString("id") ? tool.getQueryString("id") : 12)
         .then(res => {
           this.fData = res;
           this.initButton(res.workflowBean);
@@ -428,15 +462,16 @@ export default {
           this.getNextNodes();
           this.files = res.attachList;
           if (res.workflowConfig.canEditUrgency == "edit") {
+            this.urgencyValueText = this.form.urgencyValue?this.form.urgencyValue:'';
             getUrgencyDic
               .bind(this)("urgency", "jcss")
               .then(res => {
-                this.urgencyDic = res;
+                this.urgencyDic = res; 
               });
           }
           // if(res.workflowBean.openType_=='VIEW' && res.workflowConfig.canEditEvaluate=='edit'){
-          this.mode = "evaluation";
-          this.getStar();
+          // this.mode = "evaluation";
+          // this.getStar();
           // }
         });
     }
@@ -532,6 +567,11 @@ export default {
       ) {
         this.startWorkflow();
       }
+      if (
+        this.keyName == "urgencyValue"
+      ) {
+        this.urgencyValueText = v.text;
+      }
       this.show = false;
     },
     // 初始化
@@ -550,6 +590,9 @@ export default {
         if (this.pickerList && this.pickerList.includes(index)) {
           item.picker = true;
         }
+        if (this.required && this.required.includes(index)) {
+          item.required = true;
+        }
       });
     },
     initForm(billData) {
@@ -563,9 +606,20 @@ export default {
         this.form.appUser = user.userId;
         this.form.appUserName = user.userName;
         this.form.appUserPhone = user.mobile;
-        this.form.startTimeStr = new Date().Format("yyyy-MM-dd hh:mm:ss");
+        this.form.startTime = new Date().Format("yyyy-MM-dd hh:mm:ss");
       } else {
         this.form = billData;
+      }
+    },
+    // 校验非空
+    validateEmpty(index) {
+      let item = this.table[index]
+      if(!this.form[item.key_name]) {
+        item.message = '请输入' + item.title
+        this.setCheck(index,false)
+      }else {
+        item.message = ''
+        this.setCheck(index,true)
       }
     },
     // 初始化按钮
@@ -645,6 +699,7 @@ export default {
           _this.form.wUserType = res.wUserType;
           _this.form.flowStatus_ = res.workflowBean.flowStatus_;
           _this.form.buttonOptJsonStr = res.workflowBean.buttonOptJsonStr;
+          _this.form.subProcessId_ = res.workflowBean.subProcessId_;
           _this.getNextNodes();
         });
     },
@@ -667,7 +722,7 @@ export default {
         this.showRoute("Reject");
       } else if (id == "4") {
         // this.showRoute("Move")
-        this.showRoute("Move");
+        this.showRoute("Goto");
       } else if (id == "5") {
         this.showRoute("Goto");
       } else if (id == "6") {
@@ -680,11 +735,15 @@ export default {
         this.showRoute("GetBack");
       }
     },
+    isNull(it){
+      return it&&'null' != it?it:"";
+    },
     getForm() {
+      console.log(typeof(this.isNull(this.form.planEndTime)))
       this.selectUsers = Array.isArray(this.selectUsers)
         ? this.selectUsers.join(",")
         : this.selectUsers;
-      this.assetsRelList = this.assetsRelList.join(",");
+      this.assetsRelList = typeof(this.assetsRelList)=='array'?this.assetsRelList.join(","):this.isNull(this.assetsRelList);
       let _this = this;
       this.form.attachFile = "";
       this.files.forEach(function(v, index) {
@@ -693,149 +752,149 @@ export default {
       var formData = new FormData();
       formData.append(
         "nowCustomerOrgId",
-        this.fData ? this.fData.nowCustomerOrgId : ""
+        this.fData ? this.isNull(this.fData.nowCustomerOrgId) : null
       );
-      formData.append("id", this.form.id);
-      formData.append("modifyDateStr", this.form.modifyDate);
-      formData.append("appUser", this.form.appUser);
-      formData.append("appUserName", this.form.appUserName);
-      formData.append("appUserPhone", this.form.appUserPhone);
-      formData.append("startTimeStr", this.form.startTimeStr);
-      formData.append("status", this.form.status);
-      formData.append("statusValue", this.form.statusValue);
-      formData.append("code", this.form.code);
+      formData.append("id", this.isNull(this.form.id));
+      formData.append("modifyDateStr", this.isNull(this.form.modifyDate));
+      formData.append("appUser", this.isNull(this.form.appUser));
+      formData.append("appUserName", this.isNull(this.form.appUserName));
+      formData.append("appUserPhone", this.isNull(this.form.appUserPhone));
+      formData.append("startTimeStr", this.isNull(this.form.startTime));
+      formData.append("status", this.isNull(this.form.status));
+      formData.append("statusValue", this.isNull(this.form.statusValue));
+      formData.append("code", this.isNull(this.form.code));
       formData.append(
         "customerOrg",
         this.fData
-          ? this.fData.billData.customerOrg
-          : this.form.customerOrgName.code
+          ? this.isNull(this.fData.billData.customerOrg)
+          : this.isNull(this.form.customerOrgName.code)
       );
       formData.append(
         "customerOrgName",
         this.fData
-          ? this.fData.billData.customerOrgName
-          : this.form.customerOrgName.text
+          ? this.isNull(this.fData.billData.customerOrgName)
+          : this.isNull(this.form.customerOrgName.text)
       );
       formData.append(
         "customer",
-        this.fData ? this.fData.billData.customer : this.form.customerName.code
+        this.fData ? this.isNull(this.fData.billData.customer) : this.isNull(this.form.customerName.code)
       );
       formData.append(
         "customerName",
         this.fData
-          ? this.fData.billData.customerName
-          : this.form.customerName.text
+          ? this.isNull(this.fData.billData.customerName)
+          : this.isNull(this.form.customerName.text)
       );
       formData.append(
         "busiTypeCode",
         this.fData
-          ? this.fData.billData.busiTypeCode
-          : this.form.busiTypeName.code
+          ? this.isNull(this.fData.billData.busiTypeCode)
+          : this.isNull(this.form.busiTypeName.code)
       );
       formData.append(
         "busiTypeName",
         this.fData
-          ? this.fData.billData.busiTypeName
-          : this.form.busiTypeName.text
+          ? this.isNull(this.fData.billData.busiTypeName)
+          : this.isNull(this.form.busiTypeName.text)
       );
       formData.append(
         "urgency",
-        this.fData ? this.fData.billData.urgency : this.form.urgencyValue.code
+        this.fData ? this.isNull(this.fData.billData.urgency) : this.isNull(this.form.urgencyValue.code)
       );
       formData.append(
         "urgencyValue",
         this.fData
-          ? this.fData.billData.urgencyValue
-          : this.form.urgencyValue.text
+          ? this.isNull(this.fData.billData.urgencyValue)
+          : this.isNull(this.form.urgencyValue.text)
       );
-      formData.append("planStartTimeStr", this.form.startTime);
-      formData.append("planEndTimeStr", this.form.planEndTime);
-      formData.append("subject", this.form.subject);
-      formData.append("billPlan", this.form.billPlan);
+      formData.append("planStartTimeStr", this.isNull(this.form.startTime));
+      formData.append("planEndTimeStr", this.isNull(this.form.planEndTime));
+      formData.append("subject", this.isNull(this.form.subject));
+      formData.append("billPlan", this.isNull(this.form.billPlan));
       formData.append(
         "projectId",
-        this.fData ? this.fData.billData.projectId : this.form.projectName.code
+        this.fData ? this.isNull(this.fData.billData.projectId) : this.isNull(this.form.projectName.code)
       );
       formData.append(
         "projectName",
         this.fData
-          ? this.fData.billData.projectName
-          : this.form.projectName.text
+          ? this.isNull(this.fData.billData.projectName)
+          : this.isNull(this.form.projectName.text)
       );
       formData.append(
         "subProjectId",
         this.fData
-          ? this.fData.billData.subProjectId
-          : this.form.subProjectName.code
+          ? this.isNull(this.fData.billData.subProjectId)
+          : this.isNull(this.form.subProjectName.code)
       );
       formData.append(
         "subProjectName",
         this.fData
-          ? this.fData.billData.subProjectName
-          : this.form.subProjectName.text
+          ? this.isNull(this.fData.billData.subProjectName)
+          : this.isNull(this.form.subProjectName.text)
       );
-      formData.append("assetTypeId", this.form.assetTypeId);
-      formData.append("assetTypeName", this.form.assetTypeName);
-      formData.append("billAssess", this.form.billAssess);
-      formData.append("publishSuggest", this.form.publishSuggest);
-      formData.append("assetsRelList", this.assetsRelList);
-      formData.append("attachFile", this.form.attachFile);
-      formData.append("deleteAttachFile", this.deleteAttachFile);
+      formData.append("assetTypeId", this.isNull(this.form.assetTypeId));
+      formData.append("assetTypeName", this.isNull(this.form.assetTypeName));
+      formData.append("billAssess", this.isNull(this.form.billAssess));
+      formData.append("publishSuggest", this.isNull(this.form.publishSuggest));
+      formData.append("assetsRelList", this.isNull(this.assetsRelList));
+      formData.append("attachFile", this.isNull(this.form.attachFile));
+      formData.append("deleteAttachFile", this.isNull(this.deleteAttachFile));
       formData.append(
         "attachFileMode",
-        this.form.attachFileMode ? this.form.attachFileMode : "EDIT"
+        this.form.attachFileMode ? this.isNull(this.form.attachFileMode) : "EDIT"
       );
       formData.append(
         "workflowBean.curNodeId_",
         this.fData && this.fData.workflowBean
-          ? this.fData.workflowBean.curNodeId_
-          : this.form.curNodeId_
+          ? this.isNull(this.fData.workflowBean.curNodeId_)
+          : this.isNull(this.form.curNodeId_)
       );
       formData.append(
         "workflowBean.definitionId_",
         this.fData && this.fData.workflowBean
-          ? this.fData.workflowBean.definitionId_
-          : this.form.definitionId_
+          ? this.isNull(this.fData.workflowBean.definitionId_)
+          : this.isNull(this.form.definitionId_)
       );
-      formData.append("workflowBean.confirmUserId_", this.selectUsers);
-      formData.append("workflowBean.confirmNodeId_", this.form.confirmNodeId_);
+      formData.append("workflowBean.confirmUserId_", this.isNull(this.selectUsers));
+      formData.append("workflowBean.confirmNodeId_", this.isNull(this.form.confirmNodeId_));
       formData.append(
         "workflowBean.confirmRouteId_",
-        this.form.confirmRouteId_
+        this.isNull(this.form.confirmRouteId_)
       );
       formData.append(
         "workflowBean.workflowVar_['wUserType']",
         this.fData && this.fData.wUserType
-          ? this.fData.wUserType
-          : this.form.wUserType
+          ? this.isNull(this.fData.wUserType)
+          : this.isNull(this.form.wUserType)
       );
       formData.append(
         "workflowBean.workflowVar_['wCustomerUserId']",
         this.fData && this.fData.wCustomerUserId
-          ? this.fData.wCustomerUserId
-          : ""
+          ? this.isNull(this.fData.wCustomerUserId)
+          : null
       );
       formData.append(
         "workflowBean.taskId_",
         this.fData && this.fData.workflowBean
-          ? this.fData.workflowBean.taskId_
-          : ""
+          ? this.isNull(this.fData.workflowBean.taskId_)
+          : null
       );
       formData.append(
         "workflowBean.instanceId_",
         this.fData && this.fData.workflowBean
-          ? this.fData.workflowBean.instanceId_
-          : ""
+          ? this.isNull(this.fData.workflowBean.instanceId_)
+          : null
       );
       formData.append(
         "workflowBean.signInfo_",
         this.fData && this.fData.workflowBean
-          ? this.fData.workflowBean.signInfo_
-          : ""
+          ? this.isNull(this.fData.workflowBean.signInfo_)
+          : null
       );
-      formData.append("workflowBean.message_", this.form["workOrderSuggest"]);
+      formData.append("workflowBean.message_", this.isNull(this.form["workOrderSuggest"]));
       formData.append("workflowBean.suggestId_", "workOrderSuggest");
-      formData.append("workflowBean.submitType_", this.form.submitType_);
+      formData.append("workflowBean.submitType_", this.isNull(this.form.submitType_));
       return formData;
     },
     // 获取下一节点
@@ -852,6 +911,7 @@ export default {
     },
     // 选人
     toSelectUser() {
+      this.chooseUser = [];
       let nextNodeId = this.selectNodes;
       let _this = this;
       this.nextNodesList.forEach(function(v) {
@@ -1005,6 +1065,7 @@ export default {
       let flowStatus = this.fData
         ? this.fData.workflowBean.flowStatus_
         : this.form.flowStatus_;
+      // 提交
       if (type == "Submit") {
         this.form.submitType_ = "SUBMIT";
         if (flowStatus == "CREATE") {
@@ -1012,6 +1073,7 @@ export default {
         } else {
           this.$emit("update", this.getForm());
         }
+      // 暂存
       } else if (type == "Save") {
         Dialog.confirm({
           message: "是否要暂存该流程"
@@ -1023,6 +1085,7 @@ export default {
             this.$emit("update", this.getForm());
           }
         });
+      // 拿回
       } else if (type == "GetBack") {
         Dialog.confirm({
           message: "是否要拿回该流程"
@@ -1034,6 +1097,7 @@ export default {
             this.$emit("update", this.getForm());
           }
         });
+      // 终止
       } else if (type == "Stop") {
         Dialog.confirm({
           message: "是否要终止该流程"
@@ -1045,6 +1109,7 @@ export default {
             this.$emit("update", this.getForm());
           }
         });
+      // 暂停
       } else if (type == "Suspend") {
         Dialog.confirm({
           message: "是否要暂停该流程"
@@ -1056,6 +1121,7 @@ export default {
             this.$emit("update", this.getForm());
           }
         });
+      // 恢复
       } else if (type == "Resume") {
         Dialog.confirm({
           message: "是否要恢复该流程"
@@ -1067,6 +1133,7 @@ export default {
             this.$emit("update", this.getForm());
           }
         });
+      // 退回
       } else if (type == "Reject") {
         let buttonOptJsonStr = this.fData
           ? this.fData.workflowBean.buttonOptJsonStr
@@ -1087,6 +1154,7 @@ export default {
         }
         this.rejectNodeList = rejectNodeList;
         this.showReject = true;
+      // 转办
       } else if (type == "Move") {
         getCustomerDic
           .bind(this)(
@@ -1100,10 +1168,29 @@ export default {
             this.userMove = assignees;
             this.showMove = true;
           });
+      // 跳转
       } else if (type == "Goto") {
+        var formData = new FormData();
+        formData.append("definitionId_",this.fData?this.fData.workflowBean.definitionId_:this.form.definitionId_)
+        formData.append("subProcessId_",this.fData?this.fData.workflowBean.subProcessId_:this.form.subProcessId_)
+        getGotoNodes.bind(this)(formData).then(res=>{
+          this.gotoNodesList = res.gotoNodesList;
+          this.showGoto = true;
+        })
       }
     },
+    isReject(item){
+      let curNodeId = this.fData?this.fData.workflowBean.curNodeId_:this.form.curNodeId_;
+      return item.id.toUpperCase() != curNodeId.toUpperCase() && item.selected;
+    },
+    isGoto(item){
+      let curNodeId = this.fData?this.fData.workflowBean.curNodeId_:this.form.curNodeId_
+      return item.componentId.toUpperCase().indexOf("USERTASK") != -1 && item.componentId.toUpperCase() != curNodeId.toUpperCase();
+    },
     beforeCloseReject(action, done) {
+      let flowStatus = this.fData
+        ? this.fData.workflowBean.flowStatus_
+        : this.form.flowStatus_;
       if (action === "confirm") {
         if (this.nodeReject == "") {
           Dialog.alert({
@@ -1112,19 +1199,25 @@ export default {
           done();
         } else {
           this.form.confirmNodeId_ = this.nodeReject;
-          done();
-          form.submitType_ = "REJECT";
+          this.form.submitType_ = "REJECT";
           if (flowStatus == "CREATE") {
             this.$emit("insest", this.getForm());
           } else {
             this.$emit("update", this.getForm());
           }
+          done();
+          // Dialog.alert({
+          //   message: "提交成功"
+          // });
         }
       } else {
         done();
       }
     },
     beforeCloseMove(action, done) {
+      let flowStatus = this.fData
+        ? this.fData.workflowBean.flowStatus_
+        : this.form.flowStatus_;
       if (action === "confirm") {
         if (this.usersMove == "") {
           Dialog.alert({
@@ -1133,13 +1226,43 @@ export default {
           done();
         } else {
           this.selectUsers = this.usersMove;
-          done();
-          form.submitType_ = "Move";
+          this.form.submitType_ = "Move";
           if (flowStatus == "CREATE") {
             this.$emit('insest', this.getForm())
           } else {
             this.$emit('update', this.getForm())
           }
+          done();
+          // Dialog.alert({
+          //   message: "提交成功"
+          // });
+        }
+      } else {
+        done();
+      }
+    },
+    beforeCloseGoto(action, done) {
+      let flowStatus = this.fData
+        ? this.fData.workflowBean.flowStatus_
+        : this.form.flowStatus_;
+      if (action === "confirm") {
+        if (this.nodeGoto == "") {
+          Dialog.alert({
+            message: "请选择退回节点"
+          });
+          done();
+        } else {
+          this.form.confirmNodeId_ = this.nodeGoto;
+          this.form.submitType_ = "Goto";
+          if (flowStatus == "CREATE") {
+            this.$emit("insest", this.getForm());
+          } else {
+            this.$emit("update", this.getForm());
+          }
+          done();
+          // Dialog.alert({
+          //   message: "提交成功"
+          // }); 
         }
       } else {
         done();
@@ -1167,6 +1290,9 @@ body {
   }
 }
 .order-form {
+  .order{
+    padding-bottom:4.08rem;
+  }
   .adDetail-bottom {
     background: #fff;
     border-top: solid 1px #eee;

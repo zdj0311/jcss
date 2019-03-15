@@ -26,4 +26,5 @@ export default{
   cananswer: api + 'api/wx/question/check/cananswer.action', //是否有权限答题
   submitPaper: api + 'api/wx/question/submit.action', // 提交问卷
   getHistory:api + '/api/wk/getHistory.action',//流转详情
+  getGotoNodes: api + 'api/wk/getGotoNodes.action' // 跳转节点
 }
