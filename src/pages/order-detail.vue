@@ -42,7 +42,9 @@
         <h2>附件信息</h2>
         <div class="row" v-for="(item,index) in fileInfo" :key="index">
           <span class="title">{{ item.title }}</span>
-          <span class="value">{{ item.value }}</span>
+          <div class="value" v-if="item.value.length>0">
+            <div v-for="(obj,i) in item.value">{{ obj.fileName }}</div>
+          </div>
         </div>
       </div>
     </div>
@@ -129,7 +131,8 @@
         .value {
           flex:3;
           display:flex;
-          align-items: center;
+          flex-flow: column;
+          justify-content: center;
           padding:0 .8rem;
           font-size: .9rem;
         }

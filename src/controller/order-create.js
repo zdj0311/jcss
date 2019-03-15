@@ -37,6 +37,7 @@ function getBtDic() {
  * @params
  */
 function getCustomerDic(nowCustomerOrgId) {
+  alert(nowCustomerOrgId)
   return new Promise((resolve,reject)=>{
     let data = {nowCustomerOrgId:nowCustomerOrgId}
     Vue.$axios.get(uri.getCustomerDic,{params:data}).then(res=>{
