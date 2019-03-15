@@ -108,6 +108,7 @@
         this.getHistory(id);
       },
       change(obj){
+        console.log(obj)
         for (var key in obj) {
           if(key == 'mode' || key ==  'dateType' || key ==  'dataScope'){
               this.getAll[key] = obj[key]

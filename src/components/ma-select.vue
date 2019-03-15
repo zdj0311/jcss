@@ -53,7 +53,7 @@
       },
       select(item,index) {
         this.active = index
-        this.$emit('change',item)
+        this.$emit('change',Object.assign({},item,{index:index}))
         this.isShow = false
       }
     }
