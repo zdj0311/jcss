@@ -63,8 +63,9 @@
       };
     },
     created() {
-      console.log(this.$route.params._id)
-      getDetail.bind(this)().then(res=>{
+      getDetail.bind(this)({
+        id:this.$route.params._id
+      }).then(res=>{
         this.baseInfo = res.baseInfo
         this.auditInfo = res.auditInfo
         this.projectInfo = res.projectInfo

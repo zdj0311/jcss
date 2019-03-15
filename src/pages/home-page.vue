@@ -119,7 +119,7 @@
     methods: {
       getInfo(){
         let _this = this;
-        this.$get('jcss/api/wk/dic/assetsTypeList.action', {params: {customerId: _this.$store.state.admin.user.orgId}}).then(res=>{
+        this.$get('/jcss/api/wk/dic/assetsTypeList.action', {params: {customerId: _this.$store.state.admin.user.orgId}}).then(res=>{
           let copyArr =  res.slice(0,res.length)
           let len = Math.ceil(res.length/4);
           for(var i=0;i<len;i++){
@@ -130,7 +130,7 @@
       selectTab(index) {
         let dateType = this.statistics[index]['value'];
         let _this = this;
-        this.$get('jcss/api/wk/statistiscCount.action', {params: {dateType: dateType}}).then(res=>{
+        this.$get('/jcss/api/wk/statistiscCount.action', {params: {dateType: dateType}}).then(res=>{
           _this.statisticsCount = res;
         })
       },
