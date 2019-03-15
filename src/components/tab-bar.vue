@@ -13,14 +13,19 @@
   import uri from 'utils/uri'   
   export default {
     name: 'magix_header',
+    props:{
+      value:Number
+    },
+    watch: {
+      value(n) {
+        this.active = n
+      }
+    },
     data() {
       return {
         active: 0,
         dictionary:['home_page','order_list','feedback','user_center']
       }
-    },
-    created() {
-      
     },
     computed: {
       onRoute() {
@@ -29,6 +34,7 @@
     },
     methods: {
       change(i) {
+        this.$emit('input',this.active)
         this.$router.push({name:this.dictionary[i]})
       }
     }

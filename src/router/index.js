@@ -36,7 +36,7 @@ export default new Router({
       name: 'home_page',
       component: HomePage,
       meta: {
-        keepAlive: true
+        keepAlive: false
       }
     },// 我的工单
     {
@@ -44,7 +44,7 @@ export default new Router({
       name: 'order_list',
       component: OrderList,
       meta: {
-        keepAlive: true
+        keepAlive: false
       }
     },// 意见反馈
     {
@@ -52,7 +52,7 @@ export default new Router({
       name: 'feedback',
       component: Feedback,
       meta: {
-        keepAlive: true
+        keepAlive: false
       }
     },// 个人中心
     {
@@ -60,7 +60,7 @@ export default new Router({
       name: 'user_center',
       component: userCenter,
       meta: {
-        keepAlive: true
+        keepAlive: false
       }
     },]
     },
@@ -70,7 +70,7 @@ export default new Router({
       name: 'service_trace',
       component: ServiceTrace,
       meta: {
-        keepAlive: true
+        keepAlive: false
       }
     },
     // 工单创建
@@ -79,7 +79,7 @@ export default new Router({
       name: 'order_create',
       component: OrderCreate,
       meta: {
-        keepAlive: true
+        keepAlive: false
       }
     },
     // 工单处理
@@ -88,7 +88,7 @@ export default new Router({
       name: 'order_resolver',
       component: OrderResolver,
       meta: {
-        keepAlive: true
+        keepAlive: false
       }
     },
     // 工单详情
@@ -97,7 +97,7 @@ export default new Router({
       name: 'order_detail',
       component: OrderDetail,
       meta: {
-        keepAlive: true
+        keepAlive: false
       }
     },
     // 评价
@@ -106,7 +106,7 @@ export default new Router({
       name: 'evaluation',
       component: Evaluation,
       meta: {
-        keepAlive: true
+        keepAlive: false
       }
     },
     // 身份认证
@@ -115,7 +115,7 @@ export default new Router({
       name: 'auth',
       component: Auth,
       meta: {
-        keepAlive: true
+        keepAlive: false
       }
     },
     // 日报
@@ -124,7 +124,7 @@ export default new Router({
       name: 'daily_log',
       component: DailyLog,
       meta: {
-        keepAlive: true
+        keepAlive: false
       }
     },
     // 问卷列表
@@ -133,7 +133,7 @@ export default new Router({
       name: 'survey_list',
       component: surveyList,
       meta: {
-        keepAlive: true
+        keepAlive: false
       }
     },
     // 问卷详细
@@ -142,7 +142,7 @@ export default new Router({
       name: 'survey_detail',
       component: surveyDetail,
       meta: {
-        keepAlive: true
+        keepAlive: false
       }
     },
     // 可视化 综合管理服务平台
@@ -151,7 +151,7 @@ export default new Router({
       name: 'visualization',
       component: visualization,
       meta: {
-        keepAlive: true
+        keepAlive: false
       }
     },
   ]
