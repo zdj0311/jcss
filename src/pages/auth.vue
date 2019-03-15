@@ -71,8 +71,8 @@
         table:[{
           key_name:'orgName',
           value:'',
-          title:'客户名称',
-          placeholder:'请输入客户名称',
+          title:'客户',
+          placeholder:'请输入客户',
           message:'',
           validate:this.validateEmpty,
           readonly:false
@@ -154,7 +154,13 @@
         }
         // 初始化校验数组，长度为form-item条数
         for(let item in this.form) {
-          this.check.push(false)
+          
+          console.log(item)
+          if(item === 'orgName' || item === 'userName' ||  item === 'mobile') {
+            this.check.push(false)
+          }else {
+            this.check.push(true)
+          }
         }
       },
       // 将整个form置为readonly
@@ -169,16 +175,12 @@
       submit() {
         let result = true
         this.check.forEach((item,index)=>{
-          if(index < 3 && item === false) {
+          if(item === false) {
             this.validateEmpty(index)
             result = false
-          }else if(index === 5 && item === false) {
-            result = this.validateCardNo(index)
-            result = this.check[5]
           }
         })
         if(result) {
-          alert(result)
           bindUser.bind(this)(this.form).then(res=>{
             this.$toast('已提交认证，请耐心等待')
             this.init() 

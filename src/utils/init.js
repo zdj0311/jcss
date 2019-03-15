@@ -4,10 +4,10 @@ import config from '../../config'
 Vue.mixin({
   methods: {
     addPath(url) {
-      return config.build.hostname + url
+      return config.publicPath + url
     },
     addHost(url) {
-      return config.build.hostname + url
+      return config.hostname + url
     }
   }
 })

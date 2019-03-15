@@ -9,7 +9,7 @@
             <span>工单列表</span>
           </header>
           <el-table class="table" :data="tableData[0]" size="mini" border style="width: 100%">
-            <el-table-column prop="orgName" label="客户名称" width="80"></el-table-column>
+            <el-table-column prop="orgName" label="客户" width="80"></el-table-column>
             <el-table-column prop="userName" label="姓名" width="80"></el-table-column>
             <el-table-column prop="createUser" label="创建人"></el-table-column>
             <el-table-column prop="resolveUser" label="处理人"></el-table-column>
@@ -26,7 +26,7 @@
             <span>工单列表</span>
           </header>
           <el-table class="table" :data="tableData[1]" size="mini" border style="width: 100%">
-            <el-table-column prop="orgName" label="客户名称" width="80"></el-table-column>
+            <el-table-column prop="orgName" label="客户" width="80"></el-table-column>
             <el-table-column prop="userName" label="姓名" width="80"></el-table-column>
             <el-table-column prop="createUser" label="创建人"></el-table-column>
             <el-table-column prop="resolveUser" label="处理人"></el-table-column>
@@ -43,7 +43,7 @@
             <span>工单列表</span>
           </header>
           <el-table class="table" :data="tableData[2]" size="mini" border style="width: 100%">
-            <el-table-column prop="orgName" label="客户名称" width="80"></el-table-column>
+            <el-table-column prop="orgName" label="客户" width="80"></el-table-column>
             <el-table-column prop="userName" label="姓名" width="80"></el-table-column>
             <el-table-column prop="createUser" label="创建人"></el-table-column>
             <el-table-column prop="resolveUser" label="处理人"></el-table-column>

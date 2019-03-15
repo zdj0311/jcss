@@ -11,6 +11,7 @@ import Vant from 'vant'
 import ElementUI from 'element-ui';
 import axios from 'axios'
 import getUser from 'utils/getUser'
+import VConsole from 'vconsole/dist/vconsole.min.js'
 
 import 'element-ui/lib/theme-chalk/index.css';
 import 'vant/lib/index.css'
@@ -20,6 +21,8 @@ import init from 'utils/init'
 Vue.config.productionTip = false
 Vue.use(Vant);
 Vue.use(ElementUI);
+
+let vConsole = new VConsole()
 if(process.env.NODE_ENV === 'development' && config.dev.mock) {
   let Mock = require('mockjs')
   Vue.$mock = Vue.prototype.$mock = Mock

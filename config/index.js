@@ -4,6 +4,10 @@
 const path = require('path')
 var hostname = null
 var route_proxy = false
+var publicPath = ''
+if(process.env.NODE_ENV === 'development') {
+  publicPath = 'http://192.168.200.50/jcss'
+}
 if(process.env.NODE_ENV === 'proxy') {
   hostname = 'http://www.jiachengnet.com/'
   route_proxy = true
@@ -13,6 +17,7 @@ if(process.env.NODE_ENV === 'proxy') {
 
 module.exports = {
   hostname:hostname,
+  publicPath:publicPath,
   route_proxy:route_proxy,
   proxy: {
     assetsSubDirectory: 'static',

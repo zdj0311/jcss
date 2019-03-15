@@ -48,12 +48,10 @@ function bindUser(params) {
     if(process&&process.env&&process.env.NODE_ENV === 'proxy') {
       formData.append("openId", localStorage.getItem('openid'));
     }
-    alert(uri.bindUser)
     this.$post(uri.bindUser,formData).then(res=>{
       resolve(res)
     })
     .catch(err=>{
-      alert(err)
       reject(err)
     })
   })

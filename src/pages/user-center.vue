@@ -6,7 +6,7 @@
     </header>
     <van-cell :value="user.orgName" is-link :icon="orgName">
       <template slot="title">
-        <span class="custom-text">客户名称</span>
+        <span class="custom-text">客户</span>
       </template>
     </van-cell>
     <van-cell :value="user.userName" is-link :icon="contact">

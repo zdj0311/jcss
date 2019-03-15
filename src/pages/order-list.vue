@@ -24,7 +24,7 @@
       </div>
     </div>
   </div>
-    <ma-select></ma-select>
+    <ma-select v-model="show" :properties="properties"></ma-select>
   </div>
 </template>
 
@@ -44,12 +44,15 @@
         },{
           text:'时间'
         }],
-        order_list:[]
+        order_list:[],
+        show:false,
+        properties:['全部','我的','代办']
       };
     },
     methods: {
       showPannel(i) {
         console.log(i)
+        this.show = true
       }
     },
     created() {
@@ -63,7 +66,9 @@
 <style lang='scss'>
   .order-list {
     .menus {
+      position:relative;
       display:flex;
+      z-index: 3014;
     }
     .menu-item {
       display:flex;

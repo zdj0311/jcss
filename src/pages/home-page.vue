@@ -1,6 +1,6 @@
 <template>
   <div class="home-page">
-    <div class="banner-r"></div>
+    <div class="banner-r" :style="{backgroundImage:'url('+banner+')'}"></div>
     <div class="create">
       <div class="create-head">
         <div class="head-a">
@@ -15,7 +15,7 @@
       <van-swipe :autoplay="3000">
         <van-swipe-item v-for="(item, index) in assetsArray" :key="index">
           <div class="l-list" v-for="(it, index) in item" :key="index" @click="createOrder(it)">
-            <span class="l-icon"><img :src="addHost(it.iconUrl)"/></span>
+            <span class="l-icon"><img :src="addPath(it.iconUrl)"/></span>
             <span class="l-f">{{it.assetsTypeName}}</span>                                
           </div>
         </van-swipe-item>
@@ -23,7 +23,7 @@
       <van-dialog v-model="show" show-cancel-button :before-close="beforeClose">
         <div class="model">
           <div class="model-header" v-if="form.assets">
-            <span class="l-icon"><img :src="addHost(form.assets.iconUrl)"/></span>
+            <span class="l-icon"><img :src="addPath(form.assets.iconUrl)"/></span>
             <span class="l-f">{{form.assets.assetsTypeName}}</span>   
           </div>
           <div class="model-content">
@@ -89,6 +89,7 @@
 </template>
 
 <script> 
+  import banner from 'assets/banner.jpg'
   import { Dialog } from 'vant';
   import tool from 'utils/tool'
   import {getCustomerDic,startWorkflow,saveWorkflow} from 'controller/order-create'
@@ -97,6 +98,7 @@
     name: 'home_page',
     data() {
       return {
+        banner,
         assetsArray:[],
         statistics: [{name:'本日',value:'Day'},{name:'本周',value:'Week'},{name:'本月',value:'Month'}],
         active: 0,
@@ -266,7 +268,6 @@
     .banner-r{
       width: 100%;
       height: 52vw;
-      background: url('~@/assets/banner.jpg') no-repeat;
       background-size: 100% 52vw;
     }
     .create{

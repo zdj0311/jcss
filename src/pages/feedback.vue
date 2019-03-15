@@ -9,7 +9,7 @@
         <img :src="exam"/>
         <span>调查问卷</span>
       </header>
-      <div class="content">
+      <div class="content" @click="routeTo('survey-list')">
               您好，为了了解客户对运维服务的需求
               我们特别进行此次虚拟发放问卷调查，感谢您的积极参与
       </div>
@@ -29,16 +29,10 @@
         exam
       };
     },
-    computed: {},
-    watch: {},
     methods: {
-
-    },
-    created() {
-
-    },
-    mounted() {
-
+      routeTo(name) {
+        this.$router.push(name)
+      }
     },
   }
 </script>

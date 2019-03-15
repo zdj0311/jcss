@@ -1,22 +1,28 @@
 <template>
     <div class="survey-list">
-        <ul class="sur-list">
+        <ul v-if="paperList.length>0" class="sur-list">
            <li v-for="(item,index) in paperList" :key="index" @click="toDetail(item.id)">
-                <div class="list-icon"></div>
-                <div class="list-con">
-                    <div class="name">{{item.paperName}}</div>
-                    <div class="date">{{item.createDate}}</div>
-                </div>        
+              <header class="header">
+                <img :src="exam"/>
+                <span>{{item.paperName}}</span>
+              </header>
+              <time class="date">{{item.createDate}}</time>    
            </li>
         </ul>
+        <empty v-else></empty>
     </div>
 </template>
 <script>
+  
+import exam from 'assets/img/exam.png'
 import {paperList} from 'controller/order-create'
+import empty from 'components/empty'
 export default {
+    components: { empty },
     data() {
         return {
             paperList:[],
+            exam
         };
     },
     created(){
@@ -40,37 +46,33 @@ export default {
 </script>
 <style lang='scss'>
 .survey-list{
-    .sur-list{
-    padding:0 1rem;
-}
-.sur-list li{
-    height:4.8rem;
-    font-size: 1rem;
-    color:#000;
-    border-bottom:solid 1px #eee;
-    padding:.1.9rem 0;
-}
-.sur-list li .name{
-    line-height: 1.62rem;
-}
-.sur-list li .date{
-    font-size: 1rem;
-    color:#999;
-    line-height: 1.35rem;
-}
-.sur-list li .list-icon{
-    width: 1rem;
-    height: 1.3rem;
-    // background: url('../images/list-icon.png') no-repeat;
-    margin-top: .133333rem;
-    margin-right: .266667rem;
-}
-.sur-list li a{
-    display: flex;
-}
-.sur-list li .list-con{
-    flex: 1;
-    width:100%;
-}
+  height:100%;
+  background:#F2F2F2;
+  .sur-list{
+    
+  }
+  .sur-list li {
+    margin-bottom:1rem;
+    background:#fff;
+    padding:1rem;
+  }
+  .header {
+      display:flex;
+      align-items: center;
+      padding:.8rem;
+    }
+    .header img {
+      width:20px;
+      height:20px;
+    }
+    .header span {
+      font-size:1.1rem;
+      font-weight: bold;
+      margin-left:.8rem;
+    }
+    .date {
+      color:#969799;
+      padding:1rem;
+    }
 }
 </style>
