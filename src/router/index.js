@@ -40,7 +40,7 @@ export default new Router({
       }
     },// 我的工单
     {
-      path: '/order-list',
+      path: '/order-list/:_type/:_mode',
       name: 'order_list',
       component: OrderList,
       meta: {

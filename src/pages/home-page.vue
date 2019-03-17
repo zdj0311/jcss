@@ -144,8 +144,8 @@
         this.$router.push({
           name: 'order_list',
           params: {
-            dateType: this.dateType,
-            mode: item.value
+            _type: this.dateType,
+            _mode: item.value
           }
         })
       },
