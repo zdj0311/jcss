@@ -28,13 +28,12 @@
       return {
         isShow: false,
         arr: [],
-        active:''
+        active:0
       };
     },
     
     created() {
       this.arr = this.properties
-      this.active = this.current
     },
     watch:{
       value(n) {
@@ -44,6 +43,7 @@
         this.arr = n
       },
       current(n) {
+        console.log('%c选中值：'+n,'color:red')
         this.active = n
       }
     },

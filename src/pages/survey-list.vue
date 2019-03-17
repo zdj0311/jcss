@@ -15,7 +15,8 @@
 <script>
   
 import exam from 'assets/img/exam.png'
-import {cananswer,paperList} from 'controller/order-create'
+import {paperList} from 'controller/order-create'
+import {getVisited} from 'controller/surveyList'
 import empty from 'components/empty'
 export default {
     components: { empty },
@@ -36,29 +37,20 @@ export default {
             })
         },
         toDetail(id){
-//        this.cananswer()
+          console.log(id)
+          getVisited.bind(this)({id:id}).then(res => {
             this.$router.push({
-                name:'survey_detail',
-                params:{'id':id}
+              name:'survey_detail',
+              params:{_id:id}
             })
-        },
-        cananswer() {
-        let id = this.$route.params.id;
-        cananswer.bind(this)(id).then(res => {
-          res = res.data;
-          if(res.code == '000000') {
-            this.getPaper();
-          } else {
-            Dialog.alert({
-              message: res.message
-            }).then(() => {
-              this.$router.push({
-                name: 'survey_list'
-              })
+          })
+          .catch(err=>{
+            console.log(err)
+            this.$dialog.alert({
+              message: err.message
             });
-          }
-        })
-      },
+          })
+        },
     },
  }    
 </script>

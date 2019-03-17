@@ -77,7 +77,7 @@
 </template>
 <script>
   import exam from 'assets/img/exam.png'
-  import { cananswer, submitPaper } from 'controller/order-create'
+  import { submitPaper } from 'controller/order-create'
   import config from 'config'
   import { Dialog } from 'vant';
   import Vue from 'vue'
@@ -96,11 +96,11 @@
       }
     },
     created() {
-//    this.cananswer();
+      this.getPaper();
     },
     methods: {
       getPaper() {
-        let id = this.$route.params.id;
+        let id = this.$route.params._id;
         let _this = this;
         Vue.$axios.get(config.hostname + 'jcss/api/wx/question/paper/' + id + '.action').then(res => {
           res = res.data;
@@ -134,26 +134,9 @@
           }
         }
       },
-//    cananswer() {
-//      let id = this.$route.params.id;
-//      cananswer.bind(this)(id).then(res => {
-//        res = res.data;
-//        if(res.code == '000000') {
-//          this.getPaper();
-//        } else {
-//          Dialog.alert({
-//            message: res.message
-//          }).then(() => {
-//            this.$router.push({
-//              name: 'survey_list'
-//            })
-//          });
-//        }
-//      })
-//    },
       submit() {
         var _this = this;
-        var id = this.$route.params.id;
+        var id = this.$route.params._id;
         var txt = '';
         console.log(this.q)
         this.paper.questionCollect.forEach(function(item, index) {

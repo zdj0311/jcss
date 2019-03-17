@@ -1,8 +1,8 @@
 <template>
   <div class="user-center">
     <header class="header">
-      <img :src="avatar"/>
-      <span>{{ user.userName }}</span>
+      <img :src="user.wxUser&&user.wxUser.headImgUrl || avatar"/>
+      <span>{{ user.wxUser&&user.wxUser.nicknameuser || user.userName }}</span>
     </header>
     <van-cell :value="user.orgName" is-link :icon="orgName">
       <template slot="title">

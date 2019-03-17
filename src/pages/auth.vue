@@ -1,7 +1,7 @@
 <template>
   <div class="auth">
     <header class="header">
-      <img class="avatar" :src="avatar"/>
+      <img class="avatar" :src="user.wxUser&&user.wxUser.headImgUrl || avatar"/>
       <!-- 未注册-->
       <div  v-if="user.userStatus === 'UNRegister'" class="statu-mark unregister">
         <div class="img-container"><img :src="unregister"/></div>
@@ -71,8 +71,8 @@
         table:[{
           key_name:'orgName',
           value:'',
-          title:'客户',
-          placeholder:'请输入客户',
+          title:'所在单位',
+          placeholder:'请输入所在单位',
           message:'',
           validate:this.validateEmpty,
           readonly:false

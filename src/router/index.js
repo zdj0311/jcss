@@ -138,7 +138,7 @@ export default new Router({
     },
     // 问卷详细
     {
-      path: '/survey-detail',
+      path: '/survey-detail/:_id',
       name: 'survey_detail',
       component: surveyDetail,
       meta: {
