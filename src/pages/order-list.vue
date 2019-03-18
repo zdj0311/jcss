@@ -2,12 +2,12 @@
   <div class='order-list'>
     <div class="menus">
       <div class="menu-item" v-for="(item,index) in menus" @click="showPannel(index)" :ref="flwoUp">
-        <span>{{ item.text }}</span><img :src="sele"/>
+        <span>{{ getNameByKey(item) }}</span><img :src="sele"/>
         
       </div>
       <ma-select v-model="show" :current="current" :properties="variable" @change="change"></ma-select>
     </div>
-    <div v-if="orderList.length>0">
+    <div class="container" v-if="orderList.length>0">
       <div class="content" v-for="(item,index) in orderList">
         <header>
           <span :class="item.status==0?'statu':'overtime'" >{{item.statusValue}}</span>
@@ -19,17 +19,17 @@
             <time>{{item.planStartTime}}</time>
           </div>
           <div class="flow">
-            <div class="flow-details" @click="showFlow(item.id)">
+            <div class="flow-details" @click="showFlow(item.id,index)">
               流转详情
-              <img :src="showDetails[item.id]?flwoUp:flwoDown"/>
+              <img :src="showDetails[index]?flwoUp:flwoDown"/>
             </div>
             <div class="flow-btn">
-              <span @click="routeTo(item)">查看</span>
-              <span>处理</span>
+              <span @click="routeTo('order_detail',item)">查看</span>
+              <span @click="routeTo('order_resolver',item)">处理</span>
             </div>
           </div>
-          <ul class="history-list" v-show="showDetails[item.id]">
-              <li v-for="obj in orderHistoryList">
+          <ul class="history-list" v-show="showDetails[index]">
+              <li v-for="obj in orderHistoryList[index]">
                 <h2>{{obj.actName}}</h2>
                 <p>{{obj.endTime}}</p>
                 <p>{{obj.assigneeValue}}</p>
@@ -55,51 +55,42 @@
     components: { maSelect,empty},
     data() {
       return {
-        sele,
-        
-        flwoUp,
-        flwoDown,
-        menus:[{
-          text:'我的'
-        },{
-          text:'状态'
-        },{
-          text:'时间'
-        }],
-        order_list:[],
+        sele,flwoUp,flwoDown, // 图片
+        menus:[], // tabs 显示
+        value_list:['dataScope','mode','dateType'], // 为提交表单的字段建立一个字典，分别代表我的 时间 流程状态
         showDetails:[],
         show:false,
         variable:[],
         saveCurrent:[0,0,0],
-        properties:{
-          0:[
-            {name:'我的',dataScope:'MyBill',tab:0 },
-            {name:'全部',dataScope:'AllBill',tab:0 }
-            
-          ],
-          1:[
-            {name:'待办',mode:'TODO',tab:1 },
-            {name:'未完成',mode:'UN_END',tab:1 },
-            {name:'已完成',mode:'END',tab:1 },
-            {name:'已超时',mode:'OUTTIME',tab:1 }
-          ],
-          2:[
-            {name:'当日',dateType:'Week',tab:2 },
-            {name:'本周',dateType:'Month',tab:2},
-            {name:'本月',dateType:'Day',tab:2}
-          ],
-        },
+        properties:[
+          [{name:'我的',value:'MyBill',tab:0 },
+          {name:'全部',value:'AllBill',tab:0 }],
+          [{name:'待办',value:'TODO',tab:1 },
+          {name:'未完成',value:'UN_END',tab:1 },
+          {name:'已完成',value:'END',tab:1 },
+          {name:'已超时',value:'OUTTIME',tab:1 }],
+          [{name:'当日',value:'Day',tab:2 },
+          {name:'本周',value:'Week',tab:2},
+          {name:'本月',value:'Month',tab:2}],
+        ],
         getAll:{
+          dataScope:'MyBill',
           dateType: 'Week',
-          mode: 'CREATE',
+          mode: 'TODO',
           pageRows:10,
           page:0,
-          dataScope:'MyBill'
         },
         orderList:[],
         orderHistoryList:[],
         current:0
       };
+    },
+    mounted() {
+      this.getAll.dateType = this.$route.params._type
+      this.getAll.mode = this.$route.params._mode
+      this.getStatistic.bind(this)(this.getAll)
+      // 设置默认menus
+      this.menus = ['MyBill',this.$route.params._mode,this.$route.params._type]
     },
     methods: {
       showPannel(i) {
@@ -107,54 +98,64 @@
         this.current = this.saveCurrent[i];
         this.variable = this.properties[i];
       },
-      showFlow(id){
-        this.showDetails[id] = !this.showDetails[id];
-        this.getHistory(id);
+      showFlow(id,index){
+        let result = this.showDetails[index]
+        this.showDetails[index] = !result;
+        this.$set(this.showDetails,index,!result)
+        this.getHistory(id,index);
       },
       change(obj){
+        // 保存当前tab下标
         this.saveCurrent[obj.tab] = obj.index;
         this.$set(this.saveCurrent,obj.tab,obj.index);
+        // 设置当前选中下标
         this.current = obj.index
-        for (var key in obj) {
-          if(key == 'mode' || key ==  'dateType' || key ==  'dataScope'){
-              this.getAll[key] = obj[key]
-          }
-        }
-        getStatistic.bind(this)(this.getAll);
+        // 改变表单中的选中值
+        this.getAll[this.value_list[obj.tab]] = obj.value
+        // 表单值变化后，menus变化，可做成监听表单（getAll）变化实现
+        this.menus = [this.getAll.dataScope,this.getAll.mode,this.getAll.dateType]
+        this.getStatistic.bind(this)(this.getAll)
       },
       // 返回 Promise 获取工单列表
       getStatistic(params) {
         let _this = this;
         getStatistic.bind(this)(params).then(res=>{
           _this.orderList = res.data;
+          res.data.forEach((item,index)=>{
+            this.showDetails.push(false)
+            this.orderHistoryList.push([])
+          })
         })
         .catch(err=>{
           console.log(err);
         })
       },
-      getHistory(id) {
+      getHistory(id,index) {
         let _this = this;
         getHistory.bind(this)(id).then(res=>{
-          _this.orderHistoryList = res;
+          _this.orderHistoryList[index] = res;
+          this.$set(_this.orderHistoryList,index,res)
         })
         .catch(err=>{
           console.log(err);
         })
       },
-      routeTo(item) {
+      routeTo(name,item) {
         this.$router.push({
-          name:'order_detail',
+          name:name,
           params:{_id:item.id}
         })
-      }
-    },
-    created() {
-
-    },
-    mounted() {
-      this.getAll.dateType = this.$route.params._type;
-      this.getAll.mode = this.$route.params._mode;
-      this.getStatistic.bind(this)(this.getAll);
+      },
+      // 通过类型获取当前tab显示的名字
+      getNameByKey(str) {
+        let result = ''
+        this.properties.forEach((item,index)=>{
+          item.forEach((o,i)=>{
+            if(o.value === str) result = o.name
+          })
+        })
+        return result
+      },
     },
   }
 </script>
@@ -179,6 +180,9 @@
       width:8px;
       height:6px;
       margin-left:2px;
+    }
+    .container {
+      padding-top:2.6rem;
     }
     .content {
       background:#fff;

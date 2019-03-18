@@ -38,7 +38,7 @@
         if(i === 1) {
           this.$router.push({name:this.dictionary[i],params:{
             _type:'Week',
-            _mode:'CREATE'
+            _mode:'TODO'
           }})
         }else {
           this.$router.push({name:this.dictionary[i]})
