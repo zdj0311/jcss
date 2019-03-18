@@ -53,6 +53,7 @@
 <style lang="scss">
   .magix-header {
     display:flex;
+    padding-top: 1.79rem;
     .options {
       display:flex;
       flex-grow: 1;

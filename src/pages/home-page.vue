@@ -12,9 +12,9 @@
           <span class="head-icon icon-arrow"></span>
         </div>
       </div> 
-      <van-swipe :autoplay="3000">
+      <van-swipe :autoplay="0">
         <van-swipe-item v-for="(item, index) in assetsArray" :key="index">
-          <div class="l-list" v-for="(it, index) in item" :key="index" @click="createOrder(it)">
+          <div class="l-list" v-for="(it, index) in item" :key="index" @click="createOrder(it,$event)">
             <span class="l-icon"><img :src="addPath(it.iconUrl)"/></span>
             <span class="l-f">{{it.assetsTypeName}}</span>         
           </div>
@@ -60,7 +60,7 @@
             </div>
             <ul class="work-con">
               <li v-for="(item,index) in census" :key="index" @click="toList(item)">
-                <span class="ico c-ico"></span>
+                <span :class="['ico',item.img]"></span>
                 <div class="w-con">
                   <span class="w-num">{{getNum(item.value)}}</span>
                   <span class="w-f">{{item.name}}</span>
@@ -78,6 +78,7 @@
   import banner from 'assets/banner.jpg'
   import { Dialog } from 'vant';
   import tool from 'utils/tool'
+  import $ from 'jquery'
   import {getCustomerDic,getBtDic,startWorkflow,saveWorkflow} from 'controller/order-create'
   import form from 'utils/form-all'
   export default {
@@ -85,7 +86,7 @@
     data() {
       return {
         banner,
-        census:[{name:'创建工单',value:'CREATE'},{name:'待办工单',value:'TODO'},{name:'办理工单',value:'DONE'}],
+        census:[{name:'创建工单',value:'CREATE',img:'c-ico'},{name:'待办工单',value:'TODO',img:'d-ico'},{name:'办理工单',value:'DONE',img:'b-ico'}],
         assetsArray:[],
         statistics: [{name:'本日',value:'Day'},{name:'本周',value:'Week'},{name:'本月',value:'Month'}],
         active: 0,
@@ -117,7 +118,6 @@
           let len = Math.ceil(res.length/4);
           for(var i=0;i<len;i++){
              _this.assetsArray.push(copyArr.splice(0,4))
-             console.log(_this.assetsArray)
           }
         })
         getBtDic.bind(this)().then(res=>{
@@ -150,8 +150,9 @@
           }
         })
       },
-      createOrder(it){
+      createOrder(it,e){
         this.form.assets = it;
+        let bg = $(e.currentTarget).css('background')
         startWorkflow.bind(this)(this.$store.state.admin.user.orgId,this.form.busiTypeCode).then(res=>{
           this.form.curNodeId_ = res.workflowBean.curNodeId_;
           this.form.definitionId_ = res.workflowBean.definitionId_;
@@ -161,6 +162,8 @@
             this.curNode = res.curNode;
             this.selectNodes = res.nextNodesList[0].componentId;  
             this.show = true;
+            console.log(bg)
+             $('.model-header').css('margin',bg)
             this.toSelectUser();
           })
         })
@@ -436,7 +439,7 @@
           height: 4.46rem;
           line-height: 4.46rem;
           padding-left: .8rem;
-          background: linear-gradient(to bottom right, #573bc2 , #9639b4);
+          
           &:nth-child(even){
             margin-right: 0;
           }
@@ -457,6 +460,26 @@
             margin-left: .4rem;
           }
         }
+        // 将背景颜色值定义成变量
+          $purple : #573bc2;
+          $blue : #2a3dc6;
+          $orange : #ea4b3a;
+          $lightblue : #0d85db;
+
+          //将背景颜色以键值对的形式存在map中
+          $bgcolorlist : (
+              1: $purple,
+              2: $blue,
+              3: $orange,
+              4: $lightblue,
+            );
+
+          // 使用SASS each语法为每一个li设置background-color
+          @each $i, $color in $bgcolorlist {
+              .l-list:nth-child(#{$i}) {
+                background: linear-gradient(to bottom right, $color , lighten($color, 20%));
+              }
+          }
       }
       .van-swipe__indicators{
         .van-swipe__indicator{

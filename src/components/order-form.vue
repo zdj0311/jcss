@@ -450,7 +450,7 @@ export default {
     } else {
       // 工作流初始化
       loadWorkflow
-        .bind(this)(this.$route.id?this.$route.id: 20)
+        .bind(this)(this.$route.params.id?this.$route.params.id: 20)
         .then(res => {
           this.fData = res;
           this.initButton(res.workflowBean);
