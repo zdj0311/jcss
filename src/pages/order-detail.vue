@@ -17,8 +17,16 @@
       <div class="info-container">
         <h2>审批信息</h2>
         <div class="row" v-for="(item,index) in auditInfo" :key="index">
-          <span class="title">{{ item.title }}</span>
-          <span class="value">{{ item.value }}</span>
+          <template v-if="item.title === '评价等级'">
+            <span class="title">{{ item.title }}</span>
+            <span class="value">
+              <van-rate v-model="rate" />
+            </span>
+          </template>
+          <template v-else>
+            <span class="title">{{ item.title }}</span>
+            <span class="value">{{ item.value }}</span>
+          </template>
         </div>
       </div>
       <!--项目信息 -->
@@ -64,12 +72,18 @@
         fileInfo:[], // 附件信息
       };
     },
+    computed: {
+      rate(rate) {
+        console.log(rate)
+      }
+    },
     created() {
       getDetail.bind(this)({
         id:this.$route.params._id
       }).then(res=>{
         this.baseInfo = res.baseInfo
         this.auditInfo = res.auditInfo
+        console.log(this.auditInfo)
         this.projectInfo = res.projectInfo
         this.assetInfo = res.assetInfo
         this.fileInfo = res.fileInfo

@@ -84,7 +84,7 @@ export default new Router({
     },
     // 工单处理
     {
-      path: '/order-resolver/:id',
+      path: '/order-resolver/:_id',
       name: 'order_resolver',
       component: OrderResolver,
       meta: {
