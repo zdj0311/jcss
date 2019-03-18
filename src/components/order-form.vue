@@ -2,12 +2,22 @@
   <div class="order-form">
     <div class="evaluation" v-if="mode=='evaluation'">
       <div class="eva-head">
-        {{fData && fData.billData.statusValue}}{{fData && fData.billData.customerOrgName}}-{{fData && fData.billData.subject}}
-        事件结果{{fData && fData.billData.billRes}}
+        <div class="eva-h">
+          <div class="eva-status">
+            {{fData && fData.billData.statusValue}}
+          </div>
+          <div class="eva-subject">
+            {{fData && fData.billData.customerOrgName}}-{{fData && fData.billData.subject}}
+          </div>
+        </div>
+        <div class="eva-result">
+          事件结果：{{fData && fData.billData.billRes}}
+        </div>
       </div>
-      <div class="eva-content">本次服务的评价
-        <van-rate v-model="star" icon="like" void-icon="like-o" @change="changeStar"/>
-        {{zname}}
+      <div class="eva-content">
+        <div class="eva-title">本次服务的评价</div>
+        <van-rate v-model="star" :size="25" @change="changeStar"/>
+        <div class="rate-name">{{zname}}</div>
         <van-field type="textarea" v-model="form['publishSuggest']" placeholder="请输入评价"/>
       </div>
     </div>
@@ -136,14 +146,14 @@
             <i></i>
           </li>
         </ul>
-        <ul class="ificatList tabs-con on" v-if="!fData">
+        <ul class="ificatList tabs-con on" v-if="!fData || (fData && fData.workflowConfig.canRelAssets=='edit')">
           <li v-for="(item,index) in assetsDic" :key="index">
             <input type="checkbox" :value="item.id" v-model="assetsRelList">
-            <span>{{item.assetsName}}</span>
+            <span>{{item.assetsName?item.assetsName:item.assetName}}</span>
           </li>
         </ul>
-        <ul class="ificatList tabs-con on" v-else>
-          <li v-for="(item,index) in fData.billData.assetsRelList" :key="index">
+        <ul class="ificatList tabs-con on" v-else-if="fData && fData.workflowConfig.canRelAssets=='readonly'">
+          <li v-for="(item,index) in assetsDic" :key="index">
             <span>{{item.assetsName}}</span>
           </li>
         </ul>
@@ -197,11 +207,12 @@
         <ul class="fileList">
           <template v-if="!fData || (fData && fData.workflowConfig.canEditAttach=='edit')">
             <li class="photoList" v-for="(item,index) in files" :key="index">
+              <span class="fuj"></span>
               <label class="auTitle">{{item.name}}</label>
-              <div class="delect delete" @click="deleteFile(item.id)">删除</div>
+              <div class="delect delete" @click="deleteFile(item.id)"></div>
             </li>
           </template>
-          <template v-else="fData && fData.workflowConfig.canEditAttach=='readonly'">
+          <template v-else-if="fData && fData.workflowConfig.canEditAttach=='readonly'">
             <li class="photoList" v-for="(item,index) in files" :key="index">
               <label class="auTitle">{{item.name}}</label>
             </li>
@@ -271,6 +282,7 @@ import {
 } from "controller/order-create";
 import tool from "utils/tool";
 import { Dialog } from "vant";
+import func from './vue-temp/vue-editor-bridge';
 export default {
   components: {},
   props: {
@@ -450,7 +462,7 @@ export default {
     } else {
       // 工作流初始化
       loadWorkflow
-        .bind(this)(this.$route.id?this.$route.id: 20)
+        .bind(this)(this.$route.params.id?this.$route.params.id: 23)
         .then(res => {
           this.fData = res;
           this.initButton(res.workflowBean);
@@ -464,6 +476,10 @@ export default {
           ];
           this.getNextNodes();
           this.files = res.attachList;
+          this.assetsDic = res.caseAssetsList;
+          res.caseAssetsList.forEach(function(item){
+            this.assetsRelList.push(item.id)
+          })
           if (res.workflowConfig.canEditUrgency == "edit") {
             this.urgencyValueText = this.form.urgencyValue?this.form.urgencyValue:'';
             getUrgencyDic
@@ -1024,13 +1040,14 @@ export default {
       deleteFile
         .bind(this)(formData)
         .then(res => {
-          let re = res.data;
-          for (let i in re) {
-            this.deleteAttachFile.push(i);
-            if (re[i] == true) {
-              this.files.splice(this.files.findIndex(v => v.id == i), 1);
-            }
-          }
+          console.log(res)
+          // let re = res.data;
+          // for (let i in re) {
+          //   this.deleteAttachFile.push(i);
+          //   if (re[i] == true) {
+          //     this.files.splice(this.files.findIndex(v => v.id == i), 1);
+          //   }
+          // }
         });
     },
     // 获取评价
@@ -1306,13 +1323,64 @@ body {
     background: #fff;
     border-top: solid 1px #eee;
     border-bottom: solid 1px #eee;
-    padding: 1.8rem 0;
+    padding: 1.71rem 0;
+    .eva-h{
+      display: flex;
+      .eva-subject{
+        margin-left: .71rem;
+        font-size: 1.14rem;
+        color:#000;
+      }
+    }
+    .eva-result{
+      margin-top: .71rem;
+      margin-left: 1.07rem;
+      color:#666;
+      font-size: 1rem;
+    }
+  }
+  .eva-status{
+    width: 5.32rem;
+    height: 1.71rem;
+    line-height: 1.71rem;
+    border-top-right-radius:1.79rem;
+    border-bottom-right-radius:1.79rem;
+    background: linear-gradient(to right, #4a79df, #7db6ff);
+    color:#fff;
+    font-size: 1rem;
+    padding-left: 1.07rem;
   }
   .eva-content {
     background: #fff;
     border-top: solid 1px #eee;
     border-bottom: solid 1px #eee;
     margin-top: 0.8rem;
+    .eva-title{
+      font-size: 1.14rem;
+      color:#000;
+      text-align: center;
+      line-height: 3.29rem;
+      border-bottom:solid 1px #eee;
+    }
+    .van-rate{
+      margin-top: 1.43rem;
+      text-align: center;
+    }
+    .rate-name{
+      text-align: center;
+      font-size: 1rem;
+      color: #ff9c00;
+      margin-top: .71rem;
+    }
+    .van-field--min-height .van-field__control {
+      background-color: #f5f5f5;
+      border:solid 1px #eee;
+      margin: .71rem 0 2.14rem;
+      min-height: 5rem;
+      padding: .36rem .71rem;
+      border-radius: .36rem;
+      font-size: 1rem;
+    }
   }
 }
 .order-form {
@@ -1407,12 +1475,27 @@ body {
 .authen {
   background: #fff;
   .photoList {
-    border-bottom: 1px solid #ccc;
-    padding: 1rem 1.1rem;
-    padding-left: 1rem;
+    border-bottom: 1px solid #eee;
+    margin: 0 1.1rem;
+    height: 2.5rem;
+    line-height: 2.5rem;
+    color: #000;
+    .fuj{
+      width: .86rem;
+      height: .79rem;
+      background: url('~@/assets/fuj.png');
+      background-size: .86rem .79rem;
+      display: inline-block;
+      margin-right: .36rem;
+    }
   }
   .delect {
     float: right;
+    width: 1.29rem;
+    height: 1.29rem;
+    background: url('~@/assets/del.png');
+    background-size: 1.29rem 1.29rem;
+    margin-top: .61rem;
   }
 }
 .workflowFormButton {
@@ -1469,4 +1552,38 @@ body {
     }
   }
 }
+    input[type="radio"],input[type="checkbox"]{
+      width: 1.07rem;
+      height: 1.07rem;
+      display: inline-block;
+      text-align: center;
+      vertical-align: middle; 
+      line-height: 1.07rem;
+      position: relative;
+      margin-top:-2px;
+      margin-right: .36rem;
+    }
+    input[type="radio"]::before,input[type="checkbox"]::before{
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: #ddd url('~@/assets/check.png');
+      width: 100%;
+      height: 100%;
+      background-size:1.07rem 1.07rem;
+    }
+    input[type="radio"]::before{
+      border-radius: 50%;
+    }
+    input[type="radio"]:checked::before,input[type="checkbox"]:checked::before{
+      content: "";
+      background: #4a79df url('~@/assets/check.png');
+      position: absolute;
+      top: 0;
+      left: 0;
+      width:100%;
+      height: 100%;
+      background-size:1.07rem 1.07rem;
+    }
 </style>

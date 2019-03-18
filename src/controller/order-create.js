@@ -2,7 +2,7 @@ import uri from 'utils/uri'
 import Vue from 'vue'
 import axios from 'axios'
 
-Vue.$axios = Vue.prototype.$axios = axios
+Vue.$axios = Vue.prototype.$axios = Vue.prototype.$http = axios
 
 /**
  * @desc 获取客户名称
@@ -326,8 +326,10 @@ function upload(formData) {
  * @params
  */
 function deleteFile(formData) {
+  console.log(formData)
   return new Promise((resolve,reject)=>{
-    Vue.$axios.post(uri.deleteFile,formData).then(res=>{
+    this.$http.post(uri.deleteFile,formData).then(res=>{
+      console.log(res)
       resolve(res)
     })
     .catch(err=>{
