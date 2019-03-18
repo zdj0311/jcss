@@ -15,6 +15,7 @@
     "axios": "^0.18.0",
     "babel-polyfill": "^6.26.0",
     "element-ui": "^2.6.1",
+    "jquery": "^3.3.1",
     "qs": "^6.6.0",
     "vant": "^1.6.8",
     "vconsole": "^3.3.0",

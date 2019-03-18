@@ -282,7 +282,6 @@ import {
 } from "controller/order-create";
 import tool from "utils/tool";
 import { Dialog } from "vant";
-import func from './vue-temp/vue-editor-bridge';
 export default {
   components: {},
   props: {
