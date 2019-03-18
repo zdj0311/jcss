@@ -461,7 +461,7 @@ export default {
     } else {
       // 工作流初始化
       loadWorkflow
-        .bind(this)(this.$route.params.id?this.$route.params.id: 23)
+        .bind(this)(this.$route.params.id)
         .then(res => {
           this.fData = res;
           this.initButton(res.workflowBean);
@@ -476,8 +476,9 @@ export default {
           this.getNextNodes();
           this.files = res.attachList;
           this.assetsDic = res.caseAssetsList;
+          let _this = this;
           res.caseAssetsList.forEach(function(item){
-            this.assetsRelList.push(item.id)
+            _this.assetsRelList.push(item.id)
           })
           if (res.workflowConfig.canEditUrgency == "edit") {
             this.urgencyValueText = this.form.urgencyValue?this.form.urgencyValue:'';
@@ -1515,7 +1516,7 @@ body {
 }
 .assets {
   background: #fff;
-  padding: 0 1.1rem;
+  padding: 0 1.1rem 1.1rem;
   .zcflTitle {
     height: 3.28rem;
     border-top: solid 1px #eee;
@@ -1548,6 +1549,11 @@ body {
         background: #4a79df;
         color: #fff;
       }
+    }
+  }
+  .ificatList{
+    li{
+      margin-bottom:0.4rem;
     }
   }
 }
