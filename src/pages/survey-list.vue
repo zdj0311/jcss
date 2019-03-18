@@ -37,7 +37,6 @@ export default {
             })
         },
         toDetail(id){
-          console.log(id)
           getVisited.bind(this)({id:id}).then(res => {
             this.$router.push({
               name:'survey_detail',

@@ -16,7 +16,7 @@
         <van-swipe-item v-for="(item, index) in assetsArray" :key="index">
           <div class="l-list" v-for="(it, index) in item" :key="index" @click="createOrder(it)">
             <span class="l-icon"><img :src="addPath(it.iconUrl)"/></span>
-            <span class="l-f">{{it.assetsTypeName}}</span>                                
+            <span class="l-f">{{it.assetsTypeName}}</span>         
           </div>
         </van-swipe-item>
       </van-swipe> 
@@ -117,6 +117,7 @@
           let len = Math.ceil(res.length/4);
           for(var i=0;i<len;i++){
              _this.assetsArray.push(copyArr.splice(0,4))
+             console.log(_this.assetsArray)
           }
         })
         getBtDic.bind(this)().then(res=>{

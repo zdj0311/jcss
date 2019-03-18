@@ -39,12 +39,20 @@ router.beforeEach((to, from, next) => {
     if(process && process.env && process.env.NODE_ENV === 'proxy') {
       getUser('proxy').then(res=>{
         store.commit('admin/updateUser',res.data.data)
-        next()
+        if(to.name === 'auth') {
+           router.push('user-center')
+        }else {
+           next()
+        }
       })
     }else {
       getUser('dev').then(res=>{
         store.commit('admin/updateUser',res.data.data)
-        next()
+        if(to.name === 'auth') {
+           router.push('user-center')
+        }else {
+           next()
+        }
       })
     }
   }else {

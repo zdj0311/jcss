@@ -119,6 +119,7 @@
         }]
       }
     },
+    
     created() {
       console.log(this.user)
       // 获取职务字典项 dutyId
