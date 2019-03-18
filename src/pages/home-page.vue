@@ -162,8 +162,7 @@
             this.curNode = res.curNode;
             this.selectNodes = res.nextNodesList[0].componentId;  
             this.show = true;
-            console.log(bg)
-             $('.model-header').css('margin',bg)
+            $('.model-header').css('background',bg+'')
             this.toSelectUser();
           })
         })
@@ -526,7 +525,7 @@
         padding:0.8rem;
         .downNode{
           font-size: 1rem;
-          font-weight: bold;
+          margin-bottom: 0.8rem;
           color:#000;
         }
         .nextNode{
@@ -538,6 +537,7 @@
             background:#f5f5f5;
             border:solid 1px #e9e9e9;
             border-radius: 3px;
+            font-size: 1rem;
             &:first-child{
               margin-right:2%;
             }
@@ -551,7 +551,7 @@
           padding-top:0.8rem;
           flex-wrap: wrap;
           li{
-            width:31%;
+            width:49%;
             margin-right:2%;
             height:2.5rem;
             line-height: 2.5rem;
@@ -560,12 +560,47 @@
             border-radius: 3px;
             padding-left:0.8rem;
             margin-bottom: 0.4rem;
-            &:last-child{
-              margin-right:0;
+            font-size: 1rem;
+            &:nth-child(even){
+              margin-right: 0;
             }
           }
         }
       }
+    }
+    input[type="radio"],input[type="checkbox"]{
+      width: 1.07rem;
+      height: 1.07rem;
+      display: inline-block;
+      text-align: center;
+      vertical-align: middle; 
+      line-height: 1.07rem;
+      position: relative;
+      margin-top:-2px;
+      margin-right: .36rem;
+    }
+    input[type="radio"]::before,input[type="checkbox"]::before{
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: #ddd url('~@/assets/check.png');
+      width: 100%;
+      height: 100%;
+      background-size:1.07rem 1.07rem;
+    }
+    input[type="radio"]::before{
+      border-radius: 50%;
+    }
+    input[type="radio"]:checked::before,input[type="checkbox"]:checked::before{
+      content: "";
+      background: #4a79df url('~@/assets/check.png');
+      position: absolute;
+      top: 0;
+      left: 0;
+      width:100%;
+      height: 100%;
+      background-size:1.07rem 1.07rem;
     }
   }
 </style>
