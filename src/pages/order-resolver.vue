@@ -24,7 +24,10 @@ export default {
           Dialog.alert({
             message: "提交成功"
           }).then(() => {
-            this.$router.push({name:'order_list'})
+            this.$router.push({name:'order_list',params:{
+            _type:'Week',
+            _mode:'TODO'
+          }})
           });
         }
       })

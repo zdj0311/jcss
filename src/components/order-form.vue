@@ -148,7 +148,7 @@
         </ul>
         <ul class="ificatList tabs-con on" v-if="!fData || (fData && fData.workflowConfig.canRelAssets=='edit')">
           <li v-for="(item,index) in assetsDic" :key="index">
-            <input type="checkbox" :value="item.id" v-model="assetsRelList">
+            <input type="checkbox" :value="item.assetId" v-model="assetsRelList">
             <span>{{item.assetsName?item.assetsName:item.assetName}}</span>
           </li>
         </ul>
@@ -461,7 +461,7 @@ export default {
     } else {
       // 工作流初始化
       loadWorkflow
-        .bind(this)(this.$route.params.id)
+        .bind(this)(this.$route.params._id)
         .then(res => {
           this.fData = res;
           this.initButton(res.workflowBean);
@@ -478,7 +478,7 @@ export default {
           this.assetsDic = res.caseAssetsList;
           let _this = this;
           res.caseAssetsList.forEach(function(item){
-            _this.assetsRelList.push(item.id)
+            _this.assetsRelList.push(item.assetId)
           })
           if (res.workflowConfig.canEditUrgency == "edit") {
             this.urgencyValueText = this.form.urgencyValue?this.form.urgencyValue:'';
@@ -1422,8 +1422,9 @@ body {
     .nextUser {
       display: flex;
       padding-top: 0.8rem;
+      flex-wrap: wrap;
       li {
-        width: 32%;
+        width: 49%;
         margin-right: 2%;
         height: 2.5rem;
         line-height: 2.5rem;
@@ -1431,7 +1432,8 @@ body {
         border: solid 1px #e9e9e9;
         border-radius: 3px;
         padding-left: 0.8rem;
-        &:last-child {
+        margin-bottom:0.8rem;
+        &:nth-child(even) {
           margin-right: 0;
         }
       }
