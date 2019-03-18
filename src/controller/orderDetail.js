@@ -78,7 +78,7 @@ function makeData(res) {
     value:res.billData.assetTypeName
   },{
     title:'关联资产',
-    value:res.billData.assetsRelList
+    value:res.caseAssetsList
   }]
   obj.fileInfo = [{
     title:'附件列表',

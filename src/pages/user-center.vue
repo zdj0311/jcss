@@ -4,7 +4,7 @@
       <img :src="user.wxUser&&user.wxUser.headImgUrl || avatar"/>
       <span>{{ user.wxUser&&user.wxUser.nicknameuser || user.userName }}</span>
     </header>
-    <van-cell :value="user.orgName" is-link :icon="orgName">
+    <van-cell :value="user.orgIdValue" is-link :icon="orgName">
       <template slot="title">
         <span class="custom-text">所在单位</span>
       </template>
