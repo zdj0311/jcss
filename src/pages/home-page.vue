@@ -140,13 +140,13 @@
         })
       },
       toList(item){
-        this.$router.push({
-          name: 'order_list',
-          params: {
-            _type: this.dateType,
-            _mode: item.value
-          }
-        })
+        // this.$router.push({
+        //   name: 'order_list',
+        //   params: {
+        //     _type: this.dateType,
+        //     _mode: item.value
+        //   }
+        // })
       },
       createOrder(it,e){
         this.form.assets = it;
@@ -263,7 +263,13 @@
         if (action === 'confirm') {
           var formData = this.getForm();
           saveWorkflow.bind(this)(formData).then(res=>{
-            this.$router.push({name:'order_list'})
+            this.$router.push({
+              name:'order_list',
+              params:{
+                _type:'Week',
+                _mode:'TODO'
+              }
+            })
             done();
           })
         } else {
@@ -530,6 +536,7 @@
         }
         .nextNode{
           display: flex;
+          flex-wrap: wrap;
           li{
             width:49%;
             height:2.5rem;
@@ -538,8 +545,10 @@
             border:solid 1px #e9e9e9;
             border-radius: 3px;
             font-size: 1rem;
-            &:first-child{
-              margin-right:2%;
+            margin-right:2%;
+            margin-bottom:0.4rem;
+            &:nth-child(even){
+              margin-right:0;
             }
             padding-left:0.8rem;
           }

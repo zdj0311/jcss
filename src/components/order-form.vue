@@ -48,7 +48,7 @@
             </div>
             <!-- 事件结果 -->
             <div v-else-if="item.key_name === 'billRes'">
-              <div v-if="!fData || (fData && fData.workflowConfig.canEditBillRes=='edit')">
+              <div v-if="!fData || (fData && fData.workflowConfig.canEditBillRes=='edit' || fData.workflowConfig.canEditBillRes=='must')">
                 <van-field
                   :type="item.type?item.type:'input'"
                   v-model="form[item.key_name]"
@@ -67,7 +67,7 @@
             </div>
             <!-- 意见 -->
             <div v-else-if="item.key_name === 'workOrderSuggest'">
-              <div v-if="!fData || (fData && fData.workflowConfig.workOrderSuggest=='edit')">
+              <div v-if="!fData || (fData && fData.workflowConfig.workOrderSuggest=='edit' || fData.workflowConfig.workOrderSuggest=='must')">
                 <van-field
                   :type="item.type?item.type:'input'"
                   v-model="form[item.key_name]"
@@ -85,7 +85,7 @@
               </div>
             </div>
             <div v-else-if="item.key_name === 'urgencyValue'">
-              <div v-if="!fData || (fData && fData.workflowConfig.canEditUrgency=='edit')">
+              <div v-if="!fData || (fData && fData.workflowConfig.canEditUrgency=='edit' || fData.workflowConfig.canEditUrgency=='must')">
                 <van-field
                   v-model="urgencyValueText"
                   :label="item.title"
@@ -148,7 +148,7 @@
             <i></i>
           </li>
         </ul>
-        <ul class="ificatList tabs-con on" v-if="!fData || (fData && fData.workflowConfig.canRelAssets=='edit')">
+        <ul class="ificatList tabs-con on" v-if="!fData || (fData && fData.workflowConfig.canRelAssets=='edit' || fData.workflowConfig.canRelAssets=='must')">
           <li v-for="(item,index) in assetsDic" :key="index">
             <input type="checkbox" :value="fData?item.assetId:item.id" v-model="assetsRelList">
             <span>{{item.assetsName?item.assetsName:item.assetName}}</span>
@@ -198,7 +198,7 @@
         <li>
           <div class="authenTab">
             <label class="auTitle">上传附件</label>
-            <template v-if="!fData || (fData && fData.workflowConfig.canEditAttach=='edit')">
+            <template v-if="!fData || (fData && fData.workflowConfig.canEditAttach=='edit' || fData.workflowConfig.canEditAttach=='must')">
               <span class="fileinput-button">
                 <a href="javascript:void(0)" class="clickUp">点击上传</a>
                 <input type="file" class="files" multiple="multiple" @change="fileChange($event)">
@@ -207,7 +207,7 @@
           </div>
         </li>
         <ul class="fileList">
-          <template v-if="!fData || (fData && fData.workflowConfig.canEditAttach=='edit')">
+          <template v-if="!fData || (fData && fData.workflowConfig.canEditAttach=='edit' || fData.workflowConfig.canEditAttach=='must')">
             <li class="photoList" v-for="(item,index) in files" :key="index">
               <span class="fuj"></span>
               <label class="auTitle">{{item.name}}</label>
@@ -469,14 +469,12 @@ export default {
           this.initButton(res.workflowBean);
           this.initTable();
           this.initForm(res.billData);
-          console.log(this.assetTypeDic)
           this.assetTypeDic = [
             {
               id: res.billData.assetTypeId,
               assetsTypeName: res.billData.assetTypeName
             }
           ];
-          console.log(this.assetTypeDic)
           this.getNextNodes();
           this.files = res.attachList;
           this.assetsDic = res.caseAssetsList;
@@ -484,7 +482,7 @@ export default {
           res.caseAssetsList.forEach(function(item){
             _this.assetsRelList.push(item.assetId)
           })
-          if (res.workflowConfig.canEditUrgency == "edit") {
+          if (res.workflowConfig.canEditUrgency == "edit" || res.workflowConfig.canEditUrgency == "must") {
             this.urgencyValueText = this.form.urgencyValue?this.form.urgencyValue:'';
             getUrgencyDic
               .bind(this)("urgency", "jcss")
@@ -492,10 +490,8 @@ export default {
                 this.urgencyDic = res; 
               });
           }
-          console.log(res.workflowBean.openType_)
-          console.log(res.workflowConfig.canEditEvaluate)
           // 是否跳评价页
-          if(res.workflowBean.openType_=='VIEW' && res.workflowConfig.canEditEvaluate=='edit'){
+          if(res.workflowBean.openType_!='VIEW' && (res.workflowConfig.canEditEvaluate=='edit'||res.workflowConfig.canEditEvaluate=='must')){
             this.mode = "evaluation";
             this.getStar();
           }
@@ -1046,14 +1042,13 @@ export default {
       deleteFile
         .bind(this)(formData)
         .then(res => {
-          console.log(res)
-          // let re = res.data;
-          // for (let i in re) {
-          //   this.deleteAttachFile.push(i);
-          //   if (re[i] == true) {
-          //     this.files.splice(this.files.findIndex(v => v.id == i), 1);
-          //   }
-          // }
+          let re = res.data;
+          for (let i in re) {
+            this.deleteAttachFile.push(i);
+            if (re[i] == true) {
+              this.files.splice(this.files.findIndex(v => v.id == i), 1);
+            }
+          }
         });
     },
     // 获取评价
@@ -1066,9 +1061,9 @@ export default {
           this.starDic.forEach(function(k) {
             if (_this.fData.billData.billAssess == k.code) {
               _this.zname = k.name;
-              this.scores.forEach(function(v) {
+              _this.scores.forEach(function(v) {
                 if (v.name == k.name) {
-                  _this.star = v.zscore;
+                  _this.star = +v.zscore;
                 }
               });
             }
@@ -1410,6 +1405,7 @@ body {
     }
     .nextNode {
       display: flex;
+      flex-wrap:wrap;
       li {
         width: 49%;
         height: 2.5rem;
@@ -1417,8 +1413,9 @@ body {
         background: #f5f5f5;
         border: solid 1px #e9e9e9;
         border-radius: 3px;
-        &:first-child {
-          margin-right: 2%;
+        margin-right: 2%;
+        &:nth-child(even) {
+          margin-right: 0;
         }
         padding-left: 0.8rem;
       }
