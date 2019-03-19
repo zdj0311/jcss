@@ -170,7 +170,7 @@
   }
 </script>
 <style lang="scss" scoped>
-$layer-height: 0;
+$layer-height: -1rem;
 $color-text-gray: #aaa;
 
 @keyframes preloader-spin {
@@ -287,6 +287,7 @@ $color-text-gray: #aaa;
   align-items: center;
   justify-content: center;
   color: $color-text-gray;
+  padding: 1rem 0;
 }
 
 .infinite-preloader {

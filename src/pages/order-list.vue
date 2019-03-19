@@ -7,7 +7,7 @@
       </div>
       <ma-select v-model="show" :current="current" :properties="variable" @change="change"></ma-select>
     </div>
-    <div class="container" v-if="orderList.length>0">
+    <load-more class="container" :onRefresh="onRefresh" :onInfinite="onInfinite" v-if="orderList.length>0">
       <div class="content" v-for="(item,index) in orderList">
         <header>
           <span :class="item.status==2?'overtime':'statu'" >{{item.statusValue}}</span>
@@ -38,7 +38,8 @@
           </ul>
         </div>
       </div>
-    </div>
+    <div v-if="finished" slot="infinite" class="text-center">没有更多数据</div>
+    </load-more>
     <empty v-else></empty>
   </div>
 </template>
@@ -64,6 +65,7 @@
         show:false,
         variable:[],
         saveCurrent:[0,0,1],
+        finished:false,
         properties:[
           [{name:'我的',value:'MyBill',tab:0 },
           {name:'全部',value:'AllBill',tab:0 }],
@@ -79,14 +81,14 @@
           dataScope:'MyBill',
           dateType: 'Week',
           mode: 'TODO',
-          pageRows:20,
+          pageRows:10,
           page:0,
         },
         getAll:{
           dataScope:'MyBill',
           dateType: 'Week',
           mode: 'TODO',
-          pageRows:20,
+          pageRows:10,
           page:0,
         },
         orderList:[],
@@ -124,6 +126,7 @@
         this.getHistory(id,index);
       },
       change(obj){
+        this.getAll.page=0;
         // 保存当前tab下标
         this.saveCurrent[obj.tab] = obj.index;
         this.$set(this.saveCurrent,obj.tab,obj.index);
@@ -139,6 +142,7 @@
       getStatistic(params) {
         getStatistic.bind(this)(params).then(res=>{
           this.orderList = res.data;
+          this.totalCount = res.totalCount;
           res.data.forEach((item,index)=>{
             this.showDetails.push(false)
             this.orderHistoryList.push([])
@@ -177,6 +181,7 @@
         return result
       },
       onRefresh(done) {
+        this.getAll.page=0;
         getStatistic.bind(this)(this.getAll).then(res=>{
           this.orderList = res.data;
           res.data.forEach((item,index)=>{
@@ -189,9 +194,14 @@
           console.log(err);
         })
       },
-      loadmore(done) {
-        getStatistic.bind(this)(Object.assign({},this.getAll,{page:this.getAll.page++})).then(res=>{
-          this.orderList = this.orderList.concat(res.data)
+      onInfinite(done) {
+        if(this.totalCount==this.orderList.length){
+          this.finished = true;
+          return;
+        }
+        getStatistic.bind(this)(Object.assign({},this.getAll,{page:++this.getAll.page})).then(res=>{
+          this.orderList = this.orderList.concat(res.data);
+          this.totalCount = res.totalCount;
           res.data.forEach((item,index)=>{
             this.showDetails.push(false)
             this.orderHistoryList.push([])
@@ -347,5 +357,6 @@
       margin-bottom:.6rem;
     }
   }
+  
   
 </style>

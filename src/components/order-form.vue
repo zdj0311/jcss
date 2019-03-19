@@ -1522,6 +1522,14 @@ body {
   height: 3.28rem;
   line-height: 3.28rem;
 }
+.order-resolver{
+  .van-cell{
+    padding: 8px 0;
+    border-bottom: solid 1px #eee;
+    margin: 0 15px;
+    width:auto;
+  }
+}
 .assets {
   background: #fff;
   padding: 0 1.1rem 1.1rem;
