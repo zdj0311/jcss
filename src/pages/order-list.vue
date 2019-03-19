@@ -29,12 +29,12 @@
             </div>
           </div>
           <ul class="history-list" v-show="showDetails[index]">
-              <li v-for="obj in orderHistoryList[index]">
-                <h2>{{obj.actName}}</h2>
-                <p>{{obj.endTime}}</p>
-                <p>{{obj.assigneeValue}}</p>
-              </li>
-              <div></div>
+            <li class="his-item" v-for="obj in orderHistoryList[index]">
+              <div class="line"></div>
+              <h2 class="m-b6">{{obj.actName}}</h2>
+              <p class="m-b6">{{obj.endTime | timeFilter}}</p>
+              <p class="m-b6">{{obj.assigneeValue}}</p>
+            </li>
           </ul>
         </div>
       </div>
@@ -50,6 +50,7 @@
   import flwoDown from 'assets/img/flow-down.png'
   import { getStatistic,getHistory } from 'controller/order-list' // 职务列表
   import empty from 'components/empty'
+  import tool from 'utils/tool'
   export default {
     name:'order_list',
     components: { maSelect,empty},
@@ -84,6 +85,12 @@
         orderHistoryList:[],
         current:0
       };
+    },
+    filters: {
+      timeFilter(time) {
+        let newDate = new Date(time)
+        return newDate.Format("MM-dd hh:mm")
+      }
     },
     created() {
       document.scrollTop = 0
@@ -137,6 +144,7 @@
         let _this = this;
         getHistory.bind(this)(id).then(res=>{
           _this.orderHistoryList[index] = res;
+          console.log(res)
           this.$set(_this.orderHistoryList,index,res)
         })
         .catch(err=>{
@@ -198,6 +206,11 @@
         display:flex;
         align-items: center;
         padding:1rem;
+        h2 {
+          font-size:1.1rem;
+          font-weight: bold;
+          margin-left:1rem;
+        }
       }
       .statu {
         color:#fff;
@@ -212,11 +225,7 @@
         background: linear-gradient(to left, #ff322f, #ff6a2f);
         border-radius: 5px;
       }
-      h2 {
-        font-size:1.1rem;
-        font-weight: bold;
-        margin-left:1rem;
-      }
+      
       .set-time{
         color:#666;
         padding: 0 1rem;
@@ -258,49 +267,42 @@
     }
     .history-list{
       display: flex;
-      justify-content: space-between;
-      padding:1rem;
-      position: relative;
-      color:#8494ac;
       overflow-x: scroll;
-      width:100%;
       background:#fbfbfb;
-      li{
-        position: relative;
-        z-index: 1;
-        max-width: 5.71rem;
+      padding:1rem;
+      color:#8494ac;
+      .his-item {
+        position:relative;
+        display:flex;
+        flex-flow: column;
+        align-items: center;
+        min-width:40%;
+        padding-right:2rem;
+        .line {
+          position:absolute;
+          top:1rem;
+          right:0;
+          width:100%;
+          border-top:1px solid #eaeff7;
+        }
+        h2 {
+          position:relative;
+          border:1px solid #eaeff7;
+          padding:.2rem 1rem;
+          border-radius: 1rem;
+          background:#eaeff7;
+          z-index:2;
+        }
+        &:last-child {
+          h2 {
+            color:#fff;
+            background:#4a79df;
+          }
+        }
       }
-      li h2{
-        height: 1.5rem;
-        padding:0 1rem;
-        border:1px solid #e0e7f3;
-        border-radius: 1.79rem;
-        display: inline-block;
-        text-align: center;
-        line-height: 1.5rem;
-        background-color:#eaeff7;
-        margin:0 ;
-      }
-       li:nth-last-child(2) h2{
-        background: #4a79df;
-        color:#fff;
-      }
-      p{
-        margin:0.5rem 0;
-      }
-      li:last-child h2{
-        color: #fff;
-        background-color:#4a79df;
-      }
-      div{
-        position:absolute;
-        left:0;
-        top:1.8rem;
-        height: 1px;
-        background: #eaeff7;
-        width: 100%;
-        z-index: 0;
-      }
+    }
+    .m-b6 {
+      margin-bottom:.6rem;
     }
   }
   
