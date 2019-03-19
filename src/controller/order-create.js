@@ -183,6 +183,22 @@ function makeData(res,pro) {
 }
 
 /**
+ * @desc 获取统计数量
+ * @params
+ */
+function getStatisticCount(dateType) {
+  return new Promise((resolve,reject)=>{
+    let data = {dateType:dateType}
+    this.$get(uri.getStatisticCount,{params:data}).then(res=>{
+      resolve(res)
+    })
+    .catch(err=>{
+      reject(err)
+    })
+  })
+}
+
+/**
  * @desc 获取资产列表
  * @params
  */
@@ -340,7 +356,7 @@ function deleteFile(formData) {
 
 export {
   getCustomerOrgDic,getBtDic,getCustomerDic,getUrgencyDic,getProjectDic,getProjectSubDic,getAssetType,getAssetsList,startWorkflow,saveWorkflow,loadWorkflow,updateWorkflow,upload,getNextNodes,getGotoNodes,deleteFile,evaluation,
-  paperList,cananswer,submitPaper
+  paperList,cananswer,submitPaper,getStatisticCount
 }
 
 

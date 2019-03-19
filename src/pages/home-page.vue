@@ -79,7 +79,7 @@
   import { Dialog } from 'vant';
   import tool from 'utils/tool'
   import $ from 'jquery'
-  import {getCustomerDic,getBtDic,startWorkflow,saveWorkflow} from 'controller/order-create'
+  import {getCustomerDic,getBtDic,startWorkflow,saveWorkflow,getAssetType,getStatisticCount} from 'controller/order-create'
   import form from 'utils/form-all'
   export default {
     name: 'home_page',
@@ -113,7 +113,7 @@
     methods: {
       getInfo(){
         let _this = this;
-        this.$get('/jcstd/api/wk/dic/assetsTypeList.action', {params: {customerId: _this.$store.state.admin.user.orgId}}).then(res=>{
+        getAssetType.bind(this)(_this.$store.state.admin.user.orgId).then(res=>{
           let copyArr =  res.slice(0,res.length)
           let len = Math.ceil(res.length/4);
           for(var i=0;i<len;i++){
@@ -132,7 +132,7 @@
         let dateType = this.statistics[index]['value'];
         this.dateType = dateType;
         let _this = this;
-        this.$get('/jcstd/api/wk/statistiscCount.action', {params: {dateType: dateType}}).then(res=>{
+        getStatisticCount.bind(this)(dateType).then(res=>{
           _this.statisticsCount = res;
         })
       },
@@ -142,13 +142,13 @@
         })
       },
       toList(item){
-//      this.$router.push({
-//        name: 'order_list',
-//        params: {
-//          _type: this.dateType,
-//          _mode: item.value
-//        }
-//      })
+        this.$router.push({
+          name: 'order_list',
+          params: {
+            _type: this.dateType,
+            _mode: item.value
+          }
+        })
       },
       createOrder(it,e){
         this.form.assets = it;
