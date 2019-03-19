@@ -92,6 +92,7 @@
         return newDate.Format("MM-dd hh:mm")
       }
     },
+    
     created() {
       document.scrollTop = 0
     },
@@ -169,6 +170,14 @@
         return result
       },
     },
+    activated() {
+      if(this.$route.params._type !== this.getAll.dateType || this.$route.params._mode !== this.getAll.mode) {
+          this.getAll.dateType = this.$route.params._type
+          this.getAll.mode = this.$route.params._mode
+          this.getStatistic(this.getAll)
+          this.menus = ['MyBill',this.$route.params._mode,this.$route.params._type]
+        }
+    }
   }
 </script>
 <style lang='scss'>

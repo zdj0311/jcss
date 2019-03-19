@@ -29,7 +29,7 @@ export default new Router({
     // 主页
     {
       path:'/',
-      redirect: '/home-page',
+//    redirect: '/home-page',
       component:maMain,
       children:[{
       path: '/home-page',
