@@ -1,4 +1,5 @@
-let api = '/jcss/'
+let api = '/jcstd/'
+//let api = '/jcss/'
 
 export default{
   getUserInfo:api + 'api/wx/user/info.action', // 获取用户信息、审核状态 支持无用户状态

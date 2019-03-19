@@ -38,7 +38,8 @@
 </script>
 <style lang='scss'>
   .feedback {
-    height:100%;
+    height:calc(100% - 50px);
+    overflow:scroll;
     background:#F2F2F2;
     .header {
       display:flex;

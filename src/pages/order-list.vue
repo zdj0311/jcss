@@ -10,7 +10,7 @@
     <div class="container" v-if="orderList.length>0">
       <div class="content" v-for="(item,index) in orderList">
         <header>
-          <span :class="item.status==0?'statu':'overtime'" >{{item.statusValue}}</span>
+          <span :class="item.status==2?'overtime':'statu'" >{{item.statusValue}}</span>
           <h2>{{item.subject}}</h2>
         </header>
         <div class="body">
@@ -85,6 +85,9 @@
         current:0
       };
     },
+    created() {
+      document.scrollTop = 0
+    },
     mounted() {
       this.getAll.dateType = this.$route.params._type
       this.getAll.mode = this.$route.params._mode
@@ -141,6 +144,7 @@
         })
       },
       routeTo(name,item) {
+        console.log(item)
         this.$router.push({
           name:name,
           params:{_id:item.id}
@@ -161,7 +165,9 @@
 </script>
 <style lang='scss'>
   .order-list {
-    height: 100%;
+    height:calc(100% - 50px);
+    overflow:scroll;
+    background:#F2F2F2;
     .menus {
       position:fixed;
       width:100%;
@@ -187,6 +193,7 @@
     .content {
       background:#fff;
       font-size: 1rem;
+      margin-top: 1rem;
       header {
         display:flex;
         align-items: center;
@@ -195,13 +202,14 @@
       .statu {
         color:#fff;
         padding:.3rem .8rem;
-        background: linear-gradient(left, #4a79df, #7db6ff);
+        background:-webkit-linear-gradient(to left, #4a79df, #7db6ff);
+        background: linear-gradient(to left, #4a79df, #7db6ff);
         border-radius: 5px;
       }
       .overtime {
         color:#fff;
         padding:.3rem .8rem;
-        background: linear-gradient(left, #ff322f, #ff6a2f);
+        background: linear-gradient(to left, #ff322f, #ff6a2f);
         border-radius: 5px;
       }
       h2 {
@@ -251,11 +259,12 @@
     .history-list{
       display: flex;
       justify-content: space-between;
-      padding:0 1rem;
+      padding:1rem;
       position: relative;
       color:#8494ac;
       overflow-x: scroll;
       width:100%;
+      background:#fbfbfb;
       li{
         position: relative;
         z-index: 1;
@@ -286,7 +295,7 @@
       div{
         position:absolute;
         left:0;
-        top:10px;
+        top:1.8rem;
         height: 1px;
         background: #eaeff7;
         width: 100%;

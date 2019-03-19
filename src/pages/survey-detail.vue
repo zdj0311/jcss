@@ -102,7 +102,7 @@
       getPaper() {
         let id = this.$route.params._id;
         let _this = this;
-        Vue.$axios.get(config.hostname + '/jcss/api/wx/question/paper/' + id + '.action').then(res => {
+        Vue.$axios.get(config.hostname + '/jcstd/api/wx/question/paper/' + id + '.action').then(res => {
           res = res.data;
           _this.paper = res;
           _this.totalNum = res.questionCollect.length;

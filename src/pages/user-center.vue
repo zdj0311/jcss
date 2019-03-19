@@ -75,7 +75,8 @@
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss">
   .user-center {
-    height:100%;
+    height:calc(100% - 50px);
+    overflow:scroll;
     background:#F2F2F2;
     .header {
       display:flex;

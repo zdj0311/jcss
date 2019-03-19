@@ -281,7 +281,9 @@
   body{
     background: #F2F2F2;
   }
-  .home-page {  
+  .home-page {
+    height:calc(100% - 50px);
+    overflow:scroll;  
     .banner-r{
       width: 100%;
       height: 52vw;
