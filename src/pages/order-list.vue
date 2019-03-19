@@ -49,11 +49,12 @@
   import flwoUp from 'assets/img/flow-up.png'
   import flwoDown from 'assets/img/flow-down.png'
   import { getStatistic,getHistory } from 'controller/order-list' // 职务列表
+  import loadMore from 'components/load-more'
   import empty from 'components/empty'
   import tool from 'utils/tool'
   export default {
     name:'order_list',
-    components: { maSelect,empty},
+    components: { maSelect,empty,loadMore},
     data() {
       return {
         sele,flwoUp,flwoDown, // 图片
@@ -62,7 +63,7 @@
         showDetails:[],
         show:false,
         variable:[],
-        saveCurrent:[0,0,0],
+        saveCurrent:[0,0,1],
         properties:[
           [{name:'我的',value:'MyBill',tab:0 },
           {name:'全部',value:'AllBill',tab:0 }],
@@ -74,16 +75,23 @@
           {name:'本周',value:'Week',tab:2},
           {name:'本月',value:'Month',tab:2}],
         ],
+        defaultCon: {
+          dataScope:'MyBill',
+          dateType: 'Week',
+          mode: 'TODO',
+          pageRows:20,
+          page:0,
+        },
         getAll:{
           dataScope:'MyBill',
           dateType: 'Week',
           mode: 'TODO',
-          pageRows:10,
+          pageRows:20,
           page:0,
         },
         orderList:[],
         orderHistoryList:[],
-        current:0
+        current:0,
       };
     },
     filters: {
@@ -92,8 +100,9 @@
         return newDate.Format("MM-dd hh:mm")
       }
     },
+    
     created() {
-      document.scrollTop = 0
+      
     },
     mounted() {
       this.getAll.dateType = this.$route.params._type
@@ -128,9 +137,8 @@
       },
       // 返回 Promise 获取工单列表
       getStatistic(params) {
-        let _this = this;
         getStatistic.bind(this)(params).then(res=>{
-          _this.orderList = res.data;
+          this.orderList = res.data;
           res.data.forEach((item,index)=>{
             this.showDetails.push(false)
             this.orderHistoryList.push([])
@@ -168,7 +176,41 @@
         })
         return result
       },
+      onRefresh(done) {
+        getStatistic.bind(this)(this.getAll).then(res=>{
+          this.orderList = res.data;
+          res.data.forEach((item,index)=>{
+            this.showDetails.push(false)
+            this.orderHistoryList.push([])
+          })
+          done()
+        })
+        .catch(err=>{
+          console.log(err);
+        })
+      },
+      loadmore(done) {
+        getStatistic.bind(this)(Object.assign({},this.getAll,{page:this.getAll.page++})).then(res=>{
+          this.orderList = this.orderList.concat(res.data)
+          res.data.forEach((item,index)=>{
+            this.showDetails.push(false)
+            this.orderHistoryList.push([])
+          })
+          done()
+        })
+        .catch(err=>{
+          console.log(err);
+        })
+      }
     },
+    activated() {
+      if(this.$route.params._type !== this.getAll.dateType || this.$route.params._mode !== this.getAll.mode) {
+          this.getAll.dateType = this.$route.params._type
+          this.getAll.mode = this.$route.params._mode
+          this.getStatistic(this.getAll)
+          this.menus = ['MyBill',this.$route.params._mode,this.$route.params._type]
+        }
+    }
   }
 </script>
 <style lang='scss'>
