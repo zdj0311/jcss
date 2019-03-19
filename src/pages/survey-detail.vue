@@ -77,7 +77,7 @@
 </template>
 <script>
   import exam from 'assets/img/exam.png'
-  import { submitPaper } from 'controller/order-create'
+  import { submitPaper,getPaper } from 'controller/order-create'
   import config from 'config'
   import { Dialog } from 'vant';
   import Vue from 'vue'
@@ -102,7 +102,7 @@
       getPaper() {
         let id = this.$route.params._id;
         let _this = this;
-        Vue.$axios.get(config.hostname + '/jcstd/api/wx/question/paper/' + id + '.action').then(res => {
+        getPaper.bind(this)(id).then(res=>{
           res = res.data;
           _this.paper = res;
           _this.totalNum = res.questionCollect.length;
@@ -138,7 +138,6 @@
         var _this = this;
         var id = this.$route.params._id;
         var txt = '';
-        console.log(this.q)
         this.paper.questionCollect.forEach(function(item, index) {
           txt += index == 0 ? item.id + '_' + _this.q['ans' + item.id] : ',' + item.id + '_' + _this.q['ans' + item.id];
         })
@@ -149,9 +148,8 @@
                res = res.data;
                if(res.code=='000000'){
                    Dialog.alert({
-                       message: res.message
+                       message: res.data
                    }).then(() => {
-                     console.log(111)
                        this.$router.push({name:'survey_list'})
                    });
                }else{

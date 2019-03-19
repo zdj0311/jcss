@@ -22,6 +22,7 @@ export default{
   getProjectDic:api + 'api/wk/dic/projectDicList.action', // 获取项目字典列表
   getProjectSubDic:api + 'api/wk/dic/projectSubDicList.action', // 获取子项目字典列表
   upload:api + 'api/wx/attach/upload.action', // 上传
+  deleteFile:api + 'api/wx/attach/delete.action', // 删除附件
   getAssetType:api + 'api/wk/dic/assetsTypeList.action', // 获取资产列表
   getAssetsList:api + 'api/wk/dic/assetsList.action', // 获取子资产列表
   startWorkflow:api + 'api/wk/startWorkflow.action', // 开始创建工作流
@@ -31,6 +32,7 @@ export default{
   getNextNodes:api + 'api/wk/getNextNodes.action', // 获取下一节点
   evaluation: api + 'api/wk/dic/dicList.action', //评价
   paperList: api + 'api/wx/question/paperList.action', //调查问卷列表
+  getPaper: api + 'api/wx/question/paper/', //获取问卷详情
   cananswer: api + 'api/wx/question/check/cananswer.action', //是否有权限答题
   submitPaper: api + 'api/wx/question/submit.action', // 提交问卷
   getHistory:api + '/api/wk/getHistory.action',//流转详情

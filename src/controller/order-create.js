@@ -128,6 +128,21 @@ function paperList() {
 }
 
 /**
+ * @desc 获取问卷详情
+ * @params
+ */
+function getPaper(id) {
+  return new Promise((resolve,reject)=>{
+    Vue.$axios.get(uri.getPaper+id).then(res=>{
+      resolve(res)
+    })
+    .catch(err=>{
+      reject(err)
+    })
+  })
+}
+
+/**
  * @desc 是否有权限答题
  * @params
  */
@@ -338,14 +353,12 @@ function upload(formData) {
 }
 
 /**
- * @desc 上传
+ * @desc 删除附件
  * @params
  */
 function deleteFile(formData) {
-  console.log(formData)
   return new Promise((resolve,reject)=>{
-    this.$http.post(uri.deleteFile,formData).then(res=>{
-      console.log(res)
+    this.$axios.post(uri.deleteFile,formData).then(res=>{
       resolve(res)
     })
     .catch(err=>{
@@ -356,7 +369,7 @@ function deleteFile(formData) {
 
 export {
   getCustomerOrgDic,getBtDic,getCustomerDic,getUrgencyDic,getProjectDic,getProjectSubDic,getAssetType,getAssetsList,startWorkflow,saveWorkflow,loadWorkflow,updateWorkflow,upload,getNextNodes,getGotoNodes,deleteFile,evaluation,
-  paperList,cananswer,submitPaper,getStatisticCount
+  paperList,cananswer,submitPaper,getStatisticCount,getPaper
 }
 
 
