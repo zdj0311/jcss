@@ -1,241 +1,302 @@
 <template>
-  <div class="load-more">
-    <div class="load-more__track" :style="style" @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd" @touchcancel="onTouchEnd">
-      <div class="load-more__head">
-        <slot v-if="status === 'normal'" name="normal" />
-        <slot v-if="status === 'pulling'" name="pulling">
-          <span :class="b('text')">{{ pullingText || '下拉加载' }}</span>
-        </slot>
-        <slot v-if="status === 'loosing'" name="loosing">
-          <span :class="b('text')">{{ loosingText || '松开刷新' }}</span>
-        </slot>
-        <slot v-if="status === 'loading'" name="loading">
-          <div :class="load-more__loading">
-            <jc-loading color="black" inline/>
-            <span>{{ loadingText || '正在加载' }}</span>
-          </div>
+  <div class="scroll"
+       :class="{
+         'pull-down': (state === 0),
+         'pull-up': (state === 1),
+         refreshing: (state === 2),
+         touching: touching
+       }"
+      @touchstart="onRefresh ? touchStart($event) : undefined"
+      @touchmove="onRefresh ? touchMove($event) : undefined"
+      @touchend="onRefresh ? touchEnd($event) : undefined"
+      @mousedown="onRefresh ? mouseDown($event) : undefined"
+      @mousemove="onRefresh ? mouseMove($event) : undefined"
+      @mouseup="onRefresh ? mouseUp($event) : undefined"
+      @scroll="(onInfinite || infiniteLoading) ? onScroll($event) : undefined"
+       >
+    <div class="scroll-inner"
+      :style="{
+        transform: 'translate3d(0, ' + top + 'px, 0)',
+        webkitTransform: 'translate3d(0, ' + top + 'px, 0)'
+      }"
+    >
+      <div class="pull-to-refresh-layer" v-if="!!onRefresh">
+        <slot name="refresh">
+          <div class="preloader"></div>
+          <div class="pull-to-refresh-arrow"></div>
+          <span class="label-down">下拉刷新</span>
+          <span class="label-up">释放刷新</span>
+          <span class="label-refresh">正在刷新..</span>
         </slot>
       </div>
-      <slot />
-      <div :class="load-more__finished" v-if="finished">已无更多数据</div>
+      <slot></slot>
+      <div class="infinite-layer" v-if="onInfinite">
+        <slot name="infinite">
+          <div class="infinite-preloader"></div>
+          <span class="label-loading">正在加载..</span>
+        </slot>
+      </div>
     </div>
   </div>
 </template>
-
 <script>
   export default {
-    name: 'load_more',
     props: {
-      disabled: Boolean,
-      pullingText: String,
-      loosingText: String,
-      loadingText: String,
-      value: {
-        type: Boolean,
-        required: true
-      },
-      animationDuration: {
+      offset: {
         type: Number,
-        default: 300
+        default: 44
       },
-      headHeight: {
-        type: Number,
-        default: 50
+      onRefresh: {
+        type: Function,
+        default: undefined,
+        required: false
       },
-      bottomLoaded: Boolean,
-      finish: Boolean
-    },
-
-    data() {
-      return {
-        status: 'normal',
-        scrollT: 0,
-        height: 0,
-        duration: 1,
-        finished: false
-      };
-    },
-    computed: {
-      style() {
-        return {
-          transition: `${this.duration}ms`,
-          transform: `translate3d(0,${this.height}px, 0)`
-        };
-      },
-
-      untouchable() {
-        return this.status === 'loading' || this.disabled;
+      onInfinite: {
+        type: Function,
+        default: undefined,
+        require: false
       }
     },
-
-    mounted() {
-      this.scrollEl = scrollUtils.getScrollEventTarget(this.$el);
-      this.handler(true)
-    },
-
-    watch: {
-      value(val) {
-        this.duration = this.animationDuration;
-        this.getStatus(val ? this.headHeight : 0, val);
-      },
-      bottomLoaded(v) {
-        this.load = v
-      },
-      finish(v) {
-        console.log(v)
-        this.finished = v
+    data () {
+      return {
+        top: 0,
+        state: 0, // 0:down, 1: up, 2: refreshing
+        startY: 0,
+        touching: false,
+        infiniteLoading: false
       }
     },
     methods: {
-      handler(bind) {
-        if(this.binded !== bind) {
-          this.binded = bind;
-          (bind ? on : off)(this.scrollEl, 'scroll', this.loadmore);
+      touchStart (e) {
+        this.startY = e.targetTouches[0].pageY
+        this.touching = true
+      },
+      mouseDown (e) {
+        this.startY = e.pageY
+        this.touching = true
+      },
+      touchMove (e) {
+        if (this.$el.scrollTop > 0 || !this.touching) {
+          return
+        }
+        let diff = e.targetTouches[0].pageY - this.startY
+        if (diff > 0) e.preventDefault()
+        this.top = Math.pow(diff, 0.8) + (this.state === 2 ? this.offset : 0)
+
+        if (this.state === 2) { // in refreshing
+          return
+        }
+        if (this.top >= this.offset) {
+          this.state = 1
+        } else {
+          this.state = 0
         }
       },
-      loadmore(e) {
-        if(this.finished) return
-        let height = scrollUtils.getVisibleHeight(this.scrollEl)
-        let top = scrollUtils.getScrollTop(this.scrollEl)
-        let all = this.scrollEl.scrollHeight
-        if(top > this.scrollT && !this.load) {
-          if(all - top - height <= 100) {
-            this.$emit('loadmore')
-          }
+      mouseMove(e) {
+        if (this.$el.scrollTop > 0 || !this.touching) {
+          return
         }
-        this.scrollT = top
-      },
-      onTouchStart(event) {
-        if(this.untouchable) {
-          return;
+        let diff = e.pageY - this.startY
+        if (diff > 0) e.preventDefault()
+        this.top = Math.pow(diff, 0.8) + (this.state === 2 ? this.offset : 0)
+
+        if (this.state === 2) { // in refreshing
+          return
         }
-        if(this.getCeiling()) {
-          this.duration = 0;
-          this.touchStart(event);
+        if (this.top >= this.offset) {
+          this.state = 1
+        } else {
+          this.state = 0
         }
       },
-
-      onTouchMove(event) {
-        if(this.untouchable) {
-          return;
+      touchEnd (e) {
+        this.touching = false
+        if (this.state === 2) { // in refreshing
+          this.state = 2
+          this.top = this.offset
+          return
         }
-
-        this.touchMove(event);
-
-        if(!this.ceiling && this.getCeiling()) {
-          this.duration = 0;
-          this.startY = event.touches[0].clientY;
-          this.deltaY = 0;
-        }
-
-        if(this.ceiling && this.deltaY >= 0) {
-          if(this.direction === 'vertical') {
-            this.getStatus(this.ease(this.deltaY));
-            event.preventDefault();
-          }
+        if (this.top >= this.offset) { // do refresh
+          this.refresh()
+        } else {  // cancel refresh
+          this.state = 0
+          this.top = 0
         }
       },
-
-      onTouchEnd() {
-        if(this.untouchable) {
-          return;
+      mouseUp (e) {
+        this.touching = false
+        if (this.state === 2) { // in refreshing
+          this.state = 2
+          this.top = this.offset
+          return
         }
-
-        if(this.ceiling && this.deltaY) {
-          this.duration = this.animationDuration;
-          if(this.status === 'loosing') {
-            this.getStatus(this.headHeight, true);
-            this.$emit('input', true);
-            this.$emit('refresh');
-          } else {
-            this.getStatus(0);
-          }
+        if (this.top >= this.offset) { // do refresh
+          this.refresh()
+        } else {  // cancel refresh
+          this.state = 0
+          this.top = 0
         }
       },
-
-      getCeiling() {
-        this.ceiling = scrollUtils.getScrollTop(this.scrollEl) === 0;
-        return this.ceiling;
+      refresh () {
+        this.state = 2
+        this.top = this.offset
+        this.onRefresh(this.refreshDone)
       },
-
-      ease(height) {
-        const {
-          headHeight
-        } = this;
-        return height < headHeight ?
-          height :
-          height < headHeight * 2 ?
-          Math.round(headHeight + (height - headHeight) / 2) :
-          Math.round(headHeight * 1.5 + (height - headHeight * 2) / 4);
+      refreshDone () {
+        this.state = 0
+        this.top = 0
       },
-
-      getStatus(height, isLoading) {
-        this.height = height;
-
-        const status = isLoading ?
-          'loading' : height === 0 ?
-          'normal' : height < this.headHeight ?
-          'pulling' : 'loosing';
-
-        if(status !== this.status) {
-          this.status = status;
+      infinite () {
+        this.infiniteLoading = true
+        this.onInfinite(this.infiniteDone)
+      },
+      infiniteDone () {
+        this.infiniteLoading = false
+      },
+      onScroll (e) {
+        if (this.infiniteLoading) {
+          return
         }
+        let outerHeight = this.$el.clientHeight
+        let innerHeight = this.$el.querySelector('.scroll-inner').clientHeight
+        let scrollTop = this.$el.scrollTop
+        let ptrHeight = this.onRefresh ? this.$el.querySelector('.pull-to-refresh-layer').clientHeight : 0
+        let infiniteHeight = this.$el.querySelector('.infinite-layer').clientHeight
+        let bottom = innerHeight - outerHeight - scrollTop - ptrHeight
+
+        if (bottom < infiniteHeight) this.infinite()
       }
-    },
-    destroyed() {
-      this.handler(false);
-    },
-
-    activated() {
-      this.handler(true);
-    },
-
-    deactivated() {
-      this.handler(false);
-    },
+    }
   }
 </script>
-<style lang="scss">
-  .load-more {
-    user-select: none;
-    overflow: scroll;
-    -webkit-overflow-scrolling: touch;
-    &__track {
-      position: relative;
-    }
-    &__head {
-      width: 100%;
-      height: 50px;
-      left: 0;
-      overflow: hidden;
-      position: absolute;
-      text-align: center;
-      top: -50px;
-      font-size: 14px;
-      color: $global-color-darkgrey;
-      line-height: 50px;
-    }
-    &__loading {
-      .jc-loading {
-        width: 16px;
-        height: 16px;
-        margin-right: 5px;
-      }
-      span,
-      .jc-loading {
-        vertical-align: middle;
-        display: inline-block;
-      }
-    }
-    &__text {
-      display: block;
-    }
-    &__finished {
-      height: 30px;
-      line-height: 30px;
-      text-align: center;
-      font-size: 14px;
-      color: #999;
+<style lang="scss" scoped>
+$layer-height: 0;
+$color-text-gray: #aaa;
+
+@keyframes preloader-spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@mixin preloader() {
+  width: 20px;
+  height: 20px;
+  animation: preloader-spin 1s steps(12, end) infinite;
+  &:after {
+    display: block;
+    width: 100%;
+    height: 100%;
+    content: "";
+    background-image: url("data:image/svg+xml;charset=utf-8,<svg viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><defs><line id='l' x1='60' x2='60' y1='7' y2='27' stroke='#6c6c6c' stroke-width='11' stroke-linecap='round'/></defs><g><use xlink:href='#l' opacity='.27'/><use xlink:href='#l' opacity='.27' transform='rotate(30 60,60)'/><use xlink:href='#l' opacity='.27' transform='rotate(60 60,60)'/><use xlink:href='#l' opacity='.27' transform='rotate(90 60,60)'/><use xlink:href='#l' opacity='.27' transform='rotate(120 60,60)'/><use xlink:href='#l' opacity='.27' transform='rotate(150 60,60)'/><use xlink:href='#l' opacity='.37' transform='rotate(180 60,60)'/><use xlink:href='#l' opacity='.46' transform='rotate(210 60,60)'/><use xlink:href='#l' opacity='.56' transform='rotate(240 60,60)'/><use xlink:href='#l' opacity='.66' transform='rotate(270 60,60)'/><use xlink:href='#l' opacity='.75' transform='rotate(300 60,60)'/><use xlink:href='#l' opacity='.85' transform='rotate(330 60,60)'/></g></svg>");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100%;
+  }
+}
+
+.pull-to-refresh-layer {
+  position: relative;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: $layer-height;
+  color: $color-text-gray;
+
+  .preloader {
+    visibility: hidden;
+    @include preloader();
+  }
+  .pull-to-refresh-arrow {
+    width: 20px;
+    height: 20px;
+    background: no-repeat center;
+    background-image: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 40'><polygon points='9,22 9,0 17,0 17,22 26,22 13.5,40 0,22' fill='#8c8c8c'/></svg>");
+    background-size: 10.4px 16px;
+    z-index: 10;
+    transform: rotate(0deg) translate3d(0, 0, 0);
+    transition-duration: 300ms;
+    margin-left: -20px;
+  }
+
+}
+
+.scroll {
+  position: absolute;
+  top: -$layer-height;
+  right: 0;
+  bottom: 50px;
+  left: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
+  &.touching .scroll-inner {
+    transition-duration: 0ms;
+  }
+  &:not(.refreshing) {
+    .pull-to-refresh-layer .preloader {
+      animation: none;
     }
   }
+  &.refreshing {
+    .pull-to-refresh-arrow {
+      visibility: hidden;
+      transition-duration: 0ms;
+    }
+    .preloader {
+      visibility: visible;
+    }
+  }
+  &.pull-up {
+    .pull-to-refresh-arrow {
+      transform: rotate(180deg) translate3d(0, 0, 0);
+    }
+  }
+}
+
+.scroll-inner {
+  position: absolute;
+  /* top: -$layer-height; */
+  top: 0;
+  width: 100%;
+  transition-duration: 300ms;
+}
+
+.label-down, .label-up, .label-refresh {
+  display: none;
+  text-align: center;
+}
+
+.pull-down .label-down,
+.pull-up .label-up,
+.refreshing .label-refresh {
+  display: block;
+  width: 5.5em;
+}
+
+.pull-to-refresh-layer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.infinite-layer {
+  height: $layer-height;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-text-gray;
+}
+
+.infinite-preloader {
+  @include preloader();
+}
+
+.label-loading {
+  display: block;
+  width: 5.5em;
+  text-align: center;
+}
+
 </style>

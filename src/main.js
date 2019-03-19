@@ -22,7 +22,7 @@ Vue.config.productionTip = false
 Vue.use(Vant);
 Vue.use(ElementUI);
 
-//let vConsole = new VConsole()
+let vConsole = new VConsole()
 if(process.env.NODE_ENV === 'development' && config.dev.mock) {
   let Mock = require('mockjs')
   Vue.$mock = Vue.prototype.$mock = Mock
