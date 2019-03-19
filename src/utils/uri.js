@@ -2,7 +2,7 @@ let api = ''
 
 if(process.env.NODE_ENV === 'development') {
   api = '/jcss/'
-}else if() {
+}else if(process.env.NODE_ENV === 'production') {
   api = '/jcstd/'
 }else {
   api = '/jcss/'
