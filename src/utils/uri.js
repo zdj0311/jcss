@@ -1,7 +1,14 @@
-let api = '/jcstd/'
-//let api = '/jcss/'
+let api = ''
 
+if(process.env.NODE_ENV === 'development') {
+  api = '/jcss/'
+}else if() {
+  api = '/jcstd/'
+}else {
+  api = '/jcss/'
+}
 export default{
+  api:api,
   getUserInfo:api + 'api/wx/user/info.action', // 获取用户信息、审核状态 支持无用户状态
   getPostDic:api + 'api/wx/user/dic.action', // 获取职务字典列表
   bindUser:api + 'api/wx/user/maintain.action', // 绑定用户
