@@ -112,12 +112,11 @@
     },
     methods: {
       getInfo(){
-        let _this = this;
-        getAssetType.bind(this)(_this.$store.state.admin.user.orgId).then(res=>{
+        getAssetType.bind(this)(this.$store.state.admin.user.orgId).then(res=>{
           let copyArr =  res.slice(0,res.length)
           let len = Math.ceil(res.length/4);
           for(var i=0;i<len;i++){
-             _this.assetsArray.push(copyArr.splice(0,4))
+             this.assetsArray.push(copyArr.splice(0,4))
           }
         })
         getBtDic.bind(this)().then(res=>{
@@ -131,9 +130,8 @@
       selectTab(index) {
         let dateType = this.statistics[index]['value'];
         this.dateType = dateType;
-        let _this = this;
         getStatisticCount.bind(this)(dateType).then(res=>{
-          _this.statisticsCount = res;
+          this.statisticsCount = res;
         })
       },
       routerTo() {
