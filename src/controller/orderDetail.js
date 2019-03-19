@@ -36,7 +36,7 @@ function makeData(res) {
     value:res.billData.appUserPhone
   },{
     title:'状态',
-    value:'舒兰市鸭脖王'
+    value:res.billData.statusValue
   },{
     title:'编码',
     value:res.billData.code

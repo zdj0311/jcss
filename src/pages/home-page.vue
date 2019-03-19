@@ -113,7 +113,7 @@
     methods: {
       getInfo(){
         let _this = this;
-        this.$get('/jcss/api/wk/dic/assetsTypeList.action', {params: {customerId: _this.$store.state.admin.user.orgId}}).then(res=>{
+        this.$get('/jcstd/api/wk/dic/assetsTypeList.action', {params: {customerId: _this.$store.state.admin.user.orgId}}).then(res=>{
           let copyArr =  res.slice(0,res.length)
           let len = Math.ceil(res.length/4);
           for(var i=0;i<len;i++){
@@ -132,7 +132,7 @@
         let dateType = this.statistics[index]['value'];
         this.dateType = dateType;
         let _this = this;
-        this.$get('/jcss/api/wk/statistiscCount.action', {params: {dateType: dateType}}).then(res=>{
+        this.$get('/jcstd/api/wk/statistiscCount.action', {params: {dateType: dateType}}).then(res=>{
           _this.statisticsCount = res;
         })
       },
@@ -142,13 +142,13 @@
         })
       },
       toList(item){
-        this.$router.push({
-          name: 'order_list',
-          params: {
-            _type: this.dateType,
-            _mode: item.value
-          }
-        })
+//      this.$router.push({
+//        name: 'order_list',
+//        params: {
+//          _type: this.dateType,
+//          _mode: item.value
+//        }
+//      })
       },
       createOrder(it,e){
         this.form.assets = it;
@@ -281,7 +281,9 @@
   body{
     background: #F2F2F2;
   }
-  .home-page {  
+  .home-page {
+    height:calc(100% - 50px);
+    overflow:scroll;  
     .banner-r{
       width: 100%;
       height: 52vw;
