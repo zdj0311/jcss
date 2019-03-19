@@ -148,7 +148,7 @@
                res = res.data;
                if(res.code=='000000'){
                    Dialog.alert({
-                       message: res.message
+                       message: res.data
                    }).then(() => {
                        this.$router.push({name:'survey_list'})
                    });

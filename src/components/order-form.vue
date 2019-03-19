@@ -135,7 +135,7 @@
           <li
             v-for="(item,index) in assetTypeDic"
             :key="index"
-            @click="assetsList(item.id,index)"
+            @click="assetsList(item.id,item.assetsTypeName,index)"
             :class="{active:index == itemIndex}"
           >
             <span :dataId="item.id">{{item.assetsTypeName}}</span>
@@ -572,7 +572,7 @@ export default {
             this.itemIndex = 0;
             this.form.assetTypeId = this.assetTypeDic[0].id;
             this.form.assetTypeName = this.assetTypeDic[0].assetsTypeName;
-            this.assetsList(this.form.assetTypeId, this.itemIndex);
+            this.assetsList(this.form.assetTypeId,this.form.assetTypeName, this.itemIndex);
           });
         if (this.form["busiTypeName"] != "") {
           this.startWorkflow();
@@ -731,8 +731,10 @@ export default {
         });
     },
     // 获取资产分类
-    assetsList(assetsTypeId, index) {
+    assetsList(assetsTypeId,assetsTypeName,index) {
       this.itemIndex = index;
+      this.form.assetTypeId = assetsTypeId;
+      this.form.assetTypeName = assetsTypeName;
       getAssetsList
         .bind(this)(this.form["customerOrgName"].code, assetsTypeId)
         .then(res => {
@@ -1414,6 +1416,7 @@ body {
         border: solid 1px #e9e9e9;
         border-radius: 3px;
         margin-right: 2%;
+        margin-bottom:0.4rem;
         &:nth-child(even) {
           margin-right: 0;
         }
@@ -1435,7 +1438,7 @@ body {
         border: solid 1px #e9e9e9;
         border-radius: 3px;
         padding-left: 0.8rem;
-        margin-bottom:0.8rem;
+        margin-bottom:0.4rem;
         &:nth-child(even) {
           margin-right: 0;
         }
@@ -1595,5 +1598,8 @@ body {
       width:100%;
       height: 100%;
       background-size:1.07rem 1.07rem;
+    }
+    .table{
+      padding:0.8rem;
     }
 </style>
