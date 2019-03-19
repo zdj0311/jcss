@@ -492,6 +492,8 @@ export default {
                 this.urgencyDic = res; 
               });
           }
+          console.log(res.workflowBean.openType_)
+          console.log(res.workflowConfig.canEditEvaluate)
           // 是否跳评价页
           if(res.workflowBean.openType_=='VIEW' && res.workflowConfig.canEditEvaluate=='edit'){
             this.mode = "evaluation";
