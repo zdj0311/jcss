@@ -62,7 +62,7 @@
               <li v-for="(item,index) in census" :key="index" @click="toList(item)">
                 <span :class="['ico',item.img]"></span>
                 <div class="w-con">
-                  <span class="w-num">{{getNum(item.value)}}</span>
+                  <span class="w-num">{{getNum(item.value)?getNum(item.value):0}}</span>
                   <span class="w-f">{{item.name}}</span>
                 </div>
               </li>
