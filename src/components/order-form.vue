@@ -46,6 +46,7 @@
                 readonly
               />
             </div>
+            <!-- 事件结果 -->
             <div v-else-if="item.key_name === 'billRes'">
               <div v-if="!fData || (fData && fData.workflowConfig.canEditBillRes=='edit')">
                 <van-field
@@ -64,6 +65,7 @@
                 />
               </div>
             </div>
+            <!-- 意见 -->
             <div v-else-if="item.key_name === 'workOrderSuggest'">
               <div v-if="!fData || (fData && fData.workflowConfig.workOrderSuggest=='edit')">
                 <van-field
@@ -148,7 +150,7 @@
         </ul>
         <ul class="ificatList tabs-con on" v-if="!fData || (fData && fData.workflowConfig.canRelAssets=='edit')">
           <li v-for="(item,index) in assetsDic" :key="index">
-            <input type="checkbox" :value="item.assetId" v-model="assetsRelList">
+            <input type="checkbox" :value="fData?item.assetId:item.id" v-model="assetsRelList">
             <span>{{item.assetsName?item.assetsName:item.assetName}}</span>
           </li>
         </ul>
@@ -467,12 +469,14 @@ export default {
           this.initButton(res.workflowBean);
           this.initTable();
           this.initForm(res.billData);
+          console.log(this.assetTypeDic)
           this.assetTypeDic = [
             {
               id: res.billData.assetTypeId,
               assetsTypeName: res.billData.assetTypeName
             }
           ];
+          console.log(this.assetTypeDic)
           this.getNextNodes();
           this.files = res.attachList;
           this.assetsDic = res.caseAssetsList;
