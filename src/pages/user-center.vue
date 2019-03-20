@@ -34,6 +34,11 @@
         <span class="custom-text">身份证号</span>
       </template>
     </van-cell>
+    <!-- <van-cell is-link @click="onClick">
+      <template slot="title">
+        <span class="custom-text">退出</span>
+      </template>
+    </van-cell> -->
     <!--<van-popup v-model="show" class="pop-container" position="bottom">
       <van-picker :columns="columns" @change="onChange" show-toolbar @cancel="cancel" @confirm="confirm"/>
     </van-popup>-->
@@ -49,6 +54,9 @@
   import duty from 'assets/img/duty.png'
   import room from 'assets/img/room.png'
   import idCard from 'assets/img/idCard.png'
+  import {
+  logout
+} from "controller/order-create";
   export default {
     name: 'user_center',
     data() {
@@ -67,7 +75,16 @@
       console.log(this.user)
     },
     methods: {
-      
+      onClick(){
+        logout.bind(this)().then(res=>{
+          this.$store.commit('admin/signout');
+          this.$router.push({
+            name:'auth'
+          })
+        }).catch(function(e){
+          console.log(e)
+        })
+      }
     }
   }
 </script>

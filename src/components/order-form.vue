@@ -3,16 +3,12 @@
     <div class="evaluation" v-if="mode=='evaluation'">
       <div class="eva-head">
         <div class="eva-h">
-          <div class="eva-status">
-            {{fData && fData.billData.statusValue}}
-          </div>
-          <div class="eva-subject">
-            {{fData && fData.billData.customerOrgName}}-{{fData && fData.billData.subject}}
-          </div>
+          <div class="eva-status">{{fData && fData.billData.statusValue}}</div>
+          <div
+            class="eva-subject"
+          >{{fData && fData.billData.customerOrgName}}-{{fData && fData.billData.subject}}</div>
         </div>
-        <div class="eva-result">
-          事件结果：{{fData && fData.billData.billRes}}
-        </div>
+        <div class="eva-result">事件结果：{{fData && fData.billData.billRes}}</div>
       </div>
       <div class="eva-content">
         <div class="eva-title">本次服务的评价</div>
@@ -23,9 +19,10 @@
     </div>
     <div class="order" v-else>
       <van-cell-group>
+        <h2 v-if="openType!='TODO'">基本信息</h2>
         <template v-for="(item,index) in table">
           <template v-if="item.exist==true">
-           <div v-if="item.picker==true && item.key_name !== 'planEndTime'" :key="index">
+            <div v-if="item.picker==true && item.key_name !== 'planEndTime'" :key="index">
               <van-field
                 v-model="form[item.key_name]['text']"
                 :label="item.title"
@@ -33,11 +30,11 @@
                 @focus="showPicker(item)"
                 readonly
                 :required="item.required"
-                :error-message="item.message" 
+                :error-message="item.message"
                 @blur="item.validate?item.validate(index):''"
               />
             </div>
-           <div v-else-if="item.key_name === 'planEndTime' && item.picker==true" :key="index">
+            <div v-else-if="item.key_name === 'planEndTime' && item.picker==true" :key="index">
               <van-field
                 v-model="form[item.key_name]"
                 :label="item.title"
@@ -48,7 +45,9 @@
             </div>
             <!-- 事件结果 -->
             <div v-else-if="item.key_name === 'billRes'">
-              <div v-if="!fData || (fData && fData.workflowConfig.canEditBillRes=='edit' || fData.workflowConfig.canEditBillRes=='must')">
+              <div
+                v-if="!fData || (fData && fData.workflowConfig.canEditBillRes=='edit' || fData.workflowConfig.canEditBillRes=='must')"
+              >
                 <van-field
                   :type="item.type?item.type:'input'"
                   v-model="form[item.key_name]"
@@ -67,7 +66,9 @@
             </div>
             <!-- 意见 -->
             <div v-else-if="item.key_name === 'workOrderSuggest'">
-              <div v-if="!fData || (fData && fData.workflowConfig.workOrderSuggest=='edit' || fData.workflowConfig.workOrderSuggest=='must')">
+              <div
+                v-if="!fData || (fData && fData.workflowConfig.workOrderSuggest=='edit' || fData.workflowConfig.workOrderSuggest=='must') && openType=='TODO'"
+              >
                 <van-field
                   :type="item.type?item.type:'input'"
                   v-model="form[item.key_name]"
@@ -75,7 +76,9 @@
                   placeholder="请输入"
                 />
               </div>
-              <div v-if="fData && fData.workflowConfig.workOrderSuggest=='readonly'">
+              <div
+                v-if="(fData && fData.workflowConfig.workOrderSuggest=='readonly') || openType!='TODO'"
+              >
                 <van-field
                   readonly
                   :type="item.type?item.type:'input'"
@@ -85,7 +88,9 @@
               </div>
             </div>
             <div v-else-if="item.key_name === 'urgencyValue'">
-              <div v-if="!fData || (fData && fData.workflowConfig.canEditUrgency=='edit' || fData.workflowConfig.canEditUrgency=='must')">
+              <div
+                v-if="!fData || (fData && fData.workflowConfig.canEditUrgency=='edit' || fData.workflowConfig.canEditUrgency=='must') && openType=='TODO'"
+              >
                 <van-field
                   v-model="urgencyValueText"
                   :label="item.title"
@@ -94,7 +99,9 @@
                   readonly
                 />
               </div>
-             <div v-if="fData && fData.workflowConfig.canEditUrgency=='readonly'">
+              <div
+                v-if="(fData && fData.workflowConfig.canEditUrgency=='readonly') || openType!='TODO'"
+              >
                 <van-field
                   readonly
                   :type="item.type?item.type:'input'"
@@ -111,13 +118,43 @@
                 :label="item.title"
                 :placeholder="item.readonly?'':'请输入'"
                 :required="item.required"
-                :error-message="item.message" 
+                :error-message="item.message"
                 @blur="item.validate?item.validate(index):''"
               />
             </div>
           </template>
         </template>
       </van-cell-group>
+      <div v-if="openType!='TODO'">
+        <!--资产信息 -->
+        <div class="info-container">
+          <h2>资产信息</h2>
+          <div class="row">
+            <template>
+              <span class="title">资产分类</span>
+              <span class="value">{{ fData.billData.assetTypeName }}</span>
+            </template>
+          </div>
+          <div class="row">
+            <template>
+              <span class="title">关联资产</span>
+              <div class="value" v-if="fData">
+                <div v-for="(item,index) in fData.caseAssetsList" :key="index">{{ item.assetName }}</div>
+              </div>
+            </template>
+          </div>
+        </div>
+        <!--附件信息 -->
+        <div class="info-container">
+          <h2>附件信息</h2>
+          <div class="row">
+            <span class="title">附件信息</span>
+            <div class="value" v-if="fData">
+              <div v-for="(item,index) in fData.attachList" :key="index">{{ item.fileName }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
       <van-popup v-model="show" class="pop-container" position="bottom">
         <van-picker :columns="postDic" show-toolbar @cancel="cancel" @confirm="confirm"/>
       </van-popup>
@@ -129,7 +166,7 @@
           @cancel="cancelTime"
         />
       </van-popup>
-      <div class="assets">
+      <div class="assets" v-if="openType=='TODO'">
         <h2 class="zcflTitle">关联资产</h2>
         <ul class="ificat clearfix tabsList" v-if="!fData">
           <li
@@ -148,19 +185,25 @@
             <i></i>
           </li>
         </ul>
-        <ul class="ificatList tabs-con on" v-if="!fData || (fData && fData.workflowConfig.canRelAssets=='edit' || fData.workflowConfig.canRelAssets=='must')">
+        <ul
+          class="ificatList tabs-con on"
+          v-if="!fData || (fData && fData.workflowConfig.canRelAssets=='edit' || fData.workflowConfig.canRelAssets=='must')"
+        >
           <li v-for="(item,index) in assetsDic" :key="index">
             <input type="checkbox" :value="fData?item.assetId:item.id" v-model="assetsRelList">
             <span>{{item.assetsName?item.assetsName:item.assetName}}</span>
           </li>
         </ul>
-        <ul class="ificatList tabs-con on" v-else-if="fData && fData.workflowConfig.canRelAssets=='readonly'">
+        <ul
+          class="ificatList tabs-con on"
+          v-else-if="fData && fData.workflowConfig.canRelAssets=='readonly'"
+        >
           <li v-for="(item,index) in assetsDic" :key="index">
             <span>{{item.assetsName}}</span>
           </li>
         </ul>
       </div>
-      <ul class="authen mb">
+      <ul class="authen mb" v-if="openType=='TODO'">
         <li>
           <div class="adDetail-bottom">
             <h2 class="downNode">下一节点</h2>
@@ -194,11 +237,13 @@
           </div>
         </li>
       </ul>
-      <ul class="authen nomr">
+      <ul class="authen nomr" v-if="openType=='TODO'">
         <li>
           <div class="authenTab">
             <label class="auTitle">上传附件</label>
-            <template v-if="!fData || (fData && fData.workflowConfig.canEditAttach=='edit' || fData.workflowConfig.canEditAttach=='must')">
+            <template
+              v-if="!fData || (fData && fData.workflowConfig.canEditAttach=='edit' || fData.workflowConfig.canEditAttach=='must')"
+            >
               <span class="fileinput-button">
                 <a href="javascript:void(0)" class="clickUp">点击上传</a>
                 <input type="file" class="files" multiple="multiple" @change="fileChange($event)">
@@ -207,7 +252,9 @@
           </div>
         </li>
         <ul class="fileList">
-          <template v-if="!fData || (fData && fData.workflowConfig.canEditAttach=='edit' || fData.workflowConfig.canEditAttach=='must')">
+          <template
+            v-if="!fData || (fData && fData.workflowConfig.canEditAttach=='edit' || fData.workflowConfig.canEditAttach=='must')"
+          >
             <li class="photoList" v-for="(item,index) in files" :key="index">
               <span class="fuj"></span>
               <label class="auTitle">{{item.name}}</label>
@@ -224,18 +271,14 @@
     </div>
 
     <div class="workflowFormButton">
-      <button
-        v-for="(item,index) in button"
-        :key="index"
-        class="btn dark"
-        type="button"
-        @click="subType(item.id)"
-      >{{item.name}}</button>
+      <div class="work-btn" v-for="(item,index) in button" :key="index">
+        <button class="btn dark" type="button" @click="subType(item.id)">{{item.name}}</button>
+      </div>
     </div>
     <van-dialog v-model="showReject" show-cancel-button :before-close="beforeCloseReject">
       <ul class="table">
         <li v-for="(item,index) in rejectNodeList" :key="index">
-          <template v-if="isReject(item)"> 
+          <template v-if="isReject(item)">
             <input type="radio" name="rejectSelectRadio" :value="item.id" v-model="nodeReject">
             {{item.name}}
           </template>
@@ -309,7 +352,7 @@ export default {
   },
   data() {
     return {
-      check:[],
+      check: [],
       gotoNodesList: [],
       showGoto: false,
       nodeGoto: [],
@@ -348,6 +391,7 @@ export default {
       currentDate: new Date(),
       mode: "",
       zname: "",
+      openType: "TODO",
       scores: [
         { zscore: "5", name: "非常满意" },
         { zscore: "4", name: "比较满意" },
@@ -371,12 +415,14 @@ export default {
         {
           key_name: "customerOrgName",
           title: "客户",
-          validate:this.validateEmpty
+          message: "",
+          validate: this.validateEmpty
         },
         {
           key_name: "busiTypeName",
           title: "工单类型",
-          validate:this.validateEmpty
+          message: "",
+          validate: this.validateEmpty
         },
         {
           key_name: "customerName",
@@ -389,14 +435,16 @@ export default {
         {
           key_name: "subject",
           title: "事件主题",
-          validate:this.validateEmpty,
+          message: "",
+          validate: this.validateEmpty,
           readonly: false
         },
         {
           key_name: "billPlan",
           title: "事件描述",
           type: "textarea",
-          validate:this.validateEmpty,
+          message: "",
+          validate: this.validateEmpty,
           readonly: false
         },
         {
@@ -436,8 +484,8 @@ export default {
       ]
     };
   },
-  watch:{
-    selectNodes(){
+  watch: {
+    selectNodes() {
       this.toSelectUser();
     }
   },
@@ -479,19 +527,28 @@ export default {
           this.files = res.attachList;
           this.assetsDic = res.caseAssetsList;
           let _this = this;
-          res.caseAssetsList.forEach(function(item){
-            _this.assetsRelList.push(item.assetId)
-          })
-          if (res.workflowConfig.canEditUrgency == "edit" || res.workflowConfig.canEditUrgency == "must") {
-            this.urgencyValueText = this.form.urgencyValue?this.form.urgencyValue:'';
+          res.caseAssetsList.forEach(function(item) {
+            _this.assetsRelList.push(item.assetId);
+          });
+          if (
+            res.workflowConfig.canEditUrgency == "edit" ||
+            res.workflowConfig.canEditUrgency == "must"
+          ) {
+            this.urgencyValueText = this.form.urgencyValue
+              ? this.form.urgencyValue
+              : "";
             getUrgencyDic
               .bind(this)("urgency", "jcss")
               .then(res => {
-                this.urgencyDic = res; 
+                this.urgencyDic = res;
               });
           }
           // 是否跳评价页
-          if(res.workflowBean.openType_!='VIEW' && (res.workflowConfig.canEditEvaluate=='edit'||res.workflowConfig.canEditEvaluate=='must')){
+          if (
+            res.workflowBean.openType_ != "VIEW" &&
+            (res.workflowConfig.canEditEvaluate == "edit" ||
+              res.workflowConfig.canEditEvaluate == "must")
+          ) {
             this.mode = "evaluation";
             this.getStar();
           }
@@ -572,7 +629,11 @@ export default {
             this.itemIndex = 0;
             this.form.assetTypeId = this.assetTypeDic[0].id;
             this.form.assetTypeName = this.assetTypeDic[0].assetsTypeName;
-            this.assetsList(this.form.assetTypeId,this.form.assetTypeName, this.itemIndex);
+            this.assetsList(
+              this.form.assetTypeId,
+              this.form.assetTypeName,
+              this.itemIndex
+            );
           });
         if (this.form["busiTypeName"] != "") {
           this.startWorkflow();
@@ -591,9 +652,7 @@ export default {
       ) {
         this.startWorkflow();
       }
-      if (
-        this.keyName == "urgencyValue"
-      ) {
+      if (this.keyName == "urgencyValue") {
         this.urgencyValueText = v.text;
       }
       this.show = false;
@@ -624,6 +683,11 @@ export default {
         this.table.forEach((item, index) => {
           if (item.exist && item.exist == true) {
             this.form[item.key_name] = "";
+            if (item.validate) {
+              this.check.push(false);
+            } else {
+              this.check.push(true);
+            }
           }
         });
         let user = this.$store.state.admin.user;
@@ -638,22 +702,23 @@ export default {
     // 校验非空
     validateEmpty(index) {
       let item = this.table[index];
-      if(!this.form[item.key_name]) {  
-        item.message = '请输入' + item.title
-        this.setCheck(index,false)
-      }else {
-        item.message = ''
-        this.setCheck(index,true)
+      if (!this.form[item.key_name]) {
+        item.message = "请输入" + item.title;
+        this.setCheck(index, false);
+      } else {
+        item.message = "";
+        this.setCheck(index, true);
       }
     },
     // 判断当前校验项是否通过
-    setCheck(index,val) {
-      this.check[index] = val
+    setCheck(index, val) {
+      this.check[index] = val;
     },
     // 初始化按钮
     initButton(workflowBean) {
       let _this = this;
       let openType = workflowBean.openType_;
+      this.openType = openType;
       let lastOperType = workflowBean.lastOperType_;
       let buttonJsonStr = workflowBean.buttonJsonStr;
       if (buttonJsonStr == "") {
@@ -709,6 +774,13 @@ export default {
             }
           });
         }
+      } else {
+        _this.$router.push({
+          name: "order_detail",
+          params: {
+            _id: _this.$route.params._id
+          }
+        });
       }
     },
     // 开始工作流
@@ -731,7 +803,7 @@ export default {
         });
     },
     // 获取资产分类
-    assetsList(assetsTypeId,assetsTypeName,index) {
+    assetsList(assetsTypeId, assetsTypeName, index) {
       this.itemIndex = index;
       this.form.assetTypeId = assetsTypeId;
       this.form.assetTypeName = assetsTypeName;
@@ -750,7 +822,7 @@ export default {
       } else if (id == "3") {
         this.showRoute("Reject");
       } else if (id == "4") {
-        this.showRoute("Move")
+        this.showRoute("Move");
       } else if (id == "5") {
         this.showRoute("Goto");
       } else if (id == "6") {
@@ -763,14 +835,17 @@ export default {
         this.showRoute("GetBack");
       }
     },
-    isNull(it){
-      return it&&'null' != it?it:"";
+    isNull(it) {
+      return it && "null" != it ? it : "";
     },
     getForm() {
       this.selectUsers = Array.isArray(this.selectUsers)
         ? this.selectUsers.join(",")
         : this.selectUsers;
-      this.assetsRelList = typeof(this.assetsRelList)=='array'?this.assetsRelList.join(","):this.isNull(this.assetsRelList);
+      this.assetsRelList =
+        typeof this.assetsRelList == "array"
+          ? this.assetsRelList.join(",")
+          : this.isNull(this.assetsRelList);
       let _this = this;
       this.form.attachFile = "";
       this.files.forEach(function(v, index) {
@@ -804,7 +879,9 @@ export default {
       );
       formData.append(
         "customer",
-        this.fData ? this.isNull(this.fData.billData.customer) : this.isNull(this.form.customerName.code)
+        this.fData
+          ? this.isNull(this.fData.billData.customer)
+          : this.isNull(this.form.customerName.code)
       );
       formData.append(
         "customerName",
@@ -826,7 +903,9 @@ export default {
       );
       formData.append(
         "urgency",
-        this.fData ? this.isNull(this.fData.billData.urgency) : this.isNull(this.form.urgencyValue.code)
+        this.fData
+          ? this.isNull(this.fData.billData.urgency)
+          : this.isNull(this.form.urgencyValue.code)
       );
       formData.append(
         "urgencyValue",
@@ -840,7 +919,9 @@ export default {
       formData.append("billPlan", this.isNull(this.form.billPlan));
       formData.append(
         "projectId",
-        this.fData ? this.isNull(this.fData.billData.projectId) : this.isNull(this.form.projectName.code)
+        this.fData
+          ? this.isNull(this.fData.billData.projectId)
+          : this.isNull(this.form.projectName.code)
       );
       formData.append(
         "projectName",
@@ -869,7 +950,9 @@ export default {
       formData.append("deleteAttachFile", this.isNull(this.deleteAttachFile));
       formData.append(
         "attachFileMode",
-        this.form.attachFileMode ? this.isNull(this.form.attachFileMode) : "EDIT"
+        this.form.attachFileMode
+          ? this.isNull(this.form.attachFileMode)
+          : "EDIT"
       );
       formData.append(
         "workflowBean.curNodeId_",
@@ -883,8 +966,14 @@ export default {
           ? this.isNull(this.fData.workflowBean.definitionId_)
           : this.isNull(this.form.definitionId_)
       );
-      formData.append("workflowBean.confirmUserId_", this.isNull(this.selectUsers));
-      formData.append("workflowBean.confirmNodeId_", this.isNull(this.form.confirmNodeId_));
+      formData.append(
+        "workflowBean.confirmUserId_",
+        this.isNull(this.selectUsers)
+      );
+      formData.append(
+        "workflowBean.confirmNodeId_",
+        this.isNull(this.form.confirmNodeId_)
+      );
       formData.append(
         "workflowBean.confirmRouteId_",
         this.isNull(this.form.confirmRouteId_)
@@ -919,9 +1008,15 @@ export default {
           ? this.isNull(this.fData.workflowBean.signInfo_)
           : null
       );
-      formData.append("workflowBean.message_", this.isNull(this.form["workOrderSuggest"]));
+      formData.append(
+        "workflowBean.message_",
+        this.isNull(this.form["workOrderSuggest"])
+      );
       formData.append("workflowBean.suggestId_", "workOrderSuggest");
-      formData.append("workflowBean.submitType_", this.isNull(this.form.submitType_));
+      formData.append(
+        "workflowBean.submitType_",
+        this.isNull(this.form.submitType_)
+      );
       return formData;
     },
     // 获取下一节点
@@ -1087,14 +1182,14 @@ export default {
       });
     },
     // 提交校验
-    validateSumit(){
-      let result = true
-      this.check.forEach((item,index)=>{
-        if(item === false) {
-          this.validateEmpty(index)
-          result = false
+    validateSumit() {
+      let result = true;
+      this.check.forEach((item, index) => {
+        if (item === false) {
+          this.validateEmpty(index);
+          result = false;
         }
-      })
+      });
       return result;
     },
     // 按钮点击
@@ -1106,83 +1201,83 @@ export default {
       if (type == "Submit") {
         this.form.submitType_ = "SUBMIT";
         if (flowStatus == "CREATE") {
-          if(this.validateSumit()){
-              this.$emit("insest", this.getForm());
+          if (this.validateSumit()) {
+            this.$emit("insest", this.getForm());
           }
         } else {
           this.$emit("update", this.getForm());
         }
-      // 暂存
+        // 暂存
       } else if (type == "Save") {
         Dialog.confirm({
           message: "是否要暂存该流程"
         }).then(() => {
           this.form.submitType_ = "SAVE";
           if (flowStatus == "CREATE") {
-            if(this.validateSumit()){
+            if (this.validateSumit()) {
               this.$emit("insest", this.getForm());
             }
           } else {
             this.$emit("update", this.getForm());
           }
         });
-      // 拿回
+        // 拿回
       } else if (type == "GetBack") {
         Dialog.confirm({
           message: "是否要拿回该流程"
         }).then(() => {
           this.form.submitType_ = "GETBACK";
           if (flowStatus == "CREATE") {
-            if(this.validateSumit()){
+            if (this.validateSumit()) {
               this.$emit("insest", this.getForm());
             }
           } else {
             this.$emit("update", this.getForm());
           }
         });
-      // 终止
+        // 终止
       } else if (type == "Stop") {
         Dialog.confirm({
           message: "是否要终止该流程"
         }).then(() => {
           this.form.submitType_ = "STOP";
           if (flowStatus == "CREATE") {
-            if(this.validateSumit()){
+            if (this.validateSumit()) {
               this.$emit("insest", this.getForm());
             }
           } else {
             this.$emit("update", this.getForm());
           }
         });
-      // 暂停
+        // 暂停
       } else if (type == "Suspend") {
         Dialog.confirm({
           message: "是否要暂停该流程"
         }).then(() => {
           this.form.submitType_ = "SUSPEND";
           if (flowStatus == "CREATE") {
-            if(this.validateSumit()){
+            if (this.validateSumit()) {
               this.$emit("insest", this.getForm());
             }
           } else {
             this.$emit("update", this.getForm());
           }
         });
-      // 恢复
+        // 恢复
       } else if (type == "Resume") {
         Dialog.confirm({
           message: "是否要恢复该流程"
         }).then(() => {
           this.form.submitType_ = "RESUME";
           if (flowStatus == "CREATE") {
-            if(this.validateSumit()){
+            if (this.validateSumit()) {
               this.$emit("insest", this.getForm());
             }
           } else {
             this.$emit("update", this.getForm());
           }
         });
-      // 退回
+        // 退回
       } else if (type == "Reject") {
         let buttonOptJsonStr = this.fData
           ? this.fData.workflowBean.buttonOptJsonStr
@@ -1203,7 +1298,7 @@ export default {
         }
         this.rejectNodeList = rejectNodeList;
         this.showReject = true;
-      // 转办
+        // 转办
       } else if (type == "Move") {
         getCustomerDic
           .bind(this)(
@@ -1217,24 +1312,43 @@ export default {
             this.userMove = assignees;
             this.showMove = true;
           });
-      // 跳转
+        // 跳转
       } else if (type == "Goto") {
         var formData = new FormData();
-        formData.append("definitionId_",this.fData?this.fData.workflowBean.definitionId_:this.form.definitionId_)
-        formData.append("subProcessId_",this.fData?this.fData.workflowBean.subProcessId_:this.form.subProcessId_)
-        getGotoNodes.bind(this)(formData).then(res=>{
-          this.gotoNodesList = res.gotoNodesList;
-          this.showGoto = true;
-        })
+        formData.append(
+          "definitionId_",
+          this.fData
+            ? this.fData.workflowBean.definitionId_
+            : this.form.definitionId_
+        );
+        formData.append(
+          "subProcessId_",
+          this.fData
+            ? this.fData.workflowBean.subProcessId_
+            : this.form.subProcessId_
+        );
+        getGotoNodes
+          .bind(this)(formData)
+          .then(res => {
+            this.gotoNodesList = res.gotoNodesList;
+            this.showGoto = true;
+          });
       }
     },
-    isReject(item){
-      let curNodeId = this.fData?this.fData.workflowBean.curNodeId_:this.form.curNodeId_;
+    isReject(item) {
+      let curNodeId = this.fData
+        ? this.fData.workflowBean.curNodeId_
+        : this.form.curNodeId_;
       return item.id.toUpperCase() != curNodeId.toUpperCase() && item.selected;
     },
-    isGoto(item){
-      let curNodeId = this.fData?this.fData.workflowBean.curNodeId_:this.form.curNodeId_
-      return item.componentId.toUpperCase().indexOf("USERTASK") != -1 && item.componentId.toUpperCase() != curNodeId.toUpperCase();
+    isGoto(item) {
+      let curNodeId = this.fData
+        ? this.fData.workflowBean.curNodeId_
+        : this.form.curNodeId_;
+      return (
+        item.componentId.toUpperCase().indexOf("USERTASK") != -1 &&
+        item.componentId.toUpperCase() != curNodeId.toUpperCase()
+      );
     },
     beforeCloseReject(action, done) {
       let flowStatus = this.fData
@@ -1250,7 +1364,7 @@ export default {
           this.form.confirmNodeId_ = this.nodeReject;
           this.form.submitType_ = "REJECT";
           if (flowStatus == "CREATE") {
-            if(this.validateSumit()){
+            if (this.validateSumit()) {
               this.$emit("insest", this.getForm());
             }
           } else {
@@ -1276,11 +1390,11 @@ export default {
           this.selectUsers = this.usersMove;
           this.form.submitType_ = "Move";
           if (flowStatus == "CREATE") {
-            if(this.validateSumit()){
+            if (this.validateSumit()) {
               this.$emit("insest", this.getForm());
             }
           } else {
-            this.$emit('update', this.getForm())
+            this.$emit("update", this.getForm());
           }
           done();
         }
@@ -1302,7 +1416,7 @@ export default {
           this.form.confirmNodeId_ = this.nodeGoto;
           this.form.submitType_ = "Goto";
           if (flowStatus == "CREATE") {
-            if(this.validateSumit()){
+            if (this.validateSumit()) {
               this.$emit("insest", this.getForm());
             }
           } else {
@@ -1327,29 +1441,29 @@ body {
     border-top: solid 1px #eee;
     border-bottom: solid 1px #eee;
     padding: 1.71rem 0;
-    .eva-h{
+    .eva-h {
       display: flex;
-      .eva-subject{
-        margin-left: .71rem;
+      .eva-subject {
+        margin-left: 0.71rem;
         font-size: 1.14rem;
-        color:#000;
+        color: #000;
       }
     }
-    .eva-result{
-      margin-top: .71rem;
+    .eva-result {
+      margin-top: 0.71rem;
       margin-left: 1.07rem;
-      color:#666;
+      color: #666;
       font-size: 1rem;
     }
   }
-  .eva-status{
+  .eva-status {
     width: 5.32rem;
     height: 1.71rem;
     line-height: 1.71rem;
-    border-top-right-radius:1.79rem;
-    border-bottom-right-radius:1.79rem;
+    border-top-right-radius: 1.79rem;
+    border-bottom-right-radius: 1.79rem;
     background: linear-gradient(to right, #4a79df, #7db6ff);
-    color:#fff;
+    color: #fff;
     font-size: 1rem;
     padding-left: 1.07rem;
   }
@@ -1358,37 +1472,37 @@ body {
     border-top: solid 1px #eee;
     border-bottom: solid 1px #eee;
     margin-top: 0.8rem;
-    .eva-title{
+    .eva-title {
       font-size: 1.14rem;
-      color:#000;
+      color: #000;
       text-align: center;
       line-height: 3.29rem;
-      border-bottom:solid 1px #eee;
+      border-bottom: solid 1px #eee;
     }
-    .van-rate{
+    .van-rate {
       margin-top: 1.43rem;
       text-align: center;
     }
-    .rate-name{
+    .rate-name {
       text-align: center;
       font-size: 1rem;
       color: #ff9c00;
-      margin-top: .71rem;
+      margin-top: 0.71rem;
     }
     .van-field--min-height .van-field__control {
       background-color: #f5f5f5;
-      border:solid 1px #eee;
-      margin: .71rem 0 2.14rem;
+      border: solid 1px #eee;
+      margin: 0.71rem 0 2.14rem;
       min-height: 5rem;
-      padding: .36rem .71rem;
-      border-radius: .36rem;
+      padding: 0.36rem 0.71rem;
+      border-radius: 0.36rem;
       font-size: 1rem;
     }
   }
 }
 .order-form {
-  .order{
-    padding-bottom:4.08rem;
+  .order {
+    padding-bottom: 4.08rem;
   }
   .adDetail-bottom {
     background: #fff;
@@ -1407,7 +1521,7 @@ body {
     }
     .nextNode {
       display: flex;
-      flex-wrap:wrap;
+      flex-wrap: wrap;
       li {
         width: 49%;
         height: 2.5rem;
@@ -1416,7 +1530,7 @@ body {
         border: solid 1px #e9e9e9;
         border-radius: 3px;
         margin-right: 2%;
-        margin-bottom:0.4rem;
+        margin-bottom: 0.4rem;
         &:nth-child(even) {
           margin-right: 0;
         }
@@ -1438,7 +1552,7 @@ body {
         border: solid 1px #e9e9e9;
         border-radius: 3px;
         padding-left: 0.8rem;
-        margin-bottom:0.4rem;
+        margin-bottom: 0.4rem;
         &:nth-child(even) {
           margin-right: 0;
         }
@@ -1488,22 +1602,22 @@ body {
     height: 2.5rem;
     line-height: 2.5rem;
     color: #000;
-    .fuj{
-      width: .86rem;
-      height: .79rem;
-      background: url('~@/assets/fuj.png');
-      background-size: .86rem .79rem;
+    .fuj {
+      width: 0.86rem;
+      height: 0.79rem;
+      background: url("~@/assets/fuj.png");
+      background-size: 0.86rem 0.79rem;
       display: inline-block;
-      margin-right: .36rem;
+      margin-right: 0.36rem;
     }
   }
   .delect {
     float: right;
     width: 1.29rem;
     height: 1.29rem;
-    background: url('~@/assets/del.png');
+    background: url("~@/assets/del.png");
     background-size: 1.29rem 1.29rem;
-    margin-top: .61rem;
+    margin-top: 0.61rem;
   }
 }
 .workflowFormButton {
@@ -1511,23 +1625,88 @@ body {
   position: fixed;
   bottom: 0;
   width: 100%;
+  .work-btn {
+    flex: 1;
+    margin-right: 1%;
+    background: #4a79df;
+    text-align: center;
+    height: 3.28rem;
+    line-height: 3.28rem;
+    &:last-child {
+      margin-right: 0;
+    }
+  }
 }
 .workflowFormButton button {
-  flex: 1;
   background: #4a79df;
   font-size: 1.28rem;
   color: #fff;
   border: none;
-  margin-top: 1.1rem;
-  height: 3.28rem;
-  line-height: 3.28rem;
+  width: 100%;
 }
-.order-resolver{
-  .van-cell{
-    padding: 8px 0;
-    border-bottom: solid 1px #eee;
+.order-resolver {
+  .van-cell-group {
+    padding-top: 1rem;
+  }
+  .van-cell {
+    border: solid 1px #eee;
     margin: 0 15px;
-    width:auto;
+    width: auto;
+    border-bottom: none;
+    padding: 4px 0.8rem;
+    .van-field__label {
+      color: #000;
+      border-right: solid 1px #eee;
+    }
+    .van-cell__value {
+      color: #969799;
+      overflow: hidden;
+      text-align: right;
+      position: relative;
+      vertical-align: middle;
+      padding-left: 0.8rem;
+    }
+  }
+  h2 {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-left: 0.8rem;
+    margin-bottom: 0.8rem;
+    padding-left: 1rem;
+  }
+  .info-container {
+    padding: 1rem;
+    background: #fff;
+    h2 {
+      font-size: 1rem;
+      font-weight: bold;
+      margin-left: 0.8rem;
+      margin-bottom: 0.8rem;
+      padding-left: 0;
+    }
+    .row {
+      display: flex;
+      padding: 0.3rem 0;
+      border-top: 1px solid #eeeeee;
+      border-left: 1px solid #eeeeee;
+      border-right: 1px solid #eeeeee;
+      &:last-child {
+        border-bottom: 1px solid #eeeeee;
+      }
+      .title {
+        flex: 1;
+        border-right: 1px solid #eeeeee;
+        padding: 0 0.8rem;
+      }
+      .value {
+        flex: 3;
+        display: flex;
+        flex-flow: column;
+        justify-content: center;
+        padding: 0 0.8rem;
+        font-size: 0.9rem;
+      }
+    }
   }
 }
 .assets {
@@ -1546,7 +1725,7 @@ body {
   .ificat {
     display: flex;
     padding-bottom: 1rem;
-    flex-wrap:wrap;
+    flex-wrap: wrap;
     li {
       width: 31%;
       margin-right: 2%;
@@ -1567,47 +1746,50 @@ body {
       }
     }
   }
-  .ificatList{
-    li{
-      margin-bottom:0.4rem;
+  .ificatList {
+    li {
+      margin-bottom: 0.4rem;
     }
   }
 }
-    input[type="radio"],input[type="checkbox"]{
-      width: 1.07rem;
-      height: 1.07rem;
-      display: inline-block;
-      text-align: center;
-      vertical-align: middle; 
-      line-height: 1.07rem;
-      position: relative;
-      margin-top:-2px;
-      margin-right: .36rem;
-    }
-    input[type="radio"]::before,input[type="checkbox"]::before{
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      background: #ddd url('~@/assets/check.png');
-      width: 100%;
-      height: 100%;
-      background-size:1.07rem 1.07rem;
-    }
-    input[type="radio"]::before{
-      border-radius: 50%;
-    }
-    input[type="radio"]:checked::before,input[type="checkbox"]:checked::before{
-      content: "";
-      background: #4a79df url('~@/assets/check.png');
-      position: absolute;
-      top: 0;
-      left: 0;
-      width:100%;
-      height: 100%;
-      background-size:1.07rem 1.07rem;
-    }
-    .table{
-      padding:0.8rem;
-    }
+input[type="radio"],
+input[type="checkbox"] {
+  width: 1.07rem;
+  height: 1.07rem;
+  display: inline-block;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 1.07rem;
+  position: relative;
+  margin-top: -2px;
+  margin-right: 0.36rem;
+}
+input[type="radio"]::before,
+input[type="checkbox"]::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #ddd url("~@/assets/check.png");
+  width: 100%;
+  height: 100%;
+  background-size: 1.07rem 1.07rem;
+}
+input[type="radio"]::before {
+  border-radius: 50%;
+}
+input[type="radio"]:checked::before,
+input[type="checkbox"]:checked::before {
+  content: "";
+  background: #4a79df url("~@/assets/check.png");
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: 1.07rem 1.07rem;
+}
+.table {
+  padding: 0.8rem;
+}
 </style>

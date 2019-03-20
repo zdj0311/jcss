@@ -16,7 +16,7 @@
         <van-swipe-item v-for="(item, index) in assetsArray" :key="index">
           <div class="l-list" v-for="(it, index) in item" :key="index" @click="createOrder(it,$event)">
             <span class="l-icon"><img :src="addPath(it.iconUrl)"/></span>
-            <span class="l-f">{{it.assetsTypeName}}</span>         
+            <span class="l-f">{{it.assetsTypeName}}报单</span>         
           </div>
         </van-swipe-item>
       </van-swipe> 
@@ -24,7 +24,7 @@
         <div class="model">
           <div class="model-header" v-if="form.assets">
             <span class="l-icon"><img :src="addPath(form.assets.iconUrl)"/></span>
-            <span class="l-f">{{form.assets.assetsTypeName}}</span>   
+            <span class="l-f">{{form.assets.assetsTypeName}}报单</span>   
           </div>
           <div class="model-content">
             <h2 class="downNode">下一节点</h2>
@@ -50,7 +50,7 @@
       <div class="create-head" ref="create">
         <div class="head-a">
           <span class="head-icon icon-a"></span>
-          <span class="head-font">工作统计</span>
+          <span class="head-font">我的工作</span>
         </div>
         <van-tabs v-model="active" @click="selectTab">
           <van-tab v-for="(item,index) in statistics" :key="index">
@@ -59,7 +59,7 @@
               <span class="filter-f">{{item.name}}</span>
             </div>
             <ul class="work-con">
-              <li v-for="(item,index) in census" :key="index" @click="toList(item)">
+              <li v-for="(item,index) in census" :key="index" @click="toList(item)" :style={backgroundColor:item.bg}>
                 <span :class="['ico',item.img]"></span>
                 <div class="w-con">
                   <span class="w-num">{{getNum(item.value)?getNum(item.value):0}}</span>
@@ -86,10 +86,10 @@
     data() {
       return {
         banner,
-        census:[{name:'创建工单',value:'CREATE',img:'c-ico'},{name:'待办工单',value:'TODO',img:'d-ico'},{name:'办理工单',value:'DONE',img:'b-ico'}],
+        census:[{name:'我的待办',value:'TODO',img:'c-ico',bg:'#517ce8'},{name:'超时工单',value:'OUTTIME',img:'d-ico',bg:'#f07616'},{name:'在办工单',value:'UN_END',img:'b-ico',bg:'#119bda'}],
         assetsArray:[],
         statistics: [{name:'本日',value:'Day'},{name:'本周',value:'Week'},{name:'本月',value:'Month'}],
-        active: 0,
+        active: 1,
         statisticsCount: {},
         show: false,
         form: {},
@@ -114,9 +114,9 @@
       getInfo(){
         getAssetType.bind(this)(this.$store.state.admin.user.orgId).then(res=>{
           let copyArr =  res.slice(0,res.length)
-          let len = Math.ceil(res.length/4);
+          let len = Math.ceil(res.length/6);
           for(var i=0;i<len;i++){
-             this.assetsArray.push(copyArr.splice(0,4))
+             this.assetsArray.push(copyArr.splice(0,6))
           }
         })
         getBtDic.bind(this)().then(res=>{
@@ -140,13 +140,13 @@
         })
       },
       toList(item){
-        // this.$router.push({
-        //   name: 'order_list',
-        //   params: {
-        //     _type: this.dateType,
-        //     _mode: item.value
-        //   }
-        // })
+        this.$router.push({
+          name: 'order_list',
+          params: {
+            _type: this.dateType,
+            _mode: item.value
+          }
+        })
       },
       createOrder(it,e){
         this.form.assets = it;
@@ -160,7 +160,7 @@
             this.curNode = res.curNode;
             this.selectNodes = res.nextNodesList[0].componentId;  
             this.show = true;
-            $('.model-header').css('background',bg+'')
+            // $('.model-header').css('background',bg+'')
             this.toSelectUser();
           })
         })
@@ -298,11 +298,10 @@
       margin-top: 0.8rem;
       border-top:solid 1px #eee;
       border-bottom:solid 1px #eee;
-      padding:0 1.2rem;
       .create-head{
         display: flex;
         justify-content: space-between;
-        padding: 0.8rem 0;
+        padding: 0.8rem 1.2rem;
         .head-font{
           font-size: 1.1rem;
           font-weight: bold;
@@ -327,6 +326,7 @@
             font-size: 1.1rem;
             color: #999;
             margin-right: 5px;
+            font-weight: normal;
           }
           .icon-arrow{
             width: 0.4rem;
@@ -392,35 +392,39 @@
                 margin-right: 2%;
                 height: 4.8rem;
                 background: #f5f5f5;
-                border-radius: 5px;
+                border-radius: 3px;
                 position: relative;
+                padding: .71rem;
                 &:nth-child(3){
                   margin-right: 0;
                 }
                 .ico{
-                  width: 3.75rem;
-                  height: 3.2rem;
+                
+                  width: 1.86rem;
+                  height: 1.86rem;
                   background: url('~@/assets/work1.png') no-repeat;
-                  background-size: 3.75rem 3.2rem;
+                  background-size: 1.86rem 1.86rem;
                   display: inline-block;
                 }
                 .d-ico{
                   background: url('~@/assets/work2.png') no-repeat;
-                  background-size: 3.75rem 3.2rem;
+                  background-size: 1.86rem 1.86rem;
                 }
                 .b-ico{
                   background: url('~@/assets/work3.png') no-repeat;
-                  background-size: 3.75rem 3.2rem;
+                  background-size: 1.86rem 1.86rem;
                 }
                 .w-num{
                   font-size: 1.7rem;
-                  color: #000;
+                  color: #fff;
                   display: block;
                   text-align: right;
                 }
                 .w-f{
                   font-size: 1rem;
-                  color: #666;
+                  color: #fff;
+                  margin-top: 0.2rem;
+                  display: inline-block;
                 }
                 .w-con{
                   position: absolute;
@@ -432,59 +436,63 @@
           }
         }
       }
-      .van-swipe-item{
-        display: flex;
-        flex-wrap: wrap;
-        margin-bottom: 1.6rem;
-        .l-list{
-          margin-bottom: .8rem;
-          width: calc(50% - .4rem);
-          margin-right: .8rem;
-          border-radius: 5px;
-          height: 4.46rem;
-          line-height: 4.46rem;
-          padding-left: .8rem;
-          
-          &:nth-child(even){
-            margin-right: 0;
-          }
-          .l-icon{
-            width: 3rem;
-            height: 3rem;
-            display: inline-block;
-            vertical-align: middle;
-            margin-top: -3px;
-            img{
-              width: 100%;
-              height: 100%;
+      .van-swipe{
+        padding-bottom:1.8rem;
+        .van-swipe-item{
+          display: flex;
+          flex-wrap: wrap;
+          .l-list{
+            border-right: solid 1px #eee;
+            border-top: solid 1px #eee;
+            border-bottom: solid 1px #eee;
+            width: 33.3%;
+            text-align: center;
+            padding: 1.07rem 0;
+            &:nth-child(even){
+              margin-right: 0;
+            }
+            .l-icon{
+              width: 3rem;
+              height: 3rem;
+              display: inline-block;
+              vertical-align: middle;
+              margin-top: -3px;
+              display: block;
+              margin: 0 auto;
+              img{
+                width: 100%;
+                height: 100%;
+              }
+            }
+            .l-f{
+              font-size: 1rem;
+              color: #000;
+              margin-left: .4rem;
+              margin-top: .71rem;
+              display: inline-block;
             }
           }
-          .l-f{
-            font-size: 1rem;
-            color: #fff;
-            margin-left: .4rem;
-          }
+          // 将背景颜色值定义成变量
+            // $purple : #573bc2;
+            // $blue : #2a3dc6;
+            // $orange : #ea4b3a;
+            // $lightblue : #0d85db;
+
+            //将背景颜色以键值对的形式存在map中
+            // $bgcolorlist : (
+            //     1: $purple,
+            //     2: $blue,
+            //     3: $orange,
+            //     4: $lightblue,
+            //   );
+
+            // 使用SASS each语法为每一个li设置background-color
+            // @each $i, $color in $bgcolorlist {
+            //     .l-list:nth-child(#{$i}) {
+            //       background: linear-gradient(to bottom right, $color , lighten($color, 20%));
+            //     }
+            // }
         }
-        // 将背景颜色值定义成变量
-          $purple : #573bc2;
-          $blue : #2a3dc6;
-          $orange : #ea4b3a;
-          $lightblue : #0d85db;
-
-          //将背景颜色以键值对的形式存在map中
-          $bgcolorlist : (
-              1: $purple,
-              2: $blue,
-              3: $orange,
-              4: $lightblue,
-            );
-
-          // 使用SASS each语法为每一个li设置background-color
-          @each $i, $color in $bgcolorlist {
-              .l-list:nth-child(#{$i}) {
-                background: linear-gradient(to bottom right, $color , lighten($color, 20%));
-              }
-          }
       }
       .van-swipe__indicators{
         .van-swipe__indicator{

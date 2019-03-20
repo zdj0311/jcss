@@ -60,29 +60,32 @@
       return {
         sele,flwoUp,flwoDown, // 图片
         menus:[], // tabs 显示
-        value_list:['mode','dateType'], // 为提交表单的字段建立一个字典，分别代表我的 时间 流程状态
+        value_list:['dataScope','mode','dateType'], // 为提交表单的字段建立一个字典，分别代表我的 时间 流程状态
         showDetails:[],
         show:false,
         variable:[],
-        saveCurrent:[0,1],
+        saveCurrent:[0,0,1],
         finished:false,
         properties:[
-          [{name:'我的待办',value:'TODO',tab:0,cur:0 },
-          {name:'超时工单',value:'OUTTIME',tab:0,cur:1  },
-          {name:'在办工单',value:'UN_END',tab:0,cur:2  }],
-          [{name:'本日',value:'Day',tab:1,cur:0  },
-          {name:'本周',value:'Week',tab:1,cur:1 },
-          {name:'本月',value:'Month',tab:1,cur:2 }],
+          [{name:'我的',value:'MyBill',tab:0 },
+          {name:'全部',value:'AllBill',tab:0 }],
+          [{name:'待办',value:'TODO',tab:1 },
+          {name:'未完成',value:'UN_END',tab:1 },
+          {name:'已完成',value:'END',tab:1 },
+          {name:'已超时',value:'OUTTIME',tab:1 }],
+          [{name:'当日',value:'Day',tab:2 },
+          {name:'本周',value:'Week',tab:2},
+          {name:'本月',value:'Month',tab:2}],
         ],
         defaultCon: {
-          // dataScope:'MyBill',
+          dataScope:'MyBill',
           dateType: 'Week',
           mode: 'TODO',
           pageRows:10,
           page:0,
         },
         getAll:{
-          // dataScope:'MyBill',
+          dataScope:'MyBill',
           dateType: 'Week',
           mode: 'TODO',
           pageRows:10,
@@ -108,16 +111,7 @@
       this.getAll.mode = this.$route.params._mode
       this.getStatistic.bind(this)(this.getAll)
       // 设置默认menus
-      this.menus = [this.$route.params._mode,this.$route.params._type]
-      let _this = this;
-      // 默认
-      this.properties.forEach(function(item,i){
-        item.forEach(function(it){
-          if(it.value==_this.$route.params._mode || it.value==_this.$route.params._type){
-            _this.saveCurrent[i] = it.cur;
-          } 
-        })
-      })
+      this.menus = ['MyBill',this.$route.params._mode,this.$route.params._type]
     },
     methods: {
       showPannel(i) {
@@ -141,7 +135,7 @@
         // 改变表单中的选中值
         this.getAll[this.value_list[obj.tab]] = obj.value
         // 表单值变化后，menus变化，可做成监听表单（getAll）变化实现
-        this.menus = [this.getAll.mode,this.getAll.dateType]
+        this.menus = [this.getAll.dataScope,this.getAll.mode,this.getAll.dateType]
         this.getStatistic.bind(this)(this.getAll)
       },
       // 返回 Promise 获取工单列表
@@ -170,6 +164,7 @@
         })
       },
       routeTo(name,item) {
+        console.log(item)
         this.$router.push({
           name:name,
           params:{_id:item.id}
@@ -223,7 +218,7 @@
           this.getAll.dateType = this.$route.params._type
           this.getAll.mode = this.$route.params._mode
           this.getStatistic(this.getAll)
-          this.menus = [this.$route.params._mode,this.$route.params._type]
+          this.menus = ['MyBill',this.$route.params._mode,this.$route.params._type]
         }
     }
   }
