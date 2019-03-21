@@ -18,8 +18,12 @@
       </div>
     </div>
     <div class="order" v-else>
+      <header v-if="fData">
+        <span class="statu">{{fData.billData.billFlowStatusValue}}</span>
+        <h2 class="sub">{{fData.billData.customerOrgName}}-{{fData.billData.subject}}</h2>
+      </header>
       <van-cell-group>
-        <h2 v-if="openType!='TODO'">基本信息</h2>
+        <h2 v-if="openType!='TODO'" class="base">基本信息</h2>
         <template v-for="(item,index) in table">
           <template v-if="item.exist==true">
             <div v-if="item.picker==true && item.key_name !== 'planEndTime'" :key="index">
@@ -126,6 +130,24 @@
         </template>
       </van-cell-group>
       <div v-if="openType!='TODO'">
+        <!--审批信息 -->
+        <div class="info-container">
+          <h2>审批信息</h2>
+          <div class="row">
+            <template>
+              <span class="title">评价等级</span>
+              <span class="value">
+                <van-rate :value="star" />
+              </span>
+            </template>
+          </div>
+          <div class="row">
+            <template>
+              <span class="title">客户评语</span>
+              <span class="value">{{ fData.billData.publishSuggest }}</span>
+            </template>
+          </div>
+        </div>
         <!--资产信息 -->
         <div class="info-container">
           <h2>资产信息</h2>
@@ -467,15 +489,15 @@ export default {
           key_name: "billRes",
           title: "事件结果"
         },
-        {
-          key_name: "billAssess",
-          title: "评价等级"
-        },
-        {
-          key_name: "publishSuggest",
-          title: "评价",
-          type: "textarea"
-        },
+        // {
+        //   key_name: "billAssess",
+        //   title: "评价等级"
+        // },
+        // {
+        //   key_name: "publishSuggest",
+        //   title: "客户评语",
+        //   type: "textarea"
+        // },
         {
           key_name: "workOrderSuggest",
           title: "意见",
@@ -543,6 +565,7 @@ export default {
                 this.urgencyDic = res;
               });
           }
+          this.getStar();
           // 是否跳评价页
           if (
             res.workflowBean.openType_ != "VIEW" &&
@@ -550,7 +573,6 @@ export default {
               res.workflowConfig.canEditEvaluate == "must")
           ) {
             this.mode = "evaluation";
-            this.getStar();
           }
         });
     }
@@ -776,12 +798,12 @@ export default {
           });
         }
       } else {
-        _this.$router.push({
-          name: "order_detail",
-          params: {
-            _id: _this.$route.params._id
-          }
-        });
+        // _this.$router.push({
+        //   name: "order_detail",
+        //   params: {
+        //     _id: _this.$route.params._id
+        //   }
+        // });
       }
     },
     // 开始工作流
@@ -1653,7 +1675,9 @@ body {
 .order-resolver {
   .van-cell-group {
     padding-top: 1rem;
+        margin-top: 1rem;
   }
+  
   .van-cell {
     border: solid 1px #eee;
     margin: 0 15px;
@@ -1673,16 +1697,41 @@ body {
       padding-left: 0.8rem;
     }
   }
-  h2 {
-    font-size: 1rem;
+  .evaluation{
+    .van-cell{
+      border:none;
+    }
+  }
+  header {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      background:#fff;
+    }
+    .statu {
+      color: #fff;
+      padding: .3rem .8rem;
+      background: linear-gradient(left, #4a79df, #7db6ff);
+      border-radius: 5px;
+    }
+    h2.sub{
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-left: 1rem;
+      padding:0;
+      margin-bottom:0;
+    }
+    h2.base {
+      font-size: 1.1rem;
     font-weight: bold;
     margin-left: 0.8rem;
     margin-bottom: 0.8rem;
     padding-left: 1rem;
-  }
+    }
   .info-container {
     padding: 1rem;
     background: #fff;
+  }
     h2 {
       font-size: 1rem;
       font-weight: bold;
@@ -1713,7 +1762,13 @@ body {
         font-size: 0.9rem;
       }
     }
-  }
+    .row1{
+      margin: 0 1.1rem;
+      .title{
+        padding: 0 0.95rem;
+      }
+    }
+  
 }
 .assets {
   background: #fff;

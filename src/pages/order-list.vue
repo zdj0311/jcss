@@ -24,8 +24,8 @@
               <img :src="showDetails[index]?flwoUp:flwoDown"/>
             </div>
             <div class="flow-btn">
-              <span @click="routeTo('order_detail',item)">查看</span>
-              <span @click="routeTo('order_resolver',item)">处理</span>
+              <!-- <span @click="routeTo('order_detail',item)">查看</span> -->
+              <span @click="routeTo('order_resolver',item)">办理</span>
             </div>
           </div>
           <ul class="history-list" v-show="showDetails[index]">
