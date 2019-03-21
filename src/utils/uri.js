@@ -37,7 +37,8 @@ let uri = function(api){
     submitPaper: api + 'api/wx/question/submit.action', // 提交问卷
     getHistory:api + '/api/wk/getHistory.action',//流转详情
     getGotoNodes: api + 'api/wk/getGotoNodes.action', // 跳转节点
-    logout: api + 'api/wx/logout.action' // 退出登录
+    logout: api + 'api/wx/logout.action', // 退出登录
+    feedback: api + 'api/wx/message/feedback.action' // 投诉意见
   }
 }
 let exportUri = {}

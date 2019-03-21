@@ -119,7 +119,7 @@
                 :placeholder="item.readonly?'':'请输入'"
                 :required="item.required"
                 :error-message="item.message"
-                @blur="item.validate?item.validate(index):''"
+                @input="item.validate?item.validate(index):''"
               />
             </div>
           </template>
@@ -717,6 +717,7 @@ export default {
     // 初始化按钮
     initButton(workflowBean) {
       let _this = this;
+      this.button = [];
       let openType = workflowBean.openType_;
       this.openType = openType;
       let lastOperType = workflowBean.lastOperType_;
@@ -1184,12 +1185,16 @@ export default {
     // 提交校验
     validateSumit() {
       let result = true;
-      this.check.forEach((item, index) => {
-        if (item === false) {
-          this.validateEmpty(index);
+      this.check.forEach((item,index)=>{
+        if(item === false) {
+          this.validateEmpty(index)
+        }
+      })
+      this.check.forEach((item,index)=>{
+        if(item === false) {
           result = false;
         }
-      });
+      })
       return result;
     },
     // 按钮点击
@@ -1518,6 +1523,7 @@ body {
       line-height: 3.2rem;
       margin: 0;
       font-weight: normal;
+      padding:0;
     }
     .nextNode {
       display: flex;
@@ -1721,6 +1727,8 @@ body {
     font-size: 1rem;
     color: #000;
     font-weight: normal;
+    margin:0;
+    padding:0;
   }
   .ificat {
     display: flex;

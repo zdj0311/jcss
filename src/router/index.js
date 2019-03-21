@@ -16,6 +16,7 @@ import visualization from '@/pages/visualization'
 import config from 'config'
 import surveyList from '@/pages/survey-list'
 import surveyDetail from '@/pages/survey-detail'
+import suggest from '@/pages/suggest'
 Vue.use(Router)
 export default new Router({
   base:config.route_proxy?'/jcss/jcss_app':'',
@@ -150,6 +151,15 @@ export default new Router({
       path: '/visualization',
       name: 'visualization',
       component: visualization,
+      meta: {
+        keepAlive: false
+      }
+    },
+    // 投诉建议
+    {
+      path: '/suggest',
+      name: 'suggest',
+      component: suggest,
       meta: {
         keepAlive: false
       }

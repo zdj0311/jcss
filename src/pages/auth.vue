@@ -22,7 +22,7 @@
       <template v-for="(item,index) in table">
         <van-field v-if="item.key_name === 'duty' && user.userStatus !== 'register'&&user.userStatus !== 'created' " v-model="form[item.key_name]&&form[item.key_name]['text']" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" :readonly="item.readonly" @focus="showPicker" />
         <van-field v-if="item.key_name === 'duty' && (user.userStatus === 'register'||user.userStatus === 'created')" v-model="form[item.key_name]&&form[item.key_name]['text']" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" :readonly="item.readonly" />
-        <van-field v-if="item.key_name !== 'duty'" v-model="form[item.key_name]" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" @blur="!item.readonly?item.validate(index):''" :readonly="item.readonly" />
+        <van-field v-if="item.key_name !== 'duty'" v-model="form[item.key_name]" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" @input="!item.readonly?item.validate(index):''" :readonly="item.readonly" />
       </template>
       <!--<van-field v-model="form.userName" label="姓名" placeholder="请输入姓名" error-message="" @blur="validateUserName(form.userName)"/>
       <van-field v-model="form.mobile" label="联系电话" placeholder="请输入联系电话" error-message="" @blur="validateMobile(form.mobile)"/>
@@ -178,7 +178,11 @@
         this.check.forEach((item,index)=>{
           if(item === false) {
             this.validateEmpty(index)
-            result = false
+          }
+        })
+        this.check.forEach((item,index)=>{
+          if(item === false) {
+            result = false;
           }
         })
         if(result) {
