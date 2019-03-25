@@ -24,7 +24,7 @@
               <img :src="showDetails[index]?flwoUp:flwoDown"/>
             </div>
             <div class="flow-btn">
-              <!-- <span @click="routeTo('order_detail',item)">查看</span> -->
+               <!--<span @click="routeTo('order_detail',item)">查看</span>--> 
               <span @click="routeTo('order_resolver',item)">办理</span>
             </div>
           </div>
@@ -67,9 +67,10 @@
         saveCurrent:[0,1],
         finished:false,
         properties:[
-          [{name:'我的待办',value:'TODO',tab:0,cur:0 },
-          {name:'超时工单',value:'OUTTIME',tab:0,cur:1  },
-          {name:'在办工单',value:'UN_END',tab:0,cur:2  }],
+          [{name:'待办',value:'TODO',tab:0,cur:0 },
+          {name:'在办',value:'UN_END',tab:0,cur:1  },
+          {name:'超时',value:'OUTTIME',tab:0,cur:2  },
+          {name:'完成',value:'END',tab:0,cur:3  }],
           [{name:'本日',value:'Day',tab:1,cur:0  },
           {name:'本周',value:'Week',tab:1,cur:1 },
           {name:'本月',value:'Month',tab:1,cur:2 }],
@@ -120,6 +121,9 @@
       })
     },
     methods: {
+      init() {
+        this.showDetails = []
+      },
       showPannel(i) {
         this.show = true;
         this.current = this.saveCurrent[i];
@@ -143,6 +147,7 @@
         // 表单值变化后，menus变化，可做成监听表单（getAll）变化实现
         this.menus = [this.getAll.mode,this.getAll.dateType]
         this.getStatistic.bind(this)(this.getAll)
+        this.init()
       },
       // 返回 Promise 获取工单列表
       getStatistic(params) {
@@ -336,7 +341,7 @@
         display:flex;
         flex-flow: column;
         align-items: center;
-        min-width:40%;
+        min-width:42%;
         padding-right:2rem;
         .line {
           position:absolute;

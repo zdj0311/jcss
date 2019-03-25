@@ -9,7 +9,7 @@ if(process.env.NODE_ENV === 'development') {
   publicPath = 'http://192.168.200.50:9095/jcss'
 }
 if(process.env.NODE_ENV === 'production') {
-  publicPath = 'http://www.jiachengnet.com/jcss'
+  publicPath = 'http://www.jiachengnet.com/jcstd'
 }
 if(process.env.NODE_ENV === 'proxy') {
   hostname = 'http://www.jiachengnet.com'
@@ -74,7 +74,7 @@ module.exports = {
     index: path.resolve(__dirname, '../dist/index.html'),
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
-    assetsSubDirectory: 'frontStatic',
+    assetsSubDirectory: 'static',
     assetsPublicPath: './',
     /**
      * Source Maps

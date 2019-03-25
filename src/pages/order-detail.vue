@@ -64,6 +64,7 @@
         </div>
       </div>
     </div>
+    <van-button class="submit-btn" size="large" @click="routeTo">办理</van-button>
   </div>
 </template>
 
@@ -101,7 +102,13 @@
         if(rate === '02') result = 4
         if(rate === '04') result = 5
         return result
-      }
+      },
+      routeTo() {
+        this.$router.push({
+          name:'order_resolver',
+          params:{_id:this.$route.params._id}
+        })
+      },
     }
   }
 </script>
@@ -162,6 +169,11 @@
           font-size: .9rem;
         }
       }
+    }
+    .submit-btn {
+      color:#fff;
+      background:#4884fe;
+      margin-top:2rem;
     }
   }
 </style>
