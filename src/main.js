@@ -11,6 +11,7 @@ import Vant from 'vant'
 import ElementUI from 'element-ui';
 import axios from 'axios'
 import getUser from 'utils/getUser'
+import lodash from 'lodash'
 import VConsole from 'vconsole/dist/vconsole.min.js'
 
 import 'element-ui/lib/theme-chalk/index.css';
@@ -18,6 +19,7 @@ import 'vant/lib/index.css'
 import store from 'store'
 import init from 'utils/init'
 
+Vue._ = Vue.prototype._ = lodash
 Vue.config.productionTip = false
 Vue.use(Vant);
 Vue.use(ElementUI);
@@ -42,7 +44,8 @@ router.beforeEach((to, from, next) => {
       getUser('proxy').then(res=>{
         store.commit('admin/updateUser',res.data.data)
         if(to.name === 'auth') {
-           router.push('user-center')
+//         router.push('user-center')
+          next()
         }else {
            next()
         }
@@ -51,7 +54,8 @@ router.beforeEach((to, from, next) => {
       getUser('dev').then(res=>{
         store.commit('admin/updateUser',res.data.data)
         if(to.name === 'auth') {
-           router.push('user-center')
+//         router.push('user-center')
+          next()
         }else {
            next()
         }

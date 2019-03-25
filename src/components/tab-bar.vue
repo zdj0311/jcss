@@ -24,7 +24,7 @@
     data() {
       return {
         active: 0,
-        dictionary:['home_page','order_list','feedback','user_center']
+        dictionary:['home_page','order_list','feedback','auth']
       }
     },
     computed: {

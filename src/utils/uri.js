@@ -38,7 +38,8 @@ let uri = function(api){
     getHistory:api + '/api/wk/getHistory.action',//流转详情
     getGotoNodes: api + 'api/wk/getGotoNodes.action', // 跳转节点
     logout: api + 'api/wx/logout.action', // 退出登录
-    feedback: api + 'api/wx/message/feedback.action' // 投诉意见
+    feedback: api + 'api/wx/message/feedback.action', // 投诉意见
+    getCompony: api + 'api/wx/user/customerList.action', // 所在部门列表
   }
 }
 let exportUri = {}

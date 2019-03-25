@@ -44,7 +44,7 @@ function bindUser(params) {
     formData.append("roomNo", params.roomNo);
     formData.append("duty", params.duty.code);
     formData.append("cardNo", params.cardNo);
-    formData.append("orgName", params.orgName);
+    formData.append("OrgIdValue", params.OrgIdValue.code);
     if(process&&process.env&&process.env.NODE_ENV === 'proxy') {
       formData.append("openId", localStorage.getItem('openid'));
     }
@@ -56,8 +56,31 @@ function bindUser(params) {
     })
   })
 }
+
+function getCompony(params) {
+  return new Promise((resolve,reject)=>{
+    this.$post(uri.getCompony,params).then(res=>{
+      resolve(makeComData(res))
+    })
+    .catch(err=>{
+      reject(err)
+    })
+  })
+}
+
+function makeComData(res) {
+  let newArr = []
+  res.forEach((item,index)=>{
+    newArr.push({
+      text:item.name,
+      code:item.code
+    })
+  })
+  return newArr
+}
+
 export {
-  getPostDic,bindUser
+  getPostDic,bindUser,getCompony
 }
 
 

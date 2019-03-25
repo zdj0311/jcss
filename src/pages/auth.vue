@@ -17,12 +17,15 @@
         <div class="img-container"><img :src="register"/></div>
         <span>认证中</span>
       </div>
+      <div  v-if="user.userStatus === 'created'" class="">
+        <span>{{ user.wxUser&&user.wxUser.nicknameuser || user.userName }}</span>
+      </div>
     </header>
     <van-cell-group>
       <template v-for="(item,index) in table">
-        <van-field v-if="item.key_name === 'duty' && user.userStatus !== 'register'&&user.userStatus !== 'created' " v-model="form[item.key_name]&&form[item.key_name]['text']" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" :readonly="item.readonly" @focus="showPicker" />
-        <van-field v-if="item.key_name === 'duty' && (user.userStatus === 'register'||user.userStatus === 'created')" v-model="form[item.key_name]&&form[item.key_name]['text']" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" :readonly="item.readonly" />
-        <van-field v-if="item.key_name !== 'duty'" v-model="form[item.key_name]" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" @input="!item.readonly?item.validate(index):''" :readonly="item.readonly" />
+        <van-field v-if="(item.key_name === 'duty' || item.key_name === 'OrgIdValue') && user.userStatus !== 'register'" v-model="form[item.key_name]&&form[item.key_name]['text']" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" :readonly="item.readonly" @focus="showPicker(item)" />
+        <van-field v-if="(item.key_name === 'duty' || item.key_name === 'OrgIdValue') && (user.userStatus === 'register')" v-model="form[item.key_name]&&form[item.key_name]['text']" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" :readonly="item.readonly" />
+        <van-field v-if="item.key_name !== 'duty' && item.key_name !== 'OrgIdValue'" v-model="form[item.key_name]" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" @input="!item.readonly?item.validate(index):''" :readonly="item.readonly" />
       </template>
       <!--<van-field v-model="form.userName" label="姓名" placeholder="请输入姓名" error-message="" @blur="validateUserName(form.userName)"/>
       <van-field v-model="form.mobile" label="联系电话" placeholder="请输入联系电话" error-message="" @blur="validateMobile(form.mobile)"/>
@@ -31,7 +34,7 @@
       <van-field v-model="form.cardNo" label="身份证号" placeholder="请输入身份证号" error-message="" @blur="validateCardNo(form.cardNo)"/>-->
     </van-cell-group>
     <van-popup v-model="show" class="pop-container" position="bottom">
-      <van-picker :columns="postDic" @change="onChange" show-toolbar @cancel="cancel" @confirm="confirm"/>
+      <van-picker :columns="pickerArr" @change="onChange" show-toolbar @cancel="cancel" @confirm="confirm"/>
     </van-popup>
     <!-- 未注册 -->
     <van-button v-if="user.userStatus === 'UNRegister'" class="submit-btn" size="large" @click="submit">认证</van-button>
@@ -39,6 +42,8 @@
     <van-button v-if="user.userStatus === 'deny'" class="submit-btn" size="large" @click="submit">重新认证</van-button>
     <!-- 审核 user.userStatus === 'register'-->
     <van-button v-if="user.userStatus === 'register'" disabled class="submit-btn" size="large">努力认证中，请您稍等...</van-button>
+    <!-- 审核 user.userStatus === 'created'-->
+    <van-button v-if="user.userStatus === 'created'" class="submit-btn" size="large" @click="submit">保存</van-button>
   </div>
 </template>
 
@@ -47,7 +52,7 @@
   import register from 'assets/img/register.png'
   import unregister from 'assets/img/unregister.png'
   import fail from 'assets/img/fail.png'
-  import { getPostDic,bindUser } from 'controller/auth' // 职务列表
+  import { getPostDic,bindUser,getCompony } from 'controller/auth' // 职务列表
   import getUser from 'utils/getUser'
   export default {
     name: 'user_center',
@@ -64,18 +69,21 @@
         unregister,
         fail,
         user:this.$store.state.admin.user,
+        pickerArr:[],
+        currentProperty:'',
         postDic:[],
+        componys:[],
         check:[],
         show:false,
         form:{},
         table:[{
-          key_name:'orgName',
+          key_name:'OrgIdValue',
           value:'',
           title:'所在单位',
           placeholder:'请输入所在单位',
           message:'',
           validate:this.validateEmpty,
-          readonly:false
+          readonly:true
         },{
           key_name:'userName',
           value:'',
@@ -126,6 +134,11 @@
       getPostDic.bind(this)('dutyId').then(res=>{
         this.postDic = res
       })
+      // 获取所在单位字典项
+      getCompony.bind(this)().then(res=>{
+        console.log(res)
+        this.componys = res
+      })
       this.initForm()
       this.readonlyTable()
     },
@@ -143,7 +156,10 @@
       },
       initForm(form) {
         this.form = {
-          orgName:this.user.orgName||'',
+          OrgIdValue:{
+            code:this.user.OrgIdValue||'',
+            text:this.user.orgName||''
+          },
           userName:this.user.userName||'',
           mobile:this.user.mobile||'',
           roomNo:this.user.roomNo||'',
@@ -155,9 +171,7 @@
         }
         // 初始化校验数组，长度为form-item条数
         for(let item in this.form) {
-          
-          console.log(item)
-          if(item === 'orgName' || item === 'userName' ||  item === 'mobile') {
+          if(item === 'OrgIdValue' || item === 'userName' ||  item === 'mobile') {
             this.check.push(false)
           }else {
             this.check.push(true)
@@ -166,7 +180,8 @@
       },
       // 将整个form置为readonly
       readonlyTable() {
-        if(this.user.userStatus === 'register' ||this.user.userStatus === 'created' ) {
+//      if(this.user.userStatus === 'register' ||this.user.userStatus === 'created' ) {
+        if(this.user.userStatus === 'register') {
             this.table.forEach(item=>{
             item.readonly = true
           })
@@ -174,6 +189,7 @@
       },
       // 提交表单
       submit() {
+        console.log(this.check)
         let result = true
         this.check.forEach((item,index)=>{
           if(item === false) {
@@ -189,14 +205,22 @@
           bindUser.bind(this)(this.form).then(res=>{
             this.$toast('已提交认证，请耐心等待')
             this.init() 
+          }).catch(err=>{
+            this.$toast(err.message || '网络错误')
           })
         }
       },
       // 显示 picker
-      showPicker() {
+      showPicker(item) {
+        this.currentProperty = this._.cloneDeep(item)
         if(this.userStatus === 'register') {
             this.show = false
         }else {
+          if(item.key_name === 'OrgIdValue') {
+            this.pickerArr = this.componys
+          }else if(item.key_name === 'duty') {
+            this.pickerArr = this.postDic
+          }
           this.show = true
         }
       },
@@ -210,15 +234,23 @@
       },
       // picker 确定时触发
       confirm(v) {
-        this.form.duty = v
-//      this.postActive = v.text
-        this.show = false
-        this.validateEmpty(4)
+        if(this.currentProperty.key_name === 'duty') {
+          this.form.duty = v
+          this.show = false
+          this.validateEmpty(4)
+        }else if(this.currentProperty.key_name === 'OrgIdValue') {
+          this.form.OrgIdValue = v
+          this.show = false
+          this.validateEmpty(0)
+        }
       },
       // 校验非空
       validateEmpty(index) {
         let item = this.table[index]
-        if(!this.form[item.key_name]) {
+        if(index === 0 && !this.form['OrgIdValue'].text) {
+          item.message = '请输入' + item.title
+          this.setCheck(index,false)
+        }else if(!this.form[item.key_name]) {
           item.message = '请输入' + item.title
           this.setCheck(index,false)
         }else {
