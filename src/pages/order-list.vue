@@ -159,7 +159,7 @@
             this.orderHistoryList.push([])
           })
           if(this.orderList.length<this.getAll.pageRows){
-            console.log(333)
+            this.finished = true;
           }
         })
         .catch(err=>{
