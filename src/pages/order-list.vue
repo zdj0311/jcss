@@ -158,6 +158,9 @@
             this.showDetails.push(false)
             this.orderHistoryList.push([])
           })
+          if(this.orderList.length<this.getAll.pageRows){
+            this.finished = true;
+          }
         })
         .catch(err=>{
           console.log(err);
