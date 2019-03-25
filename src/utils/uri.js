@@ -43,10 +43,9 @@ let uri = function(api){
 }
 let exportUri = {}
 if(process.env.NODE_ENV === 'development') {
-  let api = '/jcss/'  
+  api = '/jcss/'  
   exportUri = uri(api);
 }else{
   exportUri = uri(api);
 }
-console.log(exportUri)
 export default exportUri

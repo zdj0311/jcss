@@ -59,12 +59,15 @@
               <span class="filter-f">{{item.name}}</span>
             </div>
             <ul class="work-con">
-              <li v-for="(item,index) in census" :key="index" @click="toList(item)" :style={backgroundColor:item.bg}>
-                <span :class="['ico',item.img]"></span>
+              <li v-for="(item,index) in census" :key="index" @click="toList(item)" 
+                :style="{backgroundColor:item.bg,backgroundImage:'url('+ item.bimg +')',backgroundRepeat:'no-repeat',backgroundPosition:'right bottom',backgroundSize:'40%'}">
+                <!--<span :class="['ico',item.img]"></span>
                 <div class="w-con">
                   <span class="w-num">{{getNum(item.value)?getNum(item.value):0}}</span>
                   <span class="w-f">{{item.name}}</span>
-                </div>
+                </div>-->
+                <header>{{item.name}}</header>
+                <span class="number">{{getNum(item.value)?getNum(item.value):0}}</span>
               </li>
             </ul>
           </van-tab>
@@ -86,7 +89,10 @@
     data() {
       return {
         banner,
-        census:[{name:'我的待办',value:'TODO',img:'c-ico',bg:'#517ce8'},{name:'超时工单',value:'OUTTIME',img:'d-ico',bg:'#f07616'},{name:'在办工单',value:'UN_END',img:'b-ico',bg:'#119bda'}],
+        census:[{name:'我的待办',value:'TODO',img:'c-ico',bg:'#985ffc',bimg:'static/img/todo.png'},
+        {name:'在办工单',value:'UN_END',img:'b-ico',bg:'#4884fe',bimg:'static/img/un_end.png'},
+        {name:'超时工单',value:'OUTTIME',img:'d-ico',bg:'#f07616',bimg:'static/img/outtime.png'},
+        {name:'完成工单',value:'END',img:'b-ico',bg:'#13baf1',bimg:'static/img/end.png'}],
         assetsArray:[],
         statistics: [{name:'本日',value:'Day'},{name:'本周',value:'Week'},{name:'本月',value:'Month'}],
         active: 1,
@@ -386,9 +392,13 @@
           .van-tabs__content{
             .work-con {
               display: flex;
+              justify-content: space-around;
               width: 100%;
               li{
-                width: 32%;
+                color:#fff;
+                padding: .71rem;
+                border-radius: 3px;
+                /*width: 32%;
                 margin-right: 2%;
                 height: 4.8rem;
                 background: #f5f5f5;
@@ -397,7 +407,7 @@
                 padding: .71rem;
                 &:nth-child(3){
                   margin-right: 0;
-                }
+                }*/
                 .ico{
                 
                   width: 1.86rem;
@@ -414,7 +424,10 @@
                   background: url('~@/assets/work3.png') no-repeat;
                   background-size: 1.86rem 1.86rem;
                 }
-                .w-num{
+                 .number {
+                   font-size:1.4rem;
+                 }
+                .w-num {
                   font-size: 1.7rem;
                   color: #fff;
                   display: block;
