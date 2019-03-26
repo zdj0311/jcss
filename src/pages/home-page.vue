@@ -82,7 +82,7 @@
   import { Dialog } from 'vant';
   import tool from 'utils/tool'
   import $ from 'jquery'
-  import {getCustomerDic,getBtDic,startWorkflow,saveWorkflow,getAssetType,getStatisticCount} from 'controller/order-create'
+  import {getCustomerDic,getBtDic,startWorkflow,saveWorkflow,getAssetType,getStatisticCount,getUrgencyDic} from 'controller/order-create'
   import form from 'utils/form-all'
   export default {
     name: 'home_page',
@@ -128,6 +128,10 @@
         getBtDic.bind(this)().then(res=>{
           this.form.busiTypeCode = res[0].code;
           this.form.busiTypeName = res[0].text;
+        })
+        getUrgencyDic.bind(this)("urgency", "jcss").then(res=>{
+          this.form.urgency = res[0].code;
+          this.form.urgencyValue = res[0].text;
         })
       },
       getNum(status){
@@ -255,6 +259,8 @@
         formData.append('billPlan',this.$store.state.admin.user.orgIdValue+this.form.assets.assetsTypeName)
         formData.append('assetTypeId',this.form.assets.id)
         formData.append('assetTypeName',this.form.assets.assetsTypeName)
+        formData.append('urgency',this.form.urgency)
+        formData.append('urgencyValue',this.form.urgencyValue)
         formData.append('attachFileMode','EDIT')
         formData.append("workflowBean.curNodeId_",this.form.curNodeId_)
         formData.append("workflowBean.definitionId_",this.form.definitionId_)
