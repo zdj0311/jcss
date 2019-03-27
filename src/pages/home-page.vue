@@ -125,13 +125,13 @@
              this.assetsArray.push(copyArr.splice(0,6))
           }
         })
-        getBtDic.bind(this)().then(res=>{
-          this.form.busiTypeCode = res[0].code;
-          this.form.busiTypeName = res[0].text;
+        getBtDic.bind(this)(this.$store.state.admin.user.orgId).then(res=>{
+          this.form.busiTypeCode = res.length>0?res[0].code:'';
+          this.form.busiTypeName = res.length>0?res[0].text:'';
         })
         getUrgencyDic.bind(this)("urgency", "jcss").then(res=>{
-          this.form.urgency = res[0].code;
-          this.form.urgencyValue = res[0].text;
+          this.form.urgency = res.length>0?res[0].code:'';
+          this.form.urgencyValue = res.length>0?res[0].text:'';
         })
       },
       getNum(status){
@@ -161,6 +161,12 @@
       createOrder(it,e){
         this.form.assets = it;
         let bg = $(e.currentTarget).css('background')
+        if(this.form.busiTypeCode==''){
+          Dialog.alert({
+            message: "无工单类型，不可创建工单"
+          });
+          return false;
+        }
         startWorkflow.bind(this)(this.$store.state.admin.user.orgId,this.form.busiTypeCode).then(res=>{
           this.form.curNodeId_ = res.workflowBean.curNodeId_;
           this.form.definitionId_ = res.workflowBean.definitionId_;
