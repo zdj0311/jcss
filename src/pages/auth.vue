@@ -43,7 +43,7 @@
     <!-- 审核 user.userStatus === 'register'-->
     <van-button v-if="user.userStatus === 'register'" disabled class="submit-btn" size="large">努力认证中，请您稍等...</van-button>
     <!-- 审核 user.userStatus === 'created'-->
-    <van-button v-if="user.userStatus === 'created'" class="submit-btn" size="large" @click="submit">保存</van-button>
+    <van-button v-if="user.userStatus === 'created'" class="submit-btn" size="large" @click="submit('保存成功！')">保存</van-button>
   </div>
 </template>
 
@@ -157,7 +157,7 @@
       initForm(form) {
         this.form = {
           OrgIdValue:{
-            code:this.user.OrgIdValue||'',
+            code:this.user.orgId||'',
             text:this.user.orgName||''
           },
           userName:this.user.userName||'',
@@ -188,8 +188,7 @@
         }
       },
       // 提交表单
-      submit() {
-        console.log(this.check)
+      submit(msg) {
         let result = true
         this.check.forEach((item,index)=>{
           if(item === false) {
@@ -203,7 +202,7 @@
         })
         if(result) {
           bindUser.bind(this)(this.form).then(res=>{
-            this.$toast('已提交认证，请耐心等待')
+            this.$toast(msg || '已提交认证，请耐心等待')
             this.init() 
           }).catch(err=>{
             this.$toast(err.message || '网络错误')

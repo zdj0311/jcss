@@ -37,6 +37,7 @@ function makeData(res) {
  @params [String] @desc orgName 客户名称
  * */
 function bindUser(params) {
+  console.log(params)
   return new Promise((resolve,reject)=>{
     let formData = new FormData()
     formData.append("userName", params.userName);
@@ -44,7 +45,7 @@ function bindUser(params) {
     formData.append("roomNo", params.roomNo);
     formData.append("duty", params.duty.code);
     formData.append("cardNo", params.cardNo);
-    formData.append("OrgIdValue", params.OrgIdValue.code);
+    formData.append("orgId", params.OrgIdValue.code);
     if(process&&process.env&&process.env.NODE_ENV === 'proxy') {
       formData.append("openId", localStorage.getItem('openid'));
     }
@@ -73,7 +74,7 @@ function makeComData(res) {
   res.forEach((item,index)=>{
     newArr.push({
       text:item.name,
-      code:item.code
+      code:item.id
     })
   })
   return newArr

@@ -6,10 +6,10 @@ var hostname = null
 var route_proxy = false
 var publicPath = ''
 if(process.env.NODE_ENV === 'development') {
-  publicPath = 'http://192.168.200.50:9095/jcss'
+  publicPath = 'http://192.168.200.50:9095'
 }
 if(process.env.NODE_ENV === 'production') {
-  publicPath = 'http://www.jiachengnet.com/jcstd'
+  publicPath = 'http://www.jiachengnet.com'
 }
 if(process.env.NODE_ENV === 'proxy') {
   hostname = 'http://www.jiachengnet.com'
