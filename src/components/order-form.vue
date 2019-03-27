@@ -26,7 +26,7 @@
         <h2 v-if="openType!='TODO'" class="base">基本信息</h2>
         <template v-for="(item,index) in table">
           <template v-if="item.exist==true">
-            <div v-if="item.picker==true && item.key_name !== 'planEndTime'" :key="index">
+            <div v-if="item.picker==true && item.key_name !== 'planEndTime'&& item.key_name !== 'urgencyValue'" :key="index">
               <van-field
                 v-model="form[item.key_name]['text']"
                 :label="item.title"
@@ -69,10 +69,24 @@
               </div>
             </div>
             <!-- 意见 -->
-            <div v-else-if="item.key_name === 'workOrderSuggest'">
+            <div v-else-if="item.key_name === 'workOrderSuggest'" class="suggest">
+              <div class="in-container" v-if="fData && fData.suggestList.length!=0">
+                <div class="row">
+                    <span class="title">历史意见</span>
+                    <div class="value">
+                      <div v-for="(item,index) in fData && fData.suggestList" :key="index" class="val-list">
+                        <p>{{item.message}}</p>
+                        <p>
+                          <span v-text="toString(item.createDate)"></span>
+                          <strong>{{item.userName}}</strong>
+                        </p>
+                      </div>
+                    </div>
+                </div>
+              </div>
               <div
                 v-if="!fData || (fData && fData.workflowConfig.workOrderSuggest=='edit' || fData.workflowConfig.workOrderSuggest=='must') && openType=='TODO'"
-              >
+              >   
                 <van-field
                   :type="item.type?item.type:'input'"
                   v-model="form[item.key_name]"
@@ -81,7 +95,7 @@
                 />
               </div>
               <div
-                v-if="(fData && fData.workflowConfig.workOrderSuggest=='readonly') || openType!='TODO'"
+                v-if="(fData && fData.suggestList.length==0) && (fData.workflowConfig.workOrderSuggest=='readonly' || openType!='TODO')"
               >
                 <van-field
                   readonly
@@ -172,7 +186,9 @@
           <div class="row">
             <span class="title">附件信息</span>
             <div class="value" v-if="fData">
-              <div v-for="(item,index) in fData.attachList" :key="index">{{ item.fileName }}</div>
+              <div v-for="(item,index) in fData.attachList" :key="index">
+                <a :href="addPath(item.fileUrl)">{{ item.fileName }}</a>
+              </div>
             </div>
           </div>
         </div>
@@ -414,6 +430,7 @@ export default {
       mode: "",
       zname: "",
       openType: "TODO",
+      urgencyValueText: '',
       scores: [
         { zscore: "5", name: "非常满意" },
         { zscore: "4", name: "比较满意" },
@@ -527,6 +544,8 @@ export default {
         .bind(this)("urgency", "jcss")
         .then(res => {
           this.urgencyDic = res;
+          this.urgencyValueText = res[0].text;
+          this.form.urgencyValue=res[0];
         });
       this.initTable();
       this.initForm();
@@ -556,28 +575,35 @@ export default {
             res.workflowConfig.canEditUrgency == "edit" ||
             res.workflowConfig.canEditUrgency == "must"
           ) {
-            this.urgencyValueText = this.form.urgencyValue
-              ? this.form.urgencyValue
-              : "";
+            
             getUrgencyDic
               .bind(this)("urgency", "jcss")
               .then(res => {
                 this.urgencyDic = res;
+                this.urgencyValueText = this.form.urgencyValue
+                ? this.form.urgencyValue
+                : res[0].text;
+                this.form.urgencyValue.code=res[0].code;
+                this.form.urgencyValue.text = res[0].text;
               });
+            
           }
           this.getStar();
           // 是否跳评价页
-          if (
-            res.workflowBean.openType_ != "VIEW" &&
-            (res.workflowConfig.canEditEvaluate == "edit" ||
-              res.workflowConfig.canEditEvaluate == "must")
-          ) {
+          // if (
+          //   res.workflowBean.openType_ != "VIEW" &&
+          //   (res.workflowConfig.canEditEvaluate == "edit" ||
+          //     res.workflowConfig.canEditEvaluate == "must")
+          // ) {
             this.mode = "evaluation";
-          }
+          // }
         });
     }
   },
   methods: {
+    toString(time){
+      return new Date(time).Format("yyyy-MM-dd hh:mm:ss");
+    },
     // 显示 picker
     showPicker(item) {
       if (item.key_name == "busiTypeName") {
@@ -1010,8 +1036,8 @@ export default {
       formData.append(
         "workflowBean.workflowVar_['wCustomerUserId']",
         this.fData && this.fData.wCustomerUserId
-          ? this.isNull(this.fData.wCustomerUserId)
-          : null
+          ? this.fData.wCustomerUserId
+          : ''
       );
       formData.append(
         "workflowBean.taskId_",
@@ -1036,6 +1062,7 @@ export default {
         this.isNull(this.form["workOrderSuggest"])
       );
       formData.append("workflowBean.suggestId_", "workOrderSuggest");
+      formData.append("workflowBean.signContainerId_", "workOrderSuggest_"+new Date().getTime());
       formData.append(
         "workflowBean.submitType_",
         this.isNull(this.form.submitType_)
@@ -1677,6 +1704,7 @@ body {
     padding-top: 1rem;
         margin-top: 1rem;
   }
+
   
   .van-cell {
     border: solid 1px #eee;
@@ -1695,6 +1723,11 @@ body {
       position: relative;
       vertical-align: middle;
       padding-left: 0.8rem;
+    }
+  }
+  .suggest{
+    .van-cell{
+      // border-top: none;
     }
   }
   .evaluation{
@@ -1732,6 +1765,7 @@ body {
     padding: 1rem;
     background: #fff;
   }
+  
     h2 {
       font-size: 1rem;
       font-weight: bold;
@@ -1760,14 +1794,38 @@ body {
         justify-content: center;
         padding: 0 0.8rem;
         font-size: 0.9rem;
+        a{
+          color:#000;
+        }
       }
     }
     .row1{
       margin: 0 1.1rem;
       .title{
-        padding: 0 0.95rem;
+        padding: 0 1.1rem 0 .8rem;
       }
     }
+    .in-container{
+    padding: 0 1.1rem;
+    .row{
+      border-bottom:none;
+      .title{
+        padding: 0 1.1rem 0 .8rem;
+      }
+      .value{
+        .val-list{
+          border-bottom: dashed 1px #eee;
+        }
+        p{
+          margin-bottom:0.4rem;
+          margin-top:0.4rem;
+          strong{
+            padding-left: 1.07rem;
+          }
+        }
+      }
+    }
+  }
   
 }
 .assets {
