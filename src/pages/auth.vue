@@ -23,9 +23,9 @@
     </header>
     <van-cell-group>
       <template v-for="(item,index) in table">
-        <van-field v-if="(item.key_name === 'duty' || item.key_name === 'OrgIdValue') && user.userStatus !== 'register'" v-model="form[item.key_name]&&form[item.key_name]['text']" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" :readonly="item.readonly" @focus="showPicker(item)" />
+        <van-field v-if="(item.key_name === 'duty' || item.key_name === 'OrgIdValue') && user.userStatus !== 'register'" v-model="form[item.key_name]&&form[item.key_name]['text']" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" :readonly="item.readonly" @focus="user.userStatus !== 'created' && showPicker(item)" />
         <van-field v-if="(item.key_name === 'duty' || item.key_name === 'OrgIdValue') && (user.userStatus === 'register')" v-model="form[item.key_name]&&form[item.key_name]['text']" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" :readonly="item.readonly" />
-        <van-field v-if="item.key_name !== 'duty' && item.key_name !== 'OrgIdValue'" v-model="form[item.key_name]" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" @input="!item.readonly?item.validate(index):''" :readonly="item.readonly" />
+        <van-field v-if="item.key_name !== 'duty' && item.key_name !== 'OrgIdValue'" :maxlength="item.length" v-model="form[item.key_name]" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" @input="!item.readonly?item.validate(index):''" :readonly="item.readonly" />
       </template>
       <!--<van-field v-model="form.userName" label="姓名" placeholder="请输入姓名" error-message="" @blur="validateUserName(form.userName)"/>
       <van-field v-model="form.mobile" label="联系电话" placeholder="请输入联系电话" error-message="" @blur="validateMobile(form.mobile)"/>
@@ -37,9 +37,9 @@
       <van-picker :columns="pickerArr" @change="onChange" show-toolbar @cancel="cancel" @confirm="confirm"/>
     </van-popup>
     <!-- 未注册 -->
-    <van-button v-if="user.userStatus === 'UNRegister'" class="submit-btn" size="large" @click="submit">认证</van-button>
+    <van-button v-if="user.userStatus === 'UNRegister'" class="submit-btn" size="large" @click="submit('已提交认证，请耐心等待！')">认证</van-button>
     <!-- 注册失败 -->
-    <van-button v-if="user.userStatus === 'deny'" class="submit-btn" size="large" @click="submit">重新认证</van-button>
+    <van-button v-if="user.userStatus === 'deny'" class="submit-btn" size="large" @click="submit('已提交认证，请耐心等待！')">重新认证</van-button>
     <!-- 审核 user.userStatus === 'register'-->
     <van-button v-if="user.userStatus === 'register'" disabled class="submit-btn" size="large">努力认证中，请您稍等...</van-button>
     <!-- 审核 user.userStatus === 'created'-->
@@ -98,8 +98,9 @@
           title:'联系电话',
           placeholder:'请输入联系电话',
           message:'',
-          validate:this.validateEmpty,
-          readonly:false
+          validate:this.validatePhone,
+          readonly:false,
+          length:'11'
         },{
           key_name:'roomNo',
           value:'',
@@ -107,24 +108,27 @@
           placeholder:'请输入房间号',
           message:'',
           validate:function(){},
-          readonly:false
-        },{
-          key_name:'duty',
-          value:'',
-          title:'职务',
-          placeholder:'请输入职务',
-          message:'',
-          validate:function(){},
-          readonly:true
-        },{
-          key_name:'cardNo',
-          value:'',
-          title:'身份证号',
-          placeholder:'请输入身份证号',
-          message:'',
-          validate:this.validateCardNo,
-          readonly:false
-        }]
+          readonly:false,
+          length:'10'
+        },
+//      {
+//        key_name:'duty',
+//        value:'',
+//        title:'职务',
+//        placeholder:'请输入职务',
+//        message:'',
+//        validate:function(){},
+//        readonly:true
+//      },{
+//        key_name:'cardNo',
+//        value:'',
+//        title:'身份证号',
+//        placeholder:'请输入身份证号',
+//        message:'',
+//        validate:this.validateCardNo,
+//        readonly:false
+//      }
+        ]
       }
     },
     
@@ -158,16 +162,16 @@
         this.form = {
           OrgIdValue:{
             code:this.user.orgId||'',
-            text:this.user.orgName||''
+            text:this.user.orgIdValue||''
           },
           userName:this.user.userName||'',
           mobile:this.user.mobile||'',
           roomNo:this.user.roomNo||'',
-          duty:{
-            code:this.user.duty||'',
-            text:this.user.dutyValue||''
-          },
-          cardNo:this.user.cardNo||''
+//        duty:{
+//          code:this.user.duty||'',
+//          text:this.user.dutyValue||''
+//        },
+//        cardNo:this.user.cardNo||''
         }
         // 初始化校验数组，长度为form-item条数
         for(let item in this.form) {
@@ -193,6 +197,7 @@
         this.check.forEach((item,index)=>{
           if(item === false) {
             this.validateEmpty(index)
+            this.validatePhone(2)
           }
         })
         this.check.forEach((item,index)=>{
@@ -202,7 +207,7 @@
         })
         if(result) {
           bindUser.bind(this)(this.form).then(res=>{
-            this.$toast(msg || '已提交认证，请耐心等待')
+            this.$toast(msg)
             this.init() 
           }).catch(err=>{
             this.$toast(err.message || '网络错误')
@@ -251,6 +256,20 @@
           this.setCheck(index,false)
         }else if(!this.form[item.key_name]) {
           item.message = '请输入' + item.title
+          this.setCheck(index,false)
+        }else {
+          item.message = ''
+          this.setCheck(index,true)
+        }
+      },
+      // 校验电话
+      validatePhone(index) {
+        let item = this.table[index]
+        if(!this.form[item.key_name]) {
+          item.message = '请输入' + item.title
+          this.setCheck(index,false)
+        }else if(!/^1[3456789]\d{9}$/.test(this.form[item.key_name])) {
+          item.message = '手机号格式错误'
           this.setCheck(index,false)
         }else {
           item.message = ''

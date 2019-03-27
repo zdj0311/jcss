@@ -43,8 +43,8 @@ function bindUser(params) {
     formData.append("userName", params.userName);
     formData.append("mobile", params.mobile);
     formData.append("roomNo", params.roomNo);
-    formData.append("duty", params.duty.code);
-    formData.append("cardNo", params.cardNo);
+//  formData.append("duty", params.duty.code);
+//  formData.append("cardNo", params.cardNo);
     formData.append("orgId", params.OrgIdValue.code);
     if(process&&process.env&&process.env.NODE_ENV === 'proxy') {
       formData.append("openId", localStorage.getItem('openid'));

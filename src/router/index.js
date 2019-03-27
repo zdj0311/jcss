@@ -59,7 +59,7 @@ export default new Router({
     {
       path: '/user-center',
       name: 'user_center',
-      component: userCenter,
+      component: Auth,
       meta: {
         keepAlive: false
       }

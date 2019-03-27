@@ -29,10 +29,10 @@
             </div>
           </div>
           <ul class="history-list" v-show="showDetails[index]">
-            <li class="his-item" v-for="obj in orderHistoryList[index]">
+            <li class="his-item" v-for="(obj,i) in orderHistoryList[index]">
               <div class="line"></div>
               <h2 class="m-b6">{{obj.actName}}</h2>
-              <p class="m-b6">{{obj.endTime | timeFilter}}</p>
+              <p class="m-b6" v-if="i !== (orderHistoryList[index].length-1)">{{obj.endTime | timeFilter}}</p>
               <p class="m-b6">{{obj.assigneeValue}}</p>
             </li>
           </ul>
