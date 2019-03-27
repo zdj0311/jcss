@@ -154,7 +154,7 @@
           name: 'order_list',
           params: {
             _type: this.dateType,
-            _mode: item.value
+            _mode: item.value,
           }
         })
       },

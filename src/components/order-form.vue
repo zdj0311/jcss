@@ -535,11 +535,7 @@ export default {
         .then(res => {
           this.customerOrgDic = res;
         });
-      getBtDic
-        .bind(this)()
-        .then(res => {
-          this.btDic = res;
-        });
+      
       getUrgencyDic
         .bind(this)("urgency", "jcss")
         .then(res => {
@@ -653,6 +649,12 @@ export default {
       this.validateEmpty(3);
       this.validateEmpty(4);
       if (this.keyName == "customerOrgName") {
+        this.form['busiTypeName']={};
+        this.btDic = [];
+        this.assetTypeDic = [];
+        this.nextNodesList = [];
+        this.chooseUser = [];
+        this.button = [];
         getCustomerDic
           .bind(this)(v.code)
           .then(res => {
@@ -670,13 +672,18 @@ export default {
           .then(res => {
             this.projectDic = res;
           });
+        getBtDic
+        .bind(this)(v.code)
+        .then(res => {
+          this.btDic = res;
+        });
         getAssetType
           .bind(this)(v.code)
           .then(res => {
             this.assetTypeDic = res;
             this.itemIndex = 0;
-            this.form.assetTypeId = this.assetTypeDic[0].id;
-            this.form.assetTypeName = this.assetTypeDic[0].assetsTypeName;
+            this.form.assetTypeId = this.assetTypeDic.length>0?this.assetTypeDic[0].id:'';
+            this.form.assetTypeName = this.assetTypeDic.length>0?this.assetTypeDic[0].assetsTypeName:'';
             this.assetsList(
               this.form.assetTypeId,
               this.form.assetTypeName,

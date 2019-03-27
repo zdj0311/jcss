@@ -76,14 +76,14 @@
           {name:'本月',value:'Month',tab:1,cur:2 }],
         ],
         defaultCon: {
-          // dataScope:'MyBill',
+          dataScope:'MyBill',
           dateType: 'Week',
           mode: 'TODO',
           pageRows:10,
           page:0,
         },
         getAll:{
-          // dataScope:'MyBill',
+          dataScope:'MyBill',
           dateType: 'Week',
           mode: 'TODO',
           pageRows:10,

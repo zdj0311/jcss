@@ -21,9 +21,10 @@ function getCustomerOrgDic() {
 /**
  * @desc 获取工单类型
  */
-function getBtDic() {
+function getBtDic(customerId) {
   return new Promise((resolve,reject)=>{
-    this.$get(uri.getBtDic).then(res=>{
+    let data = {customerId:customerId}
+    this.$get(uri.getBtDic,{params:data}).then(res=>{
       resolve(makeData(res))
     })
     .catch(err=>{
