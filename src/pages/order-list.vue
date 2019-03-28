@@ -10,7 +10,7 @@
     <load-more class="container" :onRefresh="onRefresh" :onInfinite="onInfinite" v-if="orderList.length>0">
       <div class="content" v-for="(item,index) in orderList">
         <header>
-          <span :class="item.status==2?'overtime':'statu'" >{{item.statusValue}}</span>
+          <span class="header-mark" :class="item.status==2?'overtime':'statu'" >{{item.statusValue}}</span>
           <h2>{{item.subject}}</h2>
         </header>
         <div class="body">
@@ -283,6 +283,9 @@
         background:-webkit-linear-gradient(to left, #4a79df, #7db6ff);
         background: linear-gradient(to left, #4a79df, #7db6ff);
         border-radius: 5px;
+      }
+      .header-mark {
+        min-width:4.6rem;
       }
       .overtime {
         color:#fff;

@@ -14,7 +14,7 @@
             <el-table-column prop="createUser" label="创建人"></el-table-column>
             <el-table-column prop="resolveUser" label="处理人"></el-table-column>
           </el-table>
-          <el-pagination @current-change="changePage" :current-page.sync="currentPage" class="pagination" background layout="pager" :page-size="count" :total="total"></el-pagination>
+          <el-pagination @current-change="changePage" small :current-page.sync="currentPage" class="pagination" background layout="pager" :page-size="count" :total="total"></el-pagination>
         </div>
         <empty v-else></empty>
       </van-tab>
@@ -31,7 +31,7 @@
             <el-table-column prop="createUser" label="创建人"></el-table-column>
             <el-table-column prop="resolveUser" label="处理人"></el-table-column>
           </el-table>
-          <el-pagination @current-change="changePage" :current-page.sync="currentPage" class="pagination" background layout="pager" :page-size="count" :total="total"></el-pagination>
+          <el-pagination @current-change="changePage" small :current-page.sync="currentPage" class="pagination" background layout="pager" :page-size="count" :total="total"></el-pagination>
         </div>
         <empty v-else></empty>
       </van-tab>
@@ -48,7 +48,7 @@
             <el-table-column prop="createUser" label="创建人"></el-table-column>
             <el-table-column prop="resolveUser" label="处理人"></el-table-column>
           </el-table>
-          <el-pagination @current-change="changePage" :current-page.sync="currentPage" class="pagination" background layout="pager" :page-size="count" :total="total"></el-pagination>
+          <el-pagination @current-change="changePage" small :current-page.sync="currentPage" class="pagination" background layout="pager" :page-size="count" :total="total"></el-pagination>
         </div>
         <empty v-else></empty>
       </van-tab>
