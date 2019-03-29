@@ -31,8 +31,10 @@
           <ul class="history-list" v-show="showDetails[index]">
             <li class="his-item" v-for="(obj,i) in orderHistoryList[index]">
               <div class="line"></div>
-              <h2 class="m-b6">{{obj.actName}}</h2>
+              <h2 class="m-b6 none-back" v-if="item.status==99 || item.status==90">{{obj.actName}}</h2>
+              <h2 class="m-b6" v-else>{{obj.actName}}</h2>
               <p class="m-b6" v-if="i !== (orderHistoryList[index].length-1)">{{obj.endTime | timeFilter}}</p>
+              <p class="m-b6" v-else-if="item.status==99 || item.status==90">{{obj.endTime | timeFilter}}</p>
               <p class="m-b6">{{obj.assigneeValue}}</p>
             </li>
           </ul>
@@ -365,6 +367,15 @@
           h2 {
             color:#fff;
             background:#4a79df;
+          }
+          .none-back {
+            color:#8494ac;
+            position: relative;
+            border: 1px solid #eaeff7;
+            padding: .2rem 1rem;
+            border-radius: 1rem;
+            background: #eaeff7;
+            z-index: 2;
           }
         }
       }

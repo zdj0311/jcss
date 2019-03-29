@@ -34,7 +34,6 @@ if(process.env.NODE_ENV === 'development' && config.dev.mock) {
 }
 
 let info = false
-
 router.beforeEach((to, from, next) => {
   let user = localStorage.getItem('user')
   if(info && to.name === 'auth') {
