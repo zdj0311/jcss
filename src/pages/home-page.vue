@@ -82,7 +82,7 @@
   import { Dialog } from 'vant';
   import tool from 'utils/tool'
   import $ from 'jquery'
-  import {getCustomerDic,getBtDic,startWorkflow,saveWorkflow,getAssetType,getStatisticCount,getUrgencyDic} from 'controller/order-create'
+  import {getCustomerDic,getBtDic,startWorkflow,saveWorkflow,getAssetTypeTop,getAssetType,getStatisticCount,getUrgencyDic} from 'controller/order-create'
   import form from 'utils/form-all'
   export default {
     name: 'home_page',
@@ -95,7 +95,7 @@
         {name:'完成工单',value:'END',img:'b-ico',bg:'#13baf1',bimg:'static/img/end.png'}],
         assetsArray:[],
         statistics: [{name:'本日',value:'Day'},{name:'本周',value:'Week'},{name:'本月',value:'Month'}],
-        active: 1,
+        active: 0,
         statisticsCount: {},
         show: false,
         form: {},
@@ -118,16 +118,12 @@
     },
     methods: {
       getInfo(){
-        getAssetType.bind(this)(this.$store.state.admin.user.orgId).then(res=>{
+        getAssetTypeTop.bind(this)(this.$store.state.admin.user.orgId).then(res=>{
           let copyArr =  res.slice(0,res.length)
           let len = Math.ceil(res.length/6);
           for(var i=0;i<len;i++){
              this.assetsArray.push(copyArr.splice(0,6))
           }
-        })
-        getBtDic.bind(this)(this.$store.state.admin.user.orgId).then(res=>{
-          this.form.busiTypeCode = res.length>0?res[0].code:'';
-          this.form.busiTypeName = res.length>0?res[0].text:'';
         })
         getUrgencyDic.bind(this)("urgency", "jcss").then(res=>{
           this.form.urgency = res.length>0?res[0].code:'';
@@ -160,24 +156,28 @@
       },
       createOrder(it,e){
         this.form.assets = it;
-        let bg = $(e.currentTarget).css('background')
-        if(this.form.busiTypeCode==''){
-          Dialog.alert({
-            message: "无工单类型，不可创建工单"
-          });
-          return false;
-        }
-        startWorkflow.bind(this)(this.$store.state.admin.user.orgId,this.form.busiTypeCode).then(res=>{
-          this.form.curNodeId_ = res.workflowBean.curNodeId_;
-          this.form.definitionId_ = res.workflowBean.definitionId_;
-          this.form.wUserType = res.wUserType;
-          tool.getNextNode.bind(this)().then(res=>{
-            this.nextNodesList = res.nextNodesList;
-            this.curNode = res.curNode;
-            this.selectNodes = res.nextNodesList[0].componentId;  
-            this.show = true;
-            // $('.model-header').css('background',bg+'')
-            this.toSelectUser();
+        this.form.customerOrg = it.customerId;
+        this.form.customerOrgName = it.customerIdValue;
+        getBtDic.bind(this)(this.form.customerOrg).then(res=>{
+          this.form.busiTypeCode = res.length>0?res[0].code:'';
+          this.form.busiTypeName = res.length>0?res[0].text:'';
+          if(res.length==0){
+            Dialog.alert({
+              message: "无工单类型，不可创建工单"
+            });
+            return false;
+          }
+          startWorkflow.bind(this)(this.form.customerOrg,this.form.busiTypeCode).then(res=>{
+            this.form.curNodeId_ = res.workflowBean.curNodeId_;
+            this.form.definitionId_ = res.workflowBean.definitionId_;
+            this.form.wUserType = res.wUserType;
+            tool.getNextNode.bind(this)().then(res=>{
+              this.nextNodesList = res.nextNodesList;
+              this.curNode = res.curNode;
+              this.selectNodes = res.nextNodesList[0].componentId;  
+              this.show = true;
+              this.toSelectUser();
+            })
           })
         })
       },
@@ -257,12 +257,12 @@
       },
       getForm(){
         var formData = new FormData();
-        formData.append('customerOrg',this.$store.state.admin.user.orgId)
-        formData.append('customerOrgName',this.$store.state.admin.user.orgIdValue)
+        formData.append('customerOrg',this.form.customerOrg)
+        formData.append('customerOrgName',this.form.customerOrgName)
         formData.append('busiTypeCode',this.form.busiTypeCode)
         formData.append('busiTypeName',this.form.busiTypeName)
-        formData.append('subject',this.$store.state.admin.user.orgIdValue+this.form.assets.assetsTypeName)
-        formData.append('billPlan',this.$store.state.admin.user.orgIdValue+this.form.assets.assetsTypeName)
+        formData.append('subject',this.form.customerOrgName+this.form.assets.assetsTypeName)
+        formData.append('billPlan',this.form.customerOrgName+this.form.assets.assetsTypeName)
         formData.append('assetTypeId',this.form.assets.id)
         formData.append('assetTypeName',this.form.assets.assetsTypeName)
         formData.append('urgency',this.form.urgency)
@@ -284,7 +284,7 @@
             this.$router.push({
               name:'order_list',
               params:{
-                _type:'Week',
+                _type:'Day',
                 _mode:'TODO'
               }
             })

@@ -9,12 +9,14 @@
           >{{fData && fData.billData.customerOrgName}}-{{fData && fData.billData.subject}}</div>
         </div>
         <div class="eva-result">事件结果：{{fData && fData.billData.billRes}}</div>
+        <div class="eva-result">事件描述：{{fData && fData.billData.billPlan}}</div>
       </div>
       <div class="eva-content">
-        <div class="eva-title">本次服务的评价</div>
-        <van-rate v-model="star" :size="25" @change="changeStar"/>
+        <div class="eva-title">工单评价</div>
         <div class="rate-name">{{zname}}</div>
-        <van-field type="textarea" v-model="form['publishSuggest']" placeholder="请输入评价"/>
+        <van-rate v-model="star" :size="25" @change="changeStar"/>
+        <van-field type="textarea" v-model="form['publishSuggest']" placeholder="请输入工单评价"/>
+        
       </div>
     </div>
     <div class="order" v-else>
@@ -187,7 +189,7 @@
             <span class="title">附件信息</span>
             <div class="value" v-if="fData">
               <div v-for="(item,index) in fData.attachList" :key="index">
-                <a :href="addPath(item.fileUrl)">{{ item.fileName }}</a>
+                <a :href="addPath(item.url)">{{ item.fileName }}</a>
               </div>
             </div>
           </div>
@@ -225,7 +227,7 @@
         </ul>
         <ul
           class="ificatList tabs-con on"
-          v-if="!fData || (fData && fData.workflowConfig.canRelAssets=='edit' || fData.workflowConfig.canRelAssets=='must')"
+          v-if="!fData || (fData && fData.workflowConfig && (fData.workflowConfig.canRelAssets=='edit' || fData.workflowConfig.canRelAssets=='must'))"
         >
           <li v-for="(item,index) in assetsDic" :key="index">
             <input type="checkbox" :value="fData?item.assetId:item.id" v-model="assetsRelList">
@@ -234,7 +236,7 @@
         </ul>
         <ul
           class="ificatList tabs-con on"
-          v-else-if="fData && fData.workflowConfig.canRelAssets=='readonly'"
+          v-else-if="fData && fData.workflowConfig && fData.workflowConfig.canRelAssets=='readonly'"
         >
           <li v-for="(item,index) in assetsDic" :key="index">
             <span>{{item.assetsName}}</span>
@@ -280,7 +282,7 @@
           <div class="authenTab">
             <label class="auTitle">上传附件</label>
             <template
-              v-if="!fData || (fData && fData.workflowConfig.canEditAttach=='edit' || fData.workflowConfig.canEditAttach=='must')"
+              v-if="!fData || (fData && fData.workflowConfig && (fData.workflowConfig.canEditAttach=='edit' || fData.workflowConfig.canEditAttach=='must'))"
             >
               <span class="fileinput-button">
                 <a href="javascript:void(0)" class="clickUp">点击上传</a>
@@ -291,17 +293,17 @@
         </li>
         <ul class="fileList">
           <template
-            v-if="!fData || (fData && fData.workflowConfig.canEditAttach=='edit' || fData.workflowConfig.canEditAttach=='must')"
+            v-if="!fData || (fData && fData.workflowConfig && (fData.workflowConfig.canEditAttach=='edit' || fData.workflowConfig.canEditAttach=='must'))"
           >
             <li class="photoList" v-for="(item,index) in files" :key="index">
               <span class="fuj"></span>
-              <label class="auTitle">{{item.name}}</label>
+              <label class="auTitle"><a :href="addPath(item.url)">{{item.name}}</a></label>
               <div class="delect delete" @click="deleteFile(item.id)"></div>
             </li>
           </template>
-          <template v-else-if="fData && fData.workflowConfig.canEditAttach=='readonly'">
+          <template v-else-if="fData && fData.workflowConfig && fData.workflowConfig.canEditAttach=='readonly'">
             <li class="photoList" v-for="(item,index) in files" :key="index">
-              <label class="auTitle">{{item.name}}</label>
+              <label class="auTitle"><a :href="addPath(item.url)">{{item.name}}</a></label>
             </li>
           </template>
         </ul>
@@ -361,7 +363,8 @@ import {
   getNextNodes,
   getGotoNodes,
   deleteFile,
-  evaluation
+  evaluation,
+  saveWorkflow
 } from "controller/order-create";
 import tool from "utils/tool";
 import { Dialog } from "vant";
@@ -438,6 +441,18 @@ export default {
         { zscore: "2", name: "不满意" },
         { zscore: "1", name: "非常不满意" }
       ],
+      // 按钮是否可提交
+      status: {
+        'Submit':true,
+        'Save':true,
+        'GetBack':true,
+        'Stop':true,
+        'Suspend':true,
+        'Resume':true,
+        'Reject':true,
+        'Move':true,
+        'Goto':true
+      },
       table: [
         {
           key_name: "appUserName",
@@ -500,7 +515,7 @@ export default {
         },
         {
           key_name: "code",
-          title: "编码"
+          title: "工单编号"
         },
         {
           key_name: "billRes",
@@ -529,6 +544,7 @@ export default {
     }
   },
   created() {
+    // 创建工单
     if (this.modeView == "create") {
       getCustomerOrgDic
         .bind(this)()
@@ -545,6 +561,7 @@ export default {
         });
       this.initTable();
       this.initForm();
+    // 办理工单
     } else {
       // 工作流初始化
       loadWorkflow
@@ -579,20 +596,19 @@ export default {
                 this.urgencyValueText = this.form.urgencyValue
                 ? this.form.urgencyValue
                 : res[0].text;
-                this.form.urgencyValue.code=res[0].code;
-                this.form.urgencyValue.text = res[0].text;
+                this.form.urgencyValue=res[0]
               });
             
           }
           this.getStar();
-          // 是否跳评价页
-          // if (
-          //   res.workflowBean.openType_ != "VIEW" &&
-          //   (res.workflowConfig.canEditEvaluate == "edit" ||
-          //     res.workflowConfig.canEditEvaluate == "must")
-          // ) {
+          //是否跳评价页
+          if (
+            res.workflowBean.openType_ != "VIEW" &&
+            (res.workflowConfig.canEditEvaluate == "edit" ||
+              res.workflowConfig.canEditEvaluate == "must")
+          ) {
             this.mode = "evaluation";
-          // }
+          }
         });
     }
   },
@@ -648,7 +664,7 @@ export default {
       this.form[this.keyName] = v;
       this.validateEmpty(3);
       this.validateEmpty(4);
-      if (this.keyName == "customerOrgName") {
+      if (this.keyName == "customerOrgName" && Object.getOwnPropertyNames(v).length!=0) {
         this.form['busiTypeName']={};
         this.btDic = [];
         this.assetTypeDic = [];
@@ -684,17 +700,19 @@ export default {
             this.itemIndex = 0;
             this.form.assetTypeId = this.assetTypeDic.length>0?this.assetTypeDic[0].id:'';
             this.form.assetTypeName = this.assetTypeDic.length>0?this.assetTypeDic[0].assetsTypeName:'';
-            this.assetsList(
-              this.form.assetTypeId,
-              this.form.assetTypeName,
-              this.itemIndex
-            );
+            if(this.assetTypeDic.length>0){
+              this.assetsList(
+                this.form.assetTypeId,
+                this.form.assetTypeName,
+                this.itemIndex
+              );
+            }
           });
         if (this.form["busiTypeName"] != "") {
           this.startWorkflow();
         }
       }
-      if (this.keyName == "projectName") {
+      if (this.keyName == "projectName" && Object.getOwnPropertyNames(v).length!=0) {
         getProjectSubDic
           .bind(this)(this.form["customerOrgName"].code, v.code)
           .then(res => {
@@ -871,23 +889,23 @@ export default {
     },
     // 按钮提交
     subType(id) {
-      if (id == "1") {
+      if (id == "1" && this.status['Submit']==true) {
         this.showRoute("Submit");
-      } else if (id == "2") {
+      } else if (id == "2" && this.status['Save']==true) {
         this.showRoute("Save");
-      } else if (id == "3") {
+      } else if (id == "3" && this.status['Reject']==true) {
         this.showRoute("Reject");
-      } else if (id == "4") {
+      } else if (id == "4" && this.status['Move']==true) {
         this.showRoute("Move");
-      } else if (id == "5") {
+      } else if (id == "5" && this.status['Goto']==true) {
         this.showRoute("Goto");
-      } else if (id == "6") {
+      } else if (id == "6" && this.status['Stop']==true) {
         this.showRoute("Stop");
-      } else if (id == "7") {
+      } else if (id == "7" && this.status['Suspend']==true) {
         this.showRoute("Suspend");
-      } else if (id == "8") {
+      } else if (id == "8" && this.status['Resume']==true) {
         this.showRoute("Resume");
-      } else if (id == "1001") {
+      } else if (id == "1001" && this.status['GetBack']==true) {
         this.showRoute("GetBack");
       }
     },
@@ -1251,7 +1269,55 @@ export default {
           result = false;
         }
       })
+      if((this.form.publishSuggest=='' || this.form.billAssess=='') && this.fData && this.fData.workflowConfig.canEditEvaluate == "must"){
+        Dialog.alert({
+          message: '请对本次服务进行评价'
+        })
+        result=false;
+      }
       return result;
+    },
+    createOrResolver(type,flowStatus){
+      this.form.submitType_ = type;
+      if (this.validateSumit()) {
+        this.status[type] = false;
+        if (flowStatus == "CREATE") {
+          saveWorkflow.bind(this)(this.getForm()).then(res => {
+            if(res=='success'){
+              this.status[type]=true;
+              Dialog.alert({
+                message: "提交成功"
+              }).then(() => {
+                this.$router.push({name:'order_list',params:{
+                  _type:'Day',
+                  _mode:'TODO'
+                }})
+              });
+            }
+          }).catch(res=>{
+            Dialog.alert({
+              message: res.message
+            })
+          });
+        }else {
+          updateWorkflow.bind(this)(this.getForm()).then(res=>{
+            if(res=='success'){
+              Dialog.alert({
+                message: "提交成功"
+              }).then(() => {
+                this.$router.push({name:'order_list',params:{
+                  _type:'Day',
+                  _mode:'TODO'
+                }})
+              });
+            }
+          }).catch(res=>{
+            Dialog.alert({
+              message: res.message
+            })
+          });
+        }  
+      }
     },
     // 按钮点击
     showRoute(type) {
@@ -1260,83 +1326,41 @@ export default {
         : this.form.flowStatus_;
       // 提交
       if (type == "Submit") {
-        this.form.submitType_ = "SUBMIT";
-        if (flowStatus == "CREATE") {
-          if (this.validateSumit()) {
-            this.$emit("insest", this.getForm());
-          }
-        } else {
-          this.$emit("update", this.getForm());
-        }
+        this.createOrResolver(type,flowStatus);
         // 暂存
       } else if (type == "Save") {
         Dialog.confirm({
           message: "是否要暂存该流程"
         }).then(() => {
-          this.form.submitType_ = "SAVE";
-          if (flowStatus == "CREATE") {
-            if (this.validateSumit()) {
-              this.$emit("insest", this.getForm());
-            }
-          } else {
-            this.$emit("update", this.getForm());
-          }
+          this.createOrResolver(type,flowStatus);
         });
         // 拿回
       } else if (type == "GetBack") {
         Dialog.confirm({
           message: "是否要拿回该流程"
         }).then(() => {
-          this.form.submitType_ = "GETBACK";
-          if (flowStatus == "CREATE") {
-            if (this.validateSumit()) {
-              this.$emit("insest", this.getForm());
-            }
-          } else {
-            this.$emit("update", this.getForm());
-          }
+          this.createOrResolver(type,flowStatus);
         });
         // 终止
       } else if (type == "Stop") {
         Dialog.confirm({
           message: "是否要终止该流程"
         }).then(() => {
-          this.form.submitType_ = "STOP";
-          if (flowStatus == "CREATE") {
-            if (this.validateSumit()) {
-              this.$emit("insest", this.getForm());
-            }
-          } else {
-            this.$emit("update", this.getForm());
-          }
+          this.createOrResolver(type,flowStatus);
         });
         // 暂停
       } else if (type == "Suspend") {
         Dialog.confirm({
           message: "是否要暂停该流程"
         }).then(() => {
-          this.form.submitType_ = "SUSPEND";
-          if (flowStatus == "CREATE") {
-            if (this.validateSumit()) {
-              this.$emit("insest", this.getForm());
-            }
-          } else {
-            this.$emit("update", this.getForm());
-          }
+          this.createOrResolver(type,flowStatus);
         });
         // 恢复
       } else if (type == "Resume") {
         Dialog.confirm({
           message: "是否要恢复该流程"
         }).then(() => {
-          this.form.submitType_ = "RESUME";
-          if (flowStatus == "CREATE") {
-            if (this.validateSumit()) {
-              this.$emit("insest", this.getForm());
-            }
-          } else {
-            this.$emit("update", this.getForm());
-          }
+          this.createOrResolver(type,flowStatus);
         });
         // 退回
       } else if (type == "Reject") {
@@ -1423,14 +1447,7 @@ export default {
           done();
         } else {
           this.form.confirmNodeId_ = this.nodeReject;
-          this.form.submitType_ = "REJECT";
-          if (flowStatus == "CREATE") {
-            if (this.validateSumit()) {
-              this.$emit("insest", this.getForm());
-            }
-          } else {
-            this.$emit("update", this.getForm());
-          }
+          this.createOrResolver('Reject',flowStatus);
           done();
         }
       } else {
@@ -1449,14 +1466,7 @@ export default {
           done();
         } else {
           this.selectUsers = this.usersMove;
-          this.form.submitType_ = "Move";
-          if (flowStatus == "CREATE") {
-            if (this.validateSumit()) {
-              this.$emit("insest", this.getForm());
-            }
-          } else {
-            this.$emit("update", this.getForm());
-          }
+          this.createOrResolver('Move',flowStatus);
           done();
         }
       } else {
@@ -1475,14 +1485,7 @@ export default {
           done();
         } else {
           this.form.confirmNodeId_ = this.nodeGoto;
-          this.form.submitType_ = "Goto";
-          if (flowStatus == "CREATE") {
-            if (this.validateSumit()) {
-              this.$emit("insest", this.getForm());
-            }
-          } else {
-            this.$emit("update", this.getForm());
-          }
+          this.createOrResolver('Goto',flowStatus);
           done();
         }
       } else {
@@ -1541,7 +1544,7 @@ body {
       border-bottom: solid 1px #eee;
     }
     .van-rate {
-      margin-top: 1.43rem;
+      margin-top: 0.4rem;
       text-align: center;
     }
     .rate-name {

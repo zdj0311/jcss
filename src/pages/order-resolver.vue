@@ -1,6 +1,6 @@
 <template>
     <div class="order-resolver">
-      <order-form :existList="existList" :readonlyList="readonlyList" :modeView="'edit'" v-on:update="update"></order-form>
+      <order-form :existList="existList" :readonlyList="readonlyList" :modeView="'edit'"></order-form>
     </div>
 </template>
 
@@ -18,20 +18,6 @@ export default {
     };
   },
   methods: {
-    update(formData){
-      updateWorkflow.bind(this)(formData).then(res=>{
-        if(res=='success'){
-          Dialog.alert({
-            message: "提交成功"
-          }).then(() => {
-            this.$router.push({name:'order_list',params:{
-            _type:'Week',
-            _mode:'TODO'
-          }})
-          });
-        }
-      })
-    }
   },
   created(){  
     console.log(this.$route.params.id)

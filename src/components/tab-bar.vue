@@ -37,7 +37,7 @@
         this.$emit('input',this.active)
         if(i === 1) {
           this.$router.push({name:this.dictionary[i],params:{
-            _type:'Week',
+            _type:'Day',
             _mode:'TODO'
           }})
         }else {

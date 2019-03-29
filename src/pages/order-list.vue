@@ -77,14 +77,14 @@
         ],
         defaultCon: {
           dataScope:'MyBill',
-          dateType: 'Week',
+          dateType: 'Day',
           mode: 'TODO',
           pageRows:10,
           page:0,
         },
         getAll:{
           dataScope:'MyBill',
-          dateType: 'Week',
+          dateType: 'Day',
           mode: 'TODO',
           pageRows:10,
           page:0,

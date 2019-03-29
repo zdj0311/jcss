@@ -23,6 +23,7 @@ let uri = function(api){
     getProjectSubDic:api + 'api/wk/dic/projectSubDicList.action', // 获取子项目字典列表
     upload:api + 'api/wx/attach/upload.action', // 上传
     deleteFile:api + 'api/wx/attach/delete.action', // 删除附件
+    getAssetTypeTop:api + 'api/wk/dic/assetsTypeListTop.action', // 首页获取资产列表
     getAssetType:api + 'api/wk/dic/assetsTypeList.action', // 获取资产列表
     getAssetsList:api + 'api/wk/dic/assetsList.action', // 获取子资产列表
     startWorkflow:api + 'api/wk/startWorkflow.action', // 开始创建工作流

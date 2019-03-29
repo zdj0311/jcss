@@ -231,6 +231,22 @@ function getAssetType(customerId) {
 }
 
 /**
+ * @desc 首页获取资产列表
+ * @params
+ */
+function getAssetTypeTop(customerId) {
+  return new Promise((resolve,reject)=>{
+    let data = {customerId:customerId}
+    this.$get(uri.getAssetTypeTop,{params:data}).then(res=>{
+      resolve(res)
+    })
+    .catch(err=>{
+      reject(err)
+    })
+  })
+}
+
+/**
  * @desc 获取子资产列表
  * @params
  */
@@ -384,7 +400,7 @@ function logout(formData) {
 }
 
 export {
-  getCustomerOrgDic,getBtDic,getCustomerDic,getUrgencyDic,getProjectDic,getProjectSubDic,getAssetType,getAssetsList,startWorkflow,saveWorkflow,loadWorkflow,updateWorkflow,upload,getNextNodes,getGotoNodes,deleteFile,evaluation,
+  getCustomerOrgDic,getBtDic,getCustomerDic,getUrgencyDic,getProjectDic,getProjectSubDic,getAssetTypeTop,getAssetType,getAssetsList,startWorkflow,saveWorkflow,loadWorkflow,updateWorkflow,upload,getNextNodes,getGotoNodes,deleteFile,evaluation,
   paperList,cananswer,submitPaper,getStatisticCount,getPaper,logout
 }
 

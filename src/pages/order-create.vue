@@ -6,7 +6,6 @@
       :pickerList="pickerList"
       :modeView="'create'"
       :required="required"
-      v-on:insest="insest"
     ></order-form>
   </div>
 </template>
@@ -26,26 +25,6 @@ export default {
     };
   },
   methods: {
-    insest(formData) {
-      saveWorkflow
-        .bind(this)(formData)
-        .then(res => {
-          if(res=='success'){
-            Dialog.alert({
-              message: "提交成功"
-            }).then(() => {
-                this.$router.push({name:'order_list',params:{
-                  _type:'Week',
-                  _mode:'TODO'
-                }})
-            });
-          }
-        }).catch(res=>{
-          Dialog.alert({
-            message: res.message
-          })
-        });
-    }
   },
   mounted() {}
 };
