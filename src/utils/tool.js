@@ -39,10 +39,10 @@ function all(data,users){
 // 获取下一节点
 let getNextNode = function(){
     var formData = new FormData();
-    formData.append('curNodeId_',this.fData && this.fData.workflowBean?this.fData.workflowBean.curNodeId_:this.form.curNodeId_)
-    formData.append('definitionId_',this.fData && this.fData.workflowBean?this.fData.workflowBean.definitionId_:this.form.definitionId_)
-    formData.append("workflowVar_['wUserType']",this.fData && this.fData.workflowBean?this.fData.wUserType:this.form.wUserType)
-    formData.append("workflowVar_['wCustomerUserId']",this.fData && this.fData.workflowBean?this.fData.wCustomerUserId:'')
+    formData.append('curNodeId_',this.fData && this.fData.workflowBean && this.fData.workflowBean.curNodeId_?this.fData.workflowBean.curNodeId_:this.form.curNodeId_)
+    formData.append('definitionId_',this.fData && this.fData.workflowBean && this.fData.workflowBean.definitionId_?this.fData.workflowBean.definitionId_:this.form.definitionId_)
+    formData.append("workflowVar_['wUserType']",this.fData && this.fData.wUserType?this.fData.wUserType:this.form.wUserType)
+    formData.append("workflowVar_['wCustomerUserId']",this.fData && this.fData.wCustomerUserId?this.fData.wCustomerUserId:'')
     return getNextNodes.bind(this)(formData)   
 }
 const tool = {

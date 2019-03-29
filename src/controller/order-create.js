@@ -50,6 +50,22 @@ function getCustomerDic(nowCustomerOrgId) {
 }
 
 /**
+ * @desc 获取客户和部门和公司负责人列表
+ * @params
+ */
+function getCustomerAndJcAllDeptAndUser(nowCustomerOrgId) {
+  return new Promise((resolve,reject)=>{
+    let data = {nowCustomerOrgId:nowCustomerOrgId}
+    Vue.$axios.get(uri.getCustomerAndJcAllDeptAndUser,{params:data}).then(res=>{
+      resolve(res.data)
+    })
+    .catch(err=>{
+      reject(err)
+    })
+  })
+}
+
+/**
  * @desc 获取紧急程度
  * @params
  */
@@ -400,7 +416,7 @@ function logout(formData) {
 }
 
 export {
-  getCustomerOrgDic,getBtDic,getCustomerDic,getUrgencyDic,getProjectDic,getProjectSubDic,getAssetTypeTop,getAssetType,getAssetsList,startWorkflow,saveWorkflow,loadWorkflow,updateWorkflow,upload,getNextNodes,getGotoNodes,deleteFile,evaluation,
+  getCustomerOrgDic,getBtDic,getCustomerDic,getCustomerAndJcAllDeptAndUser,getUrgencyDic,getProjectDic,getProjectSubDic,getAssetTypeTop,getAssetType,getAssetsList,startWorkflow,saveWorkflow,loadWorkflow,updateWorkflow,upload,getNextNodes,getGotoNodes,deleteFile,evaluation,
   paperList,cananswer,submitPaper,getStatisticCount,getPaper,logout
 }
 

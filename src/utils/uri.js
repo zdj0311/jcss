@@ -17,6 +17,7 @@ let uri = function(api){
     statistiscByPage:api + 'api/wk/statistiscByPage.action', // 获取分页饼状统计图、工单列表
     getCustomerOrgDic:api + 'api/wk/dic/customerDicList.action', // 获取客户名称字典列表
     getCustomerDic:api + 'api/jcdept/getCustomerDeptAndUser.action', // 获取客户负责人字典列表
+    getCustomerAndJcAllDeptAndUser:api + 'api/jcdept/getCustomerAndJcAllDeptAndUser.action', // 获取客户和部门和公司负责人列表
     getBtDic:api + 'api/wk/dic/btDicList.action', // 获取工单类型字典列表
     getUrgencyDic:api + 'api/wk/dic/dicList.action', // 获取紧急程度字典列表
     getProjectDic:api + 'api/wk/dic/projectDicList.action', // 获取项目字典列表

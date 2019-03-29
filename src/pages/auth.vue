@@ -90,7 +90,7 @@
           title:'姓名',
           placeholder:'请输入姓名',
           message:'',
-          validate:this.validateEmpty,
+          validate:this.validateUser,
           readonly:false
         },{
           key_name:'mobile',
@@ -270,6 +270,26 @@
           this.setCheck(index,false)
         }else if(!/^1[3456789]\d{9}$/.test(this.form[item.key_name])) {
           item.message = '手机号格式错误'
+          this.setCheck(index,false)
+        }else {
+          item.message = ''
+          this.setCheck(index,true)
+        }
+      },
+      validateUser(index){
+        let item = this.table[index]
+        let pattern = new RegExp("[`~!@#$^&*()=|{}':;',\\[\\].<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？]")
+        if(!this.form[item.key_name]) {
+          item.message = '请输入' + item.title
+          this.setCheck(index,false)
+        }else if(!/^.{2,}$/.test(this.form[item.key_name])) {
+          item.message = '输入字符不能少于2个'
+          this.setCheck(index,false)
+        }else if(!/^.{2,20}$/.test(this.form[item.key_name])) {
+          item.message = '输入字符不能超过20个'
+          this.setCheck(index,false)
+        }else if(pattern.test(this.form[item.key_name])) {
+          item.message = '输入中含有特殊字符'
           this.setCheck(index,false)
         }else {
           item.message = ''

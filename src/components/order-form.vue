@@ -16,7 +16,6 @@
         <div class="rate-name">{{zname}}</div>
         <van-rate v-model="star" :size="25" @change="changeStar"/>
         <van-field type="textarea" v-model="form['publishSuggest']" placeholder="请输入工单评价"/>
-        
       </div>
     </div>
     <div class="order" v-else>
@@ -28,7 +27,10 @@
         <h2 v-if="openType!='TODO'" class="base">基本信息</h2>
         <template v-for="(item,index) in table">
           <template v-if="item.exist==true">
-            <div v-if="item.picker==true && item.key_name !== 'planEndTime'&& item.key_name !== 'urgencyValue'" :key="index">
+            <div
+              v-if="item.picker==true && item.key_name !== 'planEndTime'&& item.key_name !== 'urgencyValue'&& item.key_name !== 'customerName'"
+              :key="index"
+            >
               <van-field
                 v-model="form[item.key_name]['text']"
                 :label="item.title"
@@ -74,21 +76,26 @@
             <div v-else-if="item.key_name === 'workOrderSuggest'" class="suggest">
               <div class="in-container" v-if="fData && fData.suggestList.length!=0">
                 <div class="row">
-                    <span class="title">历史意见</span>
-                    <div class="value">
-                      <div v-for="(item,index) in fData && fData.suggestList" :key="index" class="val-list">
-                        <p>{{item.message}}</p>
-                        <p>
-                          <span v-text="toString(item.createDate)"></span>
-                          <strong>{{item.userName}}</strong>
-                        </p>
-                      </div>
+                  <span class="title">历史意见</span>
+                  <div class="value">
+                    <div
+                      v-for="(item,index) in fData && fData.suggestList"
+                      :key="index"
+                      class="val-list"
+                    >
+                      <p>{{item.message}}</p>
+                      <p>
+                        <span v-text="toString(item.createDate)"></span>
+                        <strong>{{item.userName}}</strong>
+                      </p>
                     </div>
+                  </div>
                 </div>
               </div>
+              <!-- 意见可编辑 -->
               <div
                 v-if="!fData || (fData && fData.workflowConfig.workOrderSuggest=='edit' || fData.workflowConfig.workOrderSuggest=='must') && openType=='TODO'"
-              >   
+              >
                 <van-field
                   :type="item.type?item.type:'input'"
                   v-model="form[item.key_name]"
@@ -112,7 +119,7 @@
                 v-if="!fData || (fData && fData.workflowConfig.canEditUrgency=='edit' || fData.workflowConfig.canEditUrgency=='must') && openType=='TODO'"
               >
                 <van-field
-                  v-model="urgencyValueText"
+                  v-model="form[item.key_name]['text']"
                   :label="item.title"
                   placeholder="请选择"
                   @focus="showPicker(item)"
@@ -125,7 +132,30 @@
                 <van-field
                   readonly
                   :type="item.type?item.type:'input'"
-                  v-model="form[item.key_name]"
+                  v-model="form[item.key_name]['text']"
+                  :label="item.title"
+                />
+              </div>
+            </div>
+            <div v-else-if="item.key_name === 'customerName'">
+              <div
+                v-if="!fData || (fData && fData.workflowConfig.canEditCustomerUser=='edit' || fData.workflowConfig.canEditCustomerUser=='must') && openType=='TODO'"
+              >
+                <van-field
+                  v-model="form[item.key_name]['text']"
+                  :label="item.title"
+                  placeholder="请选择"
+                  @focus="showPicker(item)"
+                  readonly
+                />
+              </div>
+              <div
+                v-if="(fData && fData.workflowConfig.canEditCustomerUser=='readonly') || openType!='TODO'"
+              >
+                <van-field
+                  readonly
+                  :type="item.type?item.type:'input'"
+                  v-model="form[item.key_name]['text']"
                   :label="item.title"
                 />
               </div>
@@ -153,7 +183,7 @@
             <template>
               <span class="title">评价等级</span>
               <span class="value">
-                <van-rate :value="star" />
+                <van-rate :value="star"/>
               </span>
             </template>
           </div>
@@ -297,13 +327,19 @@
           >
             <li class="photoList" v-for="(item,index) in files" :key="index">
               <span class="fuj"></span>
-              <label class="auTitle"><a :href="addPath(item.url)">{{item.name}}</a></label>
+              <label class="auTitle">
+                <a :href="addPath(item.url)">{{item.name}}</a>
+              </label>
               <div class="delect delete" @click="deleteFile(item.id)"></div>
             </li>
           </template>
-          <template v-else-if="fData && fData.workflowConfig && fData.workflowConfig.canEditAttach=='readonly'">
+          <template
+            v-else-if="fData && fData.workflowConfig && fData.workflowConfig.canEditAttach=='readonly'"
+          >
             <li class="photoList" v-for="(item,index) in files" :key="index">
-              <label class="auTitle"><a :href="addPath(item.url)">{{item.name}}</a></label>
+              <label class="auTitle">
+                <a :href="addPath(item.url)">{{item.name}}</a>
+              </label>
             </li>
           </template>
         </ul>
@@ -351,6 +387,7 @@ import {
   getCustomerOrgDic,
   getBtDic,
   getCustomerDic,
+  getCustomerAndJcAllDeptAndUser,
   getUrgencyDic,
   getProjectDic,
   getProjectSubDic,
@@ -433,7 +470,6 @@ export default {
       mode: "",
       zname: "",
       openType: "TODO",
-      urgencyValueText: '',
       scores: [
         { zscore: "5", name: "非常满意" },
         { zscore: "4", name: "比较满意" },
@@ -443,15 +479,15 @@ export default {
       ],
       // 按钮是否可提交
       status: {
-        'Submit':true,
-        'Save':true,
-        'GetBack':true,
-        'Stop':true,
-        'Suspend':true,
-        'Resume':true,
-        'Reject':true,
-        'Move':true,
-        'Goto':true
+        Submit: true,
+        Save: true,
+        GetBack: true,
+        Stop: true,
+        Suspend: true,
+        Resume: true,
+        Reject: true,
+        Move: true,
+        Goto: true
       },
       table: [
         {
@@ -551,17 +587,16 @@ export default {
         .then(res => {
           this.customerOrgDic = res;
         });
-      
+
       getUrgencyDic
         .bind(this)("urgency", "jcss")
         .then(res => {
           this.urgencyDic = res;
-          this.urgencyValueText = res[0].text;
-          this.form.urgencyValue=res[0];
+          this.form.urgencyValue = res[0];
         });
       this.initTable();
       this.initForm();
-    // 办理工单
+      // 办理工单
     } else {
       // 工作流初始化
       loadWorkflow
@@ -588,17 +623,52 @@ export default {
             res.workflowConfig.canEditUrgency == "edit" ||
             res.workflowConfig.canEditUrgency == "must"
           ) {
-            
+            let resTop = res;
             getUrgencyDic
               .bind(this)("urgency", "jcss")
               .then(res => {
                 this.urgencyDic = res;
-                this.urgencyValueText = this.form.urgencyValue
-                ? this.form.urgencyValue
-                : res[0].text;
-                this.form.urgencyValue=res[0]
+                if (resTop.billData.urgency) {
+                  this.form.urgencyValue = {
+                    code: resTop.billData.urgency,
+                    text: resTop.billData.urgencyValue
+                  };
+                } else {
+                  this.form.urgencyValue = resTop[0];
+                }
               });
-            
+          } else {
+            this.form.urgencyValue = {
+              code: res.billData.urgency,
+              text: res.billData.urgencyValue
+            };
+          }
+          if (
+            res.workflowConfig.canEditCustomerUser == "edit" ||
+            res.workflowConfig.canEditCustomerUser == "must"
+          ) {
+            let resTop = res;
+            getCustomerDic
+              .bind(this)(resTop.billData.customerOrg)
+              .then(res => {
+                var user = [];
+                user = tool.showAll(res, user);
+                user.forEach(function(v, k) {
+                  _this.customerDic.push({
+                    code: v.id,
+                    text: v.displayName
+                  });
+                });
+                this.form.customerName = {
+                  code: resTop.billData.customer,
+                  text: resTop.billData.customerName
+                };
+              });
+          } else {
+            this.form.customerName = {
+              code: res.billData.customer,
+              text: res.billData.customerName
+            };
           }
           this.getStar();
           //是否跳评价页
@@ -613,7 +683,7 @@ export default {
     }
   },
   methods: {
-    toString(time){
+    toString(time) {
       return new Date(time).Format("yyyy-MM-dd hh:mm:ss");
     },
     // 显示 picker
@@ -664,13 +734,18 @@ export default {
       this.form[this.keyName] = v;
       this.validateEmpty(3);
       this.validateEmpty(4);
-      if (this.keyName == "customerOrgName" && Object.getOwnPropertyNames(v).length!=0) {
-        this.form['busiTypeName']={};
+      // 选择客户
+      if (
+        this.keyName == "customerOrgName" &&
+        Object.getOwnPropertyNames(v).length != 0
+      ) {
+        this.form["busiTypeName"] = {};
         this.btDic = [];
         this.assetTypeDic = [];
         this.nextNodesList = [];
         this.chooseUser = [];
         this.button = [];
+        // 客户负责人
         getCustomerDic
           .bind(this)(v.code)
           .then(res => {
@@ -683,24 +758,31 @@ export default {
               });
             });
           });
+        // 项目
         getProjectDic
           .bind(this)(v.code)
           .then(res => {
             this.projectDic = res;
           });
+        // 工单类型
         getBtDic
-        .bind(this)(v.code)
-        .then(res => {
-          this.btDic = res;
-        });
+          .bind(this)(v.code)
+          .then(res => {
+            this.btDic = res;
+          });
+        // 资产
         getAssetType
           .bind(this)(v.code)
           .then(res => {
             this.assetTypeDic = res;
             this.itemIndex = 0;
-            this.form.assetTypeId = this.assetTypeDic.length>0?this.assetTypeDic[0].id:'';
-            this.form.assetTypeName = this.assetTypeDic.length>0?this.assetTypeDic[0].assetsTypeName:'';
-            if(this.assetTypeDic.length>0){
+            this.form.assetTypeId =
+              this.assetTypeDic.length > 0 ? this.assetTypeDic[0].id : "";
+            this.form.assetTypeName =
+              this.assetTypeDic.length > 0
+                ? this.assetTypeDic[0].assetsTypeName
+                : "";
+            if (this.assetTypeDic.length > 0) {
               this.assetsList(
                 this.form.assetTypeId,
                 this.form.assetTypeName,
@@ -712,7 +794,11 @@ export default {
           this.startWorkflow();
         }
       }
-      if (this.keyName == "projectName" && Object.getOwnPropertyNames(v).length!=0) {
+      // 子项目
+      if (
+        this.keyName == "projectName" &&
+        Object.getOwnPropertyNames(v).length != 0
+      ) {
         getProjectSubDic
           .bind(this)(this.form["customerOrgName"].code, v.code)
           .then(res => {
@@ -724,9 +810,6 @@ export default {
         this.form["customerOrgName"] != ""
       ) {
         this.startWorkflow();
-      }
-      if (this.keyName == "urgencyValue") {
-        this.urgencyValueText = v.text;
       }
       this.show = false;
     },
@@ -751,6 +834,7 @@ export default {
         }
       });
     },
+    // 初始化form
     initForm(billData) {
       if (!billData) {
         this.table.forEach((item, index) => {
@@ -848,13 +932,6 @@ export default {
             }
           });
         }
-      } else {
-        // _this.$router.push({
-        //   name: "order_detail",
-        //   params: {
-        //     _id: _this.$route.params._id
-        //   }
-        // });
       }
     },
     // 开始工作流
@@ -873,6 +950,10 @@ export default {
           _this.form.flowStatus_ = res.workflowBean.flowStatus_;
           _this.form.buttonOptJsonStr = res.workflowBean.buttonOptJsonStr;
           _this.form.subProcessId_ = res.workflowBean.subProcessId_;
+          this.form.customerName = {
+            code: res.data.customer,
+            text: res.data.customerName
+          };
           _this.getNextNodes();
         });
     },
@@ -889,29 +970,30 @@ export default {
     },
     // 按钮提交
     subType(id) {
-      if (id == "1" && this.status['Submit']==true) {
+      if (id == "1" && this.status["Submit"] == true) {
         this.showRoute("Submit");
-      } else if (id == "2" && this.status['Save']==true) {
+      } else if (id == "2" && this.status["Save"] == true) {
         this.showRoute("Save");
-      } else if (id == "3" && this.status['Reject']==true) {
+      } else if (id == "3" && this.status["Reject"] == true) {
         this.showRoute("Reject");
-      } else if (id == "4" && this.status['Move']==true) {
+      } else if (id == "4" && this.status["Move"] == true) {
         this.showRoute("Move");
-      } else if (id == "5" && this.status['Goto']==true) {
+      } else if (id == "5" && this.status["Goto"] == true) {
         this.showRoute("Goto");
-      } else if (id == "6" && this.status['Stop']==true) {
+      } else if (id == "6" && this.status["Stop"] == true) {
         this.showRoute("Stop");
-      } else if (id == "7" && this.status['Suspend']==true) {
+      } else if (id == "7" && this.status["Suspend"] == true) {
         this.showRoute("Suspend");
-      } else if (id == "8" && this.status['Resume']==true) {
+      } else if (id == "8" && this.status["Resume"] == true) {
         this.showRoute("Resume");
-      } else if (id == "1001" && this.status['GetBack']==true) {
+      } else if (id == "1001" && this.status["GetBack"] == true) {
         this.showRoute("GetBack");
       }
     },
     isNull(it) {
       return it && "null" != it ? it : "";
     },
+    // 提交参数
     getForm() {
       this.selectUsers = Array.isArray(this.selectUsers)
         ? this.selectUsers.join(",")
@@ -951,18 +1033,8 @@ export default {
           ? this.isNull(this.fData.billData.customerOrgName)
           : this.isNull(this.form.customerOrgName.text)
       );
-      formData.append(
-        "customer",
-        this.fData
-          ? this.isNull(this.fData.billData.customer)
-          : this.isNull(this.form.customerName.code)
-      );
-      formData.append(
-        "customerName",
-        this.fData
-          ? this.isNull(this.fData.billData.customerName)
-          : this.isNull(this.form.customerName.text)
-      );
+      formData.append("customer", this.isNull(this.form.customerName.code));
+      formData.append("customerName", this.isNull(this.form.customerName.text));
       formData.append(
         "busiTypeCode",
         this.fData
@@ -975,22 +1047,13 @@ export default {
           ? this.isNull(this.fData.billData.busiTypeName)
           : this.isNull(this.form.busiTypeName.text)
       );
-      formData.append(
-        "urgency",
-        this.fData
-          ? this.isNull(this.fData.billData.urgency)
-          : this.isNull(this.form.urgencyValue.code)
-      );
-      formData.append(
-        "urgencyValue",
-        this.fData
-          ? this.isNull(this.fData.billData.urgencyValue)
-          : this.isNull(this.form.urgencyValue.text)
-      );
+      formData.append("urgency", this.isNull(this.form.urgencyValue.code));
+      formData.append("urgencyValue", this.isNull(this.form.urgencyValue.text));
       formData.append("planStartTimeStr", this.isNull(this.form.startTime));
       formData.append("planEndTimeStr", this.isNull(this.form.planEndTime));
       formData.append("subject", this.isNull(this.form.subject));
       formData.append("billPlan", this.isNull(this.form.billPlan));
+      formData.append("billRes", this.isNull(this.form.billRes));
       formData.append(
         "projectId",
         this.fData
@@ -1062,7 +1125,7 @@ export default {
         "workflowBean.workflowVar_['wCustomerUserId']",
         this.fData && this.fData.wCustomerUserId
           ? this.fData.wCustomerUserId
-          : ''
+          : ""
       );
       formData.append(
         "workflowBean.taskId_",
@@ -1087,7 +1150,10 @@ export default {
         this.isNull(this.form["workOrderSuggest"])
       );
       formData.append("workflowBean.suggestId_", "workOrderSuggest");
-      formData.append("workflowBean.signContainerId_", "workOrderSuggest_"+new Date().getTime());
+      formData.append(
+        "workflowBean.signContainerId_",
+        "workOrderSuggest_" + new Date().getTime()
+      );
       formData.append(
         "workflowBean.submitType_",
         this.isNull(this.form.submitType_)
@@ -1167,8 +1233,8 @@ export default {
     },
     // 获取所有人
     getAllUser(nextNodesList) {
-      getCustomerDic
-        .bind(this)()
+      getCustomerAndJcAllDeptAndUser
+        .bind(this)(this.form.customerOrgName.code?this.form.customerOrgName.code:this.form.customerOrg)
         .then(res => {
           let user = [];
           let assignees = tool.showAll(res, user);
@@ -1259,64 +1325,142 @@ export default {
     // 提交校验
     validateSumit() {
       let result = true;
-      this.check.forEach((item,index)=>{
-        if(item === false) {
-          this.validateEmpty(index)
+      this.check.forEach((item, index) => {
+        if (item === false) {
+          this.validateEmpty(index);
         }
-      })
-      this.check.forEach((item,index)=>{
-        if(item === false) {
+      });
+      this.check.forEach((item, index) => {
+        if (item === false) {
           result = false;
         }
-      })
-      if((this.form.publishSuggest=='' || this.form.billAssess=='') && this.fData && this.fData.workflowConfig.canEditEvaluate == "must"){
+      });
+      if (
+        (!this.form.publishSuggest || !this.form.billAssess) &&
+        this.fData &&
+        this.fData.workflowConfig.canEditEvaluate == "must"
+      ) {
         Dialog.alert({
-          message: '请对本次服务进行评价'
-        })
-        result=false;
+          message: "请对工单进行评价"
+        });
+        result = false;
+      }
+      if (
+        this.files.length <= 0 &&
+        this.fData &&
+        this.fData.workflowConfig.canEditAttach == "must"
+      ) {
+        Dialog.alert({
+          message: "请上传附件"
+        });
+        result = false;
+      }
+      if (
+        !this.form.billRes &&
+        this.fData &&
+        this.fData.workflowConfig.canEditBillRes == "must"
+      ) {
+        Dialog.alert({
+          message: "请填写事件结果"
+        });
+        result = false;
+      }
+      if (
+        !this.form.customerName.code &&
+        this.fData &&
+        this.fData.workflowConfig.canEditCustomerUser == "must"
+      ) {
+        Dialog.alert({
+          message: "请选择客户负责人"
+        });
+        result = false;
+      }
+      if (
+        this.assetsRelList.length <= 0 &&
+        this.fData &&
+        this.fData.caseAssetsList.length > 0 &&
+        this.fData.workflowConfig.canRelAssets == "must"
+      ) {
+        Dialog.alert({
+          message: "请选择关联资产"
+        });
+        result = false;
+      }
+      if (
+        !this.form["workOrderSuggest"] &&
+        this.fData &&
+        this.fData.workflowConfig.workOrderSuggest == "must"
+      ) {
+        Dialog.alert({
+          message: "请填写意见"
+        });
+        result = false;
+      }
+      if (
+        !this.form.urgencyValue.code &&
+        this.fData &&
+        this.fData.workflowConfig.canEditUrgency == "must"
+      ) {
+        Dialog.alert({
+          message: "请选择紧急程度"
+        });
+        result = false;
       }
       return result;
     },
-    createOrResolver(type,flowStatus){
+    // 创建或修改工单
+    createOrResolver(type, flowStatus) {
       this.form.submitType_ = type;
       if (this.validateSumit()) {
         this.status[type] = false;
         if (flowStatus == "CREATE") {
-          saveWorkflow.bind(this)(this.getForm()).then(res => {
-            if(res=='success'){
-              this.status[type]=true;
-              Dialog.alert({
-                message: "提交成功"
-              }).then(() => {
-                this.$router.push({name:'order_list',params:{
-                  _type:'Day',
-                  _mode:'TODO'
-                }})
-              });
-            }
-          }).catch(res=>{
-            Dialog.alert({
-              message: res.message
+          saveWorkflow
+            .bind(this)(this.getForm())
+            .then(res => {
+              if (res == "success") {
+                this.status[type] = true;
+                Dialog.alert({
+                  message: "提交成功"
+                }).then(() => {
+                  this.$router.push({
+                    name: "order_list",
+                    params: {
+                      _type: "Day",
+                      _mode: "TODO"
+                    }
+                  });
+                });
+              }
             })
-          });
-        }else {
-          updateWorkflow.bind(this)(this.getForm()).then(res=>{
-            if(res=='success'){
+            .catch(res => {
               Dialog.alert({
-                message: "提交成功"
-              }).then(() => {
-                this.$router.push({name:'order_list',params:{
-                  _type:'Day',
-                  _mode:'TODO'
-                }})
+                message: res.message
               });
-            }
-          }).catch(res=>{
-            Dialog.alert({
-              message: res.message
+            });
+        } else {
+          updateWorkflow
+            .bind(this)(this.getForm())
+            .then(res => {
+              if (res == "success") {
+                Dialog.alert({
+                  message: "提交成功"
+                }).then(() => {
+                  this.$router.push({
+                    name: "order_list",
+                    params: {
+                      _type: "Day",
+                      _mode: "TODO"
+                    }
+                  });
+                });
+              }
             })
-          });
-        }  
+            .catch(res => {
+              Dialog.alert({
+                message: res.message
+              });
+            });
+        }
       }
     },
     // 按钮点击
@@ -1326,41 +1470,41 @@ export default {
         : this.form.flowStatus_;
       // 提交
       if (type == "Submit") {
-        this.createOrResolver(type,flowStatus);
+        this.createOrResolver(type, flowStatus);
         // 暂存
       } else if (type == "Save") {
         Dialog.confirm({
           message: "是否要暂存该流程"
         }).then(() => {
-          this.createOrResolver(type,flowStatus);
+          this.createOrResolver(type, flowStatus);
         });
         // 拿回
       } else if (type == "GetBack") {
         Dialog.confirm({
           message: "是否要拿回该流程"
         }).then(() => {
-          this.createOrResolver(type,flowStatus);
+          this.createOrResolver(type, flowStatus);
         });
         // 终止
       } else if (type == "Stop") {
         Dialog.confirm({
           message: "是否要终止该流程"
         }).then(() => {
-          this.createOrResolver(type,flowStatus);
+          this.createOrResolver(type, flowStatus);
         });
         // 暂停
       } else if (type == "Suspend") {
         Dialog.confirm({
           message: "是否要暂停该流程"
         }).then(() => {
-          this.createOrResolver(type,flowStatus);
+          this.createOrResolver(type, flowStatus);
         });
         // 恢复
       } else if (type == "Resume") {
         Dialog.confirm({
           message: "是否要恢复该流程"
         }).then(() => {
-          this.createOrResolver(type,flowStatus);
+          this.createOrResolver(type, flowStatus);
         });
         // 退回
       } else if (type == "Reject") {
@@ -1447,7 +1591,7 @@ export default {
           done();
         } else {
           this.form.confirmNodeId_ = this.nodeReject;
-          this.createOrResolver('Reject',flowStatus);
+          this.createOrResolver("Reject", flowStatus);
           done();
         }
       } else {
@@ -1466,7 +1610,7 @@ export default {
           done();
         } else {
           this.selectUsers = this.usersMove;
-          this.createOrResolver('Move',flowStatus);
+          this.createOrResolver("Move", flowStatus);
           done();
         }
       } else {
@@ -1485,7 +1629,7 @@ export default {
           done();
         } else {
           this.form.confirmNodeId_ = this.nodeGoto;
-          this.createOrResolver('Goto',flowStatus);
+          this.createOrResolver("Goto", flowStatus);
           done();
         }
       } else {
@@ -1582,7 +1726,7 @@ body {
       line-height: 3.2rem;
       margin: 0;
       font-weight: normal;
-      padding:0;
+      padding: 0;
     }
     .nextNode {
       display: flex;
@@ -1712,10 +1856,9 @@ body {
 .order-resolver {
   .van-cell-group {
     padding-top: 1rem;
-        margin-top: 1rem;
+    margin-top: 1rem;
   }
 
-  
   .van-cell {
     border: solid 1px #eee;
     margin: 0 15px;
@@ -1735,108 +1878,107 @@ body {
       padding-left: 0.8rem;
     }
   }
-  .suggest{
-    .van-cell{
+  .suggest {
+    .van-cell {
       // border-top: none;
     }
   }
-  .evaluation{
-    .van-cell{
-      border:none;
+  .evaluation {
+    .van-cell {
+      border: none;
     }
   }
   header {
-      display: flex;
-      align-items: center;
-      padding: 1rem;
-      background:#fff;
-    }
-    .statu {
-      color: #fff;
-      padding: .3rem .8rem;
-      background: linear-gradient(left, #4a79df, #7db6ff);
-      border-radius: 5px;
-    }
-    h2.sub{
-      font-size: 1.1rem;
-      font-weight: bold;
-      margin-left: 1rem;
-      padding:0;
-      margin-bottom:0;
-    }
-    h2.base {
-      font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: #fff;
+  }
+  .statu {
+    color: #fff;
+    padding: 0.3rem 0.8rem;
+    background: linear-gradient(left, #4a79df, #7db6ff);
+    border-radius: 5px;
+  }
+  h2.sub {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-left: 1rem;
+    padding: 0;
+    margin-bottom: 0;
+  }
+  h2.base {
+    font-size: 1.1rem;
     font-weight: bold;
     margin-left: 0.8rem;
     margin-bottom: 0.8rem;
     padding-left: 1rem;
-    }
+  }
   .info-container {
     padding: 1rem;
     background: #fff;
   }
-  
-    h2 {
-      font-size: 1rem;
-      font-weight: bold;
-      margin-left: 0.8rem;
-      margin-bottom: 0.8rem;
-      padding-left: 0;
+
+  h2 {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-left: 0.8rem;
+    margin-bottom: 0.8rem;
+    padding-left: 0;
+  }
+  .row {
+    display: flex;
+    padding: 0.3rem 0;
+    border-top: 1px solid #eeeeee;
+    border-left: 1px solid #eeeeee;
+    border-right: 1px solid #eeeeee;
+    &:last-child {
+      border-bottom: 1px solid #eeeeee;
     }
-    .row {
-      display: flex;
-      padding: 0.3rem 0;
-      border-top: 1px solid #eeeeee;
-      border-left: 1px solid #eeeeee;
+    .title {
+      flex: 1;
       border-right: 1px solid #eeeeee;
-      &:last-child {
-        border-bottom: 1px solid #eeeeee;
+      padding: 0 0.8rem;
+    }
+    .value {
+      flex: 3;
+      display: flex;
+      flex-flow: column;
+      justify-content: center;
+      padding: 0 0.8rem;
+      font-size: 0.9rem;
+      a {
+        color: #000;
       }
+    }
+  }
+  .row1 {
+    margin: 0 1.1rem;
+    .title {
+      padding: 0 1.1rem 0 0.8rem;
+    }
+  }
+  .in-container {
+    padding: 0 1.1rem;
+    .row {
+      border-bottom: none;
       .title {
-        flex: 1;
-        border-right: 1px solid #eeeeee;
-        padding: 0 0.8rem;
+        padding: 0 1.1rem 0 0.8rem;
       }
       .value {
-        flex: 3;
-        display: flex;
-        flex-flow: column;
-        justify-content: center;
-        padding: 0 0.8rem;
-        font-size: 0.9rem;
-        a{
-          color:#000;
-        }
-      }
-    }
-    .row1{
-      margin: 0 1.1rem;
-      .title{
-        padding: 0 1.1rem 0 .8rem;
-      }
-    }
-    .in-container{
-    padding: 0 1.1rem;
-    .row{
-      border-bottom:none;
-      .title{
-        padding: 0 1.1rem 0 .8rem;
-      }
-      .value{
-        .val-list{
+        .val-list {
           border-bottom: dashed 1px #eee;
         }
-        p{
-          margin-bottom:0.4rem;
-          margin-top:0.4rem;
-          strong{
+        p {
+          margin-bottom: 0.4rem;
+          margin-top: 0.4rem;
+          strong {
             padding-left: 1.07rem;
           }
         }
       }
     }
   }
-  
 }
 .assets {
   background: #fff;
@@ -1850,8 +1992,8 @@ body {
     font-size: 1rem;
     color: #000;
     font-weight: normal;
-    margin:0;
-    padding:0;
+    margin: 0;
+    padding: 0;
   }
   .ificat {
     display: flex;

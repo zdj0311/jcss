@@ -82,7 +82,7 @@
   import { Dialog } from 'vant';
   import tool from 'utils/tool'
   import $ from 'jquery'
-  import {getCustomerDic,getBtDic,startWorkflow,saveWorkflow,getAssetTypeTop,getAssetType,getStatisticCount,getUrgencyDic} from 'controller/order-create'
+  import {getCustomerDic,getCustomerAndJcAllDeptAndUser,getBtDic,startWorkflow,saveWorkflow,getAssetTypeTop,getAssetType,getStatisticCount,getUrgencyDic} from 'controller/order-create'
   import form from 'utils/form-all'
   export default {
     name: 'home_page',
@@ -239,7 +239,7 @@
       },
       // 获取所有人
       getAllUser(nextNodesList){
-        getCustomerDic.bind(this)().then(res=>{
+        getCustomerAndJcAllDeptAndUser.bind(this)(this.form.customerOrg).then(res=>{
           let user = [];
           let assignees = tool.showAll(res,user); 
           //单一签核(人员树单选)
@@ -592,6 +592,8 @@
           display: flex;
           padding-top:0.8rem;
           flex-wrap: wrap;
+          height: 29vh;
+          overflow-y: scroll;
           li{
             width:49%;
             margin-right:2%;
