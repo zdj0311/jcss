@@ -1,3 +1,3 @@
-window.api = '/jcstd/'
-window.$vconsole = false
+window.api = '/jcss/'
+window.$vconsole = true
 
