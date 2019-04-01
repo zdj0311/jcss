@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import maMain from '@/pages/ma-main'
 import HomePage from '@/pages/home-page'
 import OrderList from '@/pages/order-list'
+import OrderHistory from '@/pages/order-history'
 import Feedback from '@/pages/feedback'
 import userCenter from '@/pages/user-center'
 import ServiceTrace from '@/pages/service-trace'
@@ -44,6 +45,14 @@ export default new Router({
       path: '/order-list/:_type/:_mode',
       name: 'order_list',
       component: OrderList,
+      meta: {
+        keepAlive: false
+      }
+    },// 历史工单
+    {
+      path: '/order-history/:_type/:_mode',
+      name: 'order_history',
+      component: OrderHistory,
       meta: {
         keepAlive: false
       }

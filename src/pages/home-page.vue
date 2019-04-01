@@ -4,6 +4,16 @@
     <div class="create">
       <div class="create-head">
         <div class="head-a">
+          <span class="head-icon icon-l"></span>
+          <span class="head-font">历史工单</span>
+        </div>
+        <div class="head-b" @click="routerToHistory">
+          <span class="head-font">查看历史</span>
+          <span class="head-icon icon-arrow"></span>
+        </div>
+      </div> 
+      <div class="create-head head-create">
+        <div class="head-a">
           <span class="head-icon icon"></span>
           <span class="head-font">快速创建工单</span>
         </div>
@@ -24,10 +34,15 @@
         <div class="model">
           <div class="model-header" v-if="form.assets">
             <span class="l-icon"><img :src="addPath(form.assets.iconUrl)"/></span>
-            <span class="l-f">{{form.assets.assetsTypeName}}报单</span>   
+            <span class="l-f">创建工单确认</span>   
           </div>
           <div class="model-content">
-            <h2 class="downNode">下一节点</h2>
+            <div class="con-line">
+              <label>资产分类</label>
+              <span>{{form.assets?form.assets.assetsTypeName:''}}报单</span>
+            </div>
+            <div class="work-con" v-if="nextNodesList.length!=1">
+              <h2 class="downNode">下一节点</h2>
               <ul class="nextNode">
                 <li v-for="(item,index) in nextNodesList" :key="index">
                   <input v-if="curNode.choice=='single'" type='radio' v-model='selectNodes' :value='item.componentId' name="nodes"/>
@@ -42,6 +57,8 @@
                   <span>{{item.displayName}}</span>
                 </li>
               </ul>
+            </div>
+            <div class="work-des">感谢使用嘉诚运维服务平台，您的工单创建成功后，我们将第一时间处理，您的满意是我们前进的动力。</div>
           </div>
         </div>
       </van-dialog>
@@ -88,6 +105,7 @@
     name: 'home_page',
     data() {
       return {
+        user:{},
         banner,
         census:[{name:'我的待办',value:'TODO',img:'c-ico',bg:'#985ffc',bimg:'static/img/todo.png'},
         {name:'在办工单',value:'UN_END',img:'b-ico',bg:'#4884fe',bimg:'static/img/un_end.png'},
@@ -113,12 +131,13 @@
       }
     },
     mounted() {
+      this.user = this.$store.state.admin.user;
       this.getInfo();
       this.selectTab(this.active);
     },
     methods: {
       getInfo(){
-        getAssetTypeTop.bind(this)(this.$store.state.admin.user.orgId).then(res=>{
+        getAssetTypeTop.bind(this)(this.user.orgId).then(res=>{
           let copyArr =  res.slice(0,res.length)
           let len = Math.ceil(res.length/6);
           for(var i=0;i<len;i++){
@@ -143,6 +162,15 @@
       routerTo() {
         this.$router.push({
           name: 'order_create'
+        })
+      },
+      routerToHistory() {
+        this.$router.push({
+          name: 'order_history',
+          params: {
+            _type: "Day",
+            _mode: "UN_END"
+          }
         })
       },
       toList(item){
@@ -175,8 +203,8 @@
               this.nextNodesList = res.nextNodesList;
               this.curNode = res.curNode;
               this.selectNodes = res.nextNodesList[0].componentId;  
-              this.show = true;
               this.toSelectUser();
+              this.show = true;
             })
           })
         })
@@ -293,6 +321,21 @@
         } else {
           done();
         }
+      },
+      saveWork(done){
+        var formData = this.getForm();
+          saveWorkflow.bind(this)(formData).then(res=>{
+            this.$router.push({
+              name:'order_list',
+              params:{
+                _type:'Day',
+                _mode:'TODO'
+              }
+            })
+          if(done){
+            done();
+          } 
+        })
       }
     }
   }
@@ -311,12 +354,14 @@
       height: 52vw;
       background-size: 100% 52vw;
     }
-    .create{
-      background: #fff;
-      margin-top: 0.8rem;
+    .create{   
       border-top:solid 1px #eee;
       border-bottom:solid 1px #eee;
+      .head-create{
+        margin-top: 0.8rem;
+      }
       .create-head{
+        background: #fff;
         display: flex;
         justify-content: space-between;
         padding: 0.8rem 1.2rem;
@@ -336,6 +381,10 @@
           margin-top: -3px;
           &.icon-a{
             background: url('~@/assets/icon-w.png') no-repeat;
+            background-size: 1.3rem 1.3rem;
+          }
+          &.icon-l{
+            background: url('~@/assets/icon-l.png') no-repeat;
             background-size: 1.3rem 1.3rem;
           }
         }
@@ -462,7 +511,9 @@
         }
       }
       .van-swipe{
-        padding-bottom:1.8rem;
+        margin-bottom: 0.8rem;
+        background: #fff;
+        padding-bottom: 1.6rem;
         .van-swipe-item{
           display: flex;
           flex-wrap: wrap;
@@ -520,6 +571,7 @@
         }
       }
       .van-swipe__indicators{
+        bottom:5px;
         .van-swipe__indicator{
           background-color: #ddd;
           width: 0.8rem;
@@ -531,7 +583,7 @@
       }
     }
     .work{
-      padding-bottom: 0.2rem;
+      padding-bottom: 0.8rem;
       .create-head{
         display: block;
       }
@@ -562,6 +614,30 @@
       }
       .model-content{
         padding:0.8rem;
+        .con-line{
+          padding-bottom:0.8rem;
+          border-bottom:solid 1px #ddd;
+          display: flex;
+          label{
+            display: inline-block;
+            line-height: 2.5rem;
+            padding-right: 0.4rem;
+            width: 24%;
+          }
+          span{
+            width:76%;
+            height: 2.5rem;
+            line-height: 2.5rem;
+            background:#f5f5f5;
+            display: inline-block;
+            border:solid 1px #eee;
+            border-radius: 3px;
+            padding-left:0.8rem;
+          }
+        }
+        .work-con{
+          padding-top: 0.8rem;
+        }
         .downNode{
           font-size: 1rem;
           margin-bottom: 0.8rem;
@@ -592,8 +668,10 @@
           display: flex;
           padding-top:0.8rem;
           flex-wrap: wrap;
-          height: 29vh;
+          max-height: 29vh;
           overflow-y: scroll;
+          padding-bottom: 0.8rem;
+          border-bottom: solid 1px #ddd;
           li{
             width:49%;
             margin-right:2%;
@@ -609,6 +687,11 @@
               margin-right: 0;
             }
           }
+        }
+        .work-des{
+          color: #ff3d31;
+          font-size: 1rem;
+          padding: 0.8rem 0 0.4rem 0;
         }
       }
     }
