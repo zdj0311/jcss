@@ -154,16 +154,17 @@
         this.infiniteLoading = false
       },
       onScroll (e) {
+        console.log(444)
         if (this.infiniteLoading) {
           return
         }
         let outerHeight = this.$el.clientHeight
-        let innerHeight = this.$el.querySelector('.scroll-inner').clientHeight
+        let innerHeight = this.$el.querySelector('.scroll-inner').clientHeight;
         let scrollTop = this.$el.scrollTop
         let ptrHeight = this.onRefresh ? this.$el.querySelector('.pull-to-refresh-layer').clientHeight : 0
         let infiniteHeight = this.$el.querySelector('.infinite-layer').clientHeight
         let bottom = innerHeight - outerHeight - scrollTop - ptrHeight
-
+        
         if (bottom < infiniteHeight) this.infinite()
       }
     }

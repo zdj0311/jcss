@@ -3,6 +3,7 @@
     <van-tabbar v-model="active" @change="change">
     <van-tabbar-item icon="home-o">首页</van-tabbar-item>
       <van-tabbar-item icon="search">我的工单</van-tabbar-item>
+      <van-tabbar-item icon="clock-o">历史工单</van-tabbar-item>
       <van-tabbar-item icon="friends-o">意见反馈</van-tabbar-item>
       <van-tabbar-item icon="setting-o">个人中心</van-tabbar-item>
     </van-tabbar>
@@ -24,7 +25,7 @@
     data() {
       return {
         active: 0,
-        dictionary:['home_page','order_list','feedback','user_center']
+        dictionary:['home_page','order_list','order_history','feedback','user_center']
       }
     },
     computed: {
@@ -39,6 +40,11 @@
           this.$router.push({name:this.dictionary[i],params:{
             _type:'Day',
             _mode:'TODO'
+          }})
+        }else if(i===2){
+          this.$router.push({name:this.dictionary[i],params:{
+            _type: "Day",
+            _mode: "UN_END"
           }})
         }else {
           this.$router.push({name:this.dictionary[i]})

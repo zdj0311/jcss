@@ -2,7 +2,7 @@
   <div class="home-page">
     <div class="banner-r" :style="{backgroundImage:'url('+banner+')'}"></div>
     <div class="create">
-      <div class="create-head">
+      <!-- <div class="create-head">
         <div class="head-a">
           <span class="head-icon icon-l"></span>
           <span class="head-font">历史工单</span>
@@ -11,7 +11,7 @@
           <span class="head-font">查看历史</span>
           <span class="head-icon icon-arrow"></span>
         </div>
-      </div> 
+      </div>  -->
       <div class="create-head head-create">
         <div class="head-a">
           <span class="head-icon icon"></span>
@@ -33,13 +33,23 @@
       <van-dialog v-model="show" show-cancel-button :before-close="beforeClose">
         <div class="model">
           <div class="model-header" v-if="form.assets">
-            <span class="l-icon"><img :src="addPath(form.assets.iconUrl)"/></span>
+            <span class="l-icon"><img :src="kicon"/></span>
             <span class="l-f">创建工单确认</span>   
           </div>
           <div class="model-content">
-            <div class="con-line">
-              <label>资产分类</label>
-              <span>{{form.assets?form.assets.assetsTypeName:''}}报单</span>
+            <div class="line">
+              <div class="con-line">
+                <label>资产分类：</label>
+                <span>{{form.assets?form.assets.assetsTypeName:''}}报单</span>
+              </div>
+              <div class="con-line">
+                <label>联系人：</label>
+                <span>{{user.userName}}</span>
+              </div>
+              <div class="con-line">
+                <label>联系电话：</label>
+                <span>{{user.mobile}}</span>
+              </div>
             </div>
             <div class="work-con" v-if="nextNodesList.length!=1">
               <h2 class="downNode">下一节点</h2>
@@ -96,6 +106,7 @@
 
 <script> 
   import banner from 'assets/banner.jpg'
+  import kicon from 'assets/kicon.png'
   import { Dialog } from 'vant';
   import tool from 'utils/tool'
   import $ from 'jquery'
@@ -107,6 +118,7 @@
       return {
         user:{},
         banner,
+        kicon,
         census:[{name:'我的待办',value:'TODO',img:'c-ico',bg:'#985ffc',bimg:'static/img/todo.png'},
         {name:'在办工单',value:'UN_END',img:'b-ico',bg:'#4884fe',bimg:'static/img/un_end.png'},
         {name:'超时工单',value:'OUTTIME',img:'d-ico',bg:'#f07616',bimg:'static/img/outtime.png'},
@@ -164,15 +176,15 @@
           name: 'order_create'
         })
       },
-      routerToHistory() {
-        this.$router.push({
-          name: 'order_history',
-          params: {
-            _type: "Day",
-            _mode: "UN_END"
-          }
-        })
-      },
+      // routerToHistory() {
+      //   this.$router.push({
+      //     name: 'order_history',
+      //     params: {
+      //       _type: "Day",
+      //       _mode: "UN_END"
+      //     }
+      //   })
+      // },
       toList(item){
         this.$router.push({
           name: 'order_list',
@@ -355,10 +367,9 @@
       background-size: 100% 52vw;
     }
     .create{   
-      border-top:solid 1px #eee;
+      // border-top:solid 1px #eee;
       border-bottom:solid 1px #eee;
       .head-create{
-        margin-top: 0.8rem;
       }
       .create-head{
         background: #fff;
@@ -584,55 +595,52 @@
     }
     .work{
       padding-bottom: 0.8rem;
+      background:#fff;
+      margin-bottom:0.8rem;
       .create-head{
         display: block;
       }
     }
     .model{
       .model-header{
-        height:5.18rem;
-        background: linear-gradient(to bottom right, #573bc2 , #9639b4);
-        line-height: 5.18rem;
+        height: 3.04rem;
+        line-height: 3.04rem;
+        background: #4a79df;
         padding-left: 0.8rem;
         .l-icon{
-          width: 3rem;
-          height: 3rem;
           display: inline-block;
           vertical-align: middle;
-          margin-top: -3px;
+          margin-top: 5px;
           img{
-            width: 100%;
-            height: 100%;
+            width: 1.29rem;
+            height: 1.5rem;
           }
         }
         .l-f{
-          font-size: 1.5rem;
+          font-size: 1.14rem;
           font-weight: bold;
           color: #fff;
-          margin-left: 0.8rem;
+          margin-left: .71rem;
         }
       }
       .model-content{
         padding:0.8rem;
-        .con-line{
-          padding-bottom:0.8rem;
+        .line{
           border-bottom:solid 1px #ddd;
+          padding-bottom:0.8rem;
+        }
+        .con-line{
+          font-size: 1rem;
           display: flex;
           label{
             display: inline-block;
-            line-height: 2.5rem;
+            line-height: 2rem;
             padding-right: 0.4rem;
-            width: 24%;
+            width:31%;
+            text-align: right;
           }
           span{
-            width:76%;
-            height: 2.5rem;
-            line-height: 2.5rem;
-            background:#f5f5f5;
-            display: inline-block;
-            border:solid 1px #eee;
-            border-radius: 3px;
-            padding-left:0.8rem;
+            line-height: 2rem;
           }
         }
         .work-con{
@@ -689,7 +697,7 @@
           }
         }
         .work-des{
-          color: #ff3d31;
+          color: #999999;
           font-size: 1rem;
           padding: 0.8rem 0 0.4rem 0;
         }
