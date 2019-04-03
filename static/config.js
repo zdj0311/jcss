@@ -1,3 +1,3 @@
 window.api = '/jcss/'
-window.$vconsole = true
+window.$vconsole = false
 

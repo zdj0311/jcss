@@ -1,5 +1,10 @@
 <template>
   <div class="order-create">
+    <!--以后可能会去掉 -->
+    <!--<header class="order-header">
+      <img :src="exam" />
+      <h2>创建工单</h2>
+    </header>-->
     <div id="check">
       <!--基本信息 -->
       <div class="info-container">
@@ -18,27 +23,28 @@
         <!-- 事件描述 -->
         <form-item name="billPlan" v-validate="'required'" type="textarea" v-model="billPlan" label="事件描述" required 
           :errorMessage="errors.first('billPlan')"></form-item>
-        <show-more>
+        <!--<show-more>-->
           <!-- 申请人 -->
-          <form-item name="userName" v-model="user.userName" label="申请人" readonly></form-item>
+          <!--<form-item name="userName" v-model="user.userName" label="申请人" readonly></form-item>-->
           <!-- 联系方式 -->
-          <form-item name="mobile" v-model="user.mobile" label="联系方式" readonly></form-item>
-        </show-more>
+          <!--<form-item name="mobile" v-model="user.mobile" label="联系方式" readonly></form-item>-->
+        <!--</show-more>-->
       </div>
     <!--资产信息 -->
-      <div class="info-container">
+      <div class="info-container" v-if="assetTypeDic.length>0">
         <h2>资产信息</h2>
         <!-- 资产分类 -->
         <div class="asset-container">
           <h3>资产分类</h3>
           <ul class="ificat">
             <li v-for="(item,index) in assetTypeDic" :key="index" :class="{active:index === itemIndex}" @click="changeAsset(index)">
+              <img :src="check"/>
               <span :dataId="item.id">{{item.assetsTypeName}}</span>
             </li>
           </ul>
         </div>
         <!-- 关联资产 -->
-        <div class="asset-container">
+        <div class="asset-container related-asset" v-if="relatedAsset.length>0">
           <h3>关联资产</h3>
           <ul class="ificat">
           <li v-for="(item,index) in relatedAsset" :key="index">
@@ -111,10 +117,13 @@ import { getCustomerOrgDic,getBtDic,getUrgencyDic,getAssetType,getAssetsList,get
 import tool from "utils/tool"
 import showMore from 'components/show-more'
 import formItem from 'components/form-item'
+import exam from 'assets/img/exam.png'
+import check from 'assets/check.png'
 export default {
   components: { showMore,formItem },
   data() {
     return {
+      exam,check,
       user: '',
       // 表单数据项
       customerOrg:{}, // 当前客户
@@ -290,6 +299,8 @@ export default {
       form.append('workflowBean.confirmNodeId_',this.confirmNodeId_)
       form.append('workflowBean.confirmRouteId_',this.confirmRouteId_)
       form.append("workflowBean.workflowVar_['wUserType']",this.wUserType)
+      // 页面没有，但是后台不传会有异常
+      form.append("workflowBean.workflowVar_['wCustomerUserId']",'')
       form.append("workflowBean.suggestId_", "workOrderSuggest")
       form.append("workflowBean.signContainerId_","workOrderSuggest_" + new Date().getTime())
       form.append("workflowBean.submitType_","Submit")
@@ -497,7 +508,24 @@ export default {
 </script>
 <style lang='scss'>
   .order-create {
-    height:100vh;
+    .order-header {
+      display:flex;
+      background:#fff;
+      margin-bottom:1rem;
+      justify-content: center;
+      align-items: center;
+      padding:.6rem 0;
+      img {
+        width:30px;
+        height:auto;
+        margin-right:1rem;
+      }
+      h2 {
+        font-size:1.2rem;
+        font-weight: bold;
+      }
+    }
+    background:#f2f2f2;
     .info-container {
       padding-top:1rem;
       background:#fff;
@@ -506,6 +534,9 @@ export default {
         font-size: 1.1rem;
         font-weight: bold;
         margin-left: 1rem;
+      }
+      .related-asset {
+        border-top:1px solid #f0f0f0;
       }
       .asset-container {
         padding:1rem 1rem 0 1rem;
@@ -523,29 +554,30 @@ export default {
           &:last-child {
             margin-right: 0;
           }
-          height: 2.58rem;
-          line-height: 2.58rem;
-          font-size: 1rem;
+          display:flex;
+          align-items:center;
+          padding:.4rem;
           color: #000;
           background: #f5f5f5;
           border: solid 1px #e9e9e9;
-          text-align: center;
+          img {
+            width:1.07rem;
+            height:1.07rem;
+            background:#ddd;
+            margin:0 .6rem;
+          }
           &.active {
-            background: #4a79df;
-            color: #fff;
+            /*background: #4a79df;
+            color: #fff;*/
+           img {
+              background:#4a79df;
+            }
           }
         }
       }
       /* 下一节点*/
      .downNode {
-      font-size: 1rem;
-      font-weight: bold;
-      color: #000;
-      height: 3.2rem;
-      line-height: 3.2rem;
-      margin: 0;
-      font-weight: normal;
-      padding: 0;
+      margin-bottom:1rem;
     }
     .nextNode {
       display: flex;

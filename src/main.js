@@ -37,6 +37,7 @@ if(process.env.NODE_ENV === 'development' && config.dev.mock) {
 
 let info = false
 router.beforeEach((to, from, next) => {
+  if(to.meta.title) document.title = to.meta.title
   let user = localStorage.getItem('user')
   if(info && to.name === 'auth') {
     next()
