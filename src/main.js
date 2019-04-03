@@ -17,7 +17,9 @@ import VConsole from 'vconsole/dist/vconsole.min.js'
 import 'element-ui/lib/theme-chalk/index.css';
 import 'vant/lib/index.css'
 import store from 'store'
+import 'utils/validate'
 import init from 'utils/init'
+
 
 Vue._ = Vue.prototype._ = lodash
 Vue.config.productionTip = false

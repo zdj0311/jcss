@@ -1,5 +1,6 @@
 <template>
   <div class="order-form">
+    <!-- 评价页 -->
     <div class="evaluation" v-if="mode=='evaluation'">
       <div class="eva-head">
         <div class="eva-h">
@@ -20,6 +21,7 @@
     </div>
     <div class="order" v-else>
       <header v-if="fData">
+        <!-- 办理，不是创建 -->
         <span class="statu">{{fData.billData.billFlowStatusValue}}</span>
         <h2 class="sub">{{fData.billData.customerOrgName}}-{{fData.billData.subject}}</h2>
       </header>
@@ -384,24 +386,24 @@
 
 <script>
 import {
-  getCustomerOrgDic,
-  getBtDic,
-  getCustomerDic,
-  getCustomerAndJcAllDeptAndUser,
-  getUrgencyDic,
-  getProjectDic,
-  getProjectSubDic,
-  getAssetType,
-  getAssetsList,
-  startWorkflow,
-  loadWorkflow,
-  updateWorkflow,
-  upload,
-  getNextNodes,
-  getGotoNodes,
-  deleteFile,
-  evaluation,
-  saveWorkflow
+getCustomerOrgDic,
+getBtDic,
+getCustomerDic,
+getCustomerAndJcAllDeptAndUser,
+getUrgencyDic,
+getProjectDic,
+getProjectSubDic,
+getAssetType,
+getAssetsList,
+startWorkflow,
+loadWorkflow,
+updateWorkflow,
+upload,
+getNextNodes,
+getGotoNodes,
+deleteFile,
+evaluation,
+saveWorkflow
 } from "controller/order-create";
 import tool from "utils/tool";
 import { Dialog } from "vant";

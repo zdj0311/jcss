@@ -1,4 +1,5 @@
 import Vue from 'vue' 
+import '../directive'
 import config from '../../config'
 
 Vue.mixin({
