@@ -1,49 +1,61 @@
 <template>
-  <div class="auth">
-    <header class="header">
-      <img class="avatar" :src="user.wxUser&&user.wxUser.headImgUrl || avatar"/>
-      <!-- 未注册-->
-      <div  v-if="user.userStatus === 'UNRegister'" class="statu-mark unregister">
-        <div class="img-container"><img :src="unregister"/></div>
-        <span>未认证</span>
-      </div>
-      <!-- 注册失败-->
-      <div v-if="user.userStatus === 'deny'" class="statu-mark fail">
-        <div class="img-container"><img :src="fail"/></div>
-        <span>认证失败</span>
-      </div>
-      <!-- 审核 -->
-      <div  v-if="user.userStatus === 'register'" class="statu-mark register">
-        <div class="img-container"><img :src="register"/></div>
-        <span>认证中</span>
-      </div>
-      <div  v-if="user.userStatus === 'created'" class="">
-        <span>{{ user.wxUser&&user.wxUser.nicknameuser || user.userName }}</span>
-      </div>
-    </header>
-    <van-cell-group>
-      <template v-for="(item,index) in table">
-        <van-field v-if="(item.key_name === 'duty' || item.key_name === 'OrgIdValue') && user.userStatus !== 'register'" v-model="form[item.key_name]&&form[item.key_name]['text']" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" :readonly="item.readonly" @focus="user.userStatus !== 'created' && showPicker(item)" />
-        <van-field v-if="(item.key_name === 'duty' || item.key_name === 'OrgIdValue') && (user.userStatus === 'register')" v-model="form[item.key_name]&&form[item.key_name]['text']" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" :readonly="item.readonly" />
-        <van-field v-if="item.key_name !== 'duty' && item.key_name !== 'OrgIdValue'" :maxlength="item.length" v-model="form[item.key_name]" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" @input="!item.readonly?item.validate(index):''" :readonly="item.readonly" />
-      </template>
-      <!--<van-field v-model="form.userName" label="姓名" placeholder="请输入姓名" error-message="" @blur="validateUserName(form.userName)"/>
-      <van-field v-model="form.mobile" label="联系电话" placeholder="请输入联系电话" error-message="" @blur="validateMobile(form.mobile)"/>
-      <van-field v-model="form.roomNo" label="房间号" placeholder="请输入房间号" error-message="" @blur="validateRoomNo(form.roomNo)"/>
-      <van-field v-model="form.duty" label="职务" placeholder="请选择职务" error-message="" @focus="showPicker" @blur="validateduty(form.duty)"/>
-      <van-field v-model="form.cardNo" label="身份证号" placeholder="请输入身份证号" error-message="" @blur="validateCardNo(form.cardNo)"/>-->
-    </van-cell-group>
-    <van-popup v-model="show" class="pop-container" position="bottom">
-      <van-picker :columns="pickerArr" @change="onChange" show-toolbar @cancel="cancel" @confirm="confirm"/>
-    </van-popup>
-    <!-- 未注册 -->
-    <van-button v-if="user.userStatus === 'UNRegister'" class="submit-btn" size="large" @click="submit('已提交认证，请耐心等待！')">认证</van-button>
-    <!-- 注册失败 -->
-    <van-button v-if="user.userStatus === 'deny'" class="submit-btn" size="large" @click="submit('已提交认证，请耐心等待！')">重新认证</van-button>
-    <!-- 审核 user.userStatus === 'register'-->
-    <van-button v-if="user.userStatus === 'register'" disabled class="submit-btn" size="large">努力认证中，请您稍等...</van-button>
-    <!-- 审核 user.userStatus === 'created'-->
-    <van-button v-if="user.userStatus === 'created'" class="submit-btn" size="large" @click="submit('保存成功！')">保存</van-button>
+  <div>
+    <div class="search" v-if="searchIn">
+      <van-search v-model="value" placeholder="请输入搜索所在单位" show-action @keyup="onSearch" @cancel="onCancel">
+      </van-search>
+      <ul class="search-list">
+        <li v-for="(item,index) in searchList" :key="index" v-if="searchList.length>0" @click="searchResult(item)">
+          <span>{{item.text}}</span>
+        </li>
+        <div style="text-align:center;margin-top:50%" v-if="searchList.length==0">暂无数据</div>
+      </ul>
+    </div>
+    <div class="auth" v-if="!searchIn">
+      <header class="header">
+        <img class="avatar" :src="user.wxUser&&user.wxUser.headImgUrl || avatar"/>
+        <!-- 未注册-->
+        <div  v-if="user.userStatus === 'UNRegister'" class="statu-mark unregister">
+          <div class="img-container"><img :src="unregister"/></div>
+          <span>未认证</span>
+        </div>
+        <!-- 注册失败-->
+        <div v-if="user.userStatus === 'deny'" class="statu-mark fail">
+          <div class="img-container"><img :src="fail"/></div>
+          <span>认证失败</span>
+        </div>
+        <!-- 审核 -->
+        <div  v-if="user.userStatus === 'register'" class="statu-mark register">
+          <div class="img-container"><img :src="register"/></div>
+          <span>认证中</span>
+        </div>
+        <div  v-if="user.userStatus === 'created'" class="">
+          <span>{{ user.wxUser&&user.wxUser.nicknameuser || user.userName }}</span>
+        </div>
+      </header>
+      <van-cell-group>
+        <template v-for="(item,index) in table">
+          <van-field v-if="(item.key_name === 'OrgIdValue') && user.userStatus !== 'register'" v-model="form[item.key_name]&&form[item.key_name]['text']" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" :readonly="item.readonly" @focus="user.userStatus !== 'created' && showSearch()" />
+          <van-field v-if="(item.key_name === 'OrgIdValue') && (user.userStatus === 'register')" v-model="form[item.key_name]&&form[item.key_name]['text']" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" :readonly="item.readonly" />
+          <van-field v-if="item.key_name !== 'OrgIdValue'" :maxlength="item.length" v-model="form[item.key_name]" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" @input="!item.readonly?item.validate(index):''" :readonly="item.readonly"/>
+        </template>
+        <!--<van-field v-model="form.userName" label="姓名" placeholder="请输入姓名" error-message="" @blur="validateUserName(form.userName)"/>
+        <van-field v-model="form.mobile" label="联系电话" placeholder="请输入联系电话" error-message="" @blur="validateMobile(form.mobile)"/>
+        <van-field v-model="form.roomNo" label="房间号" placeholder="请输入房间号" error-message="" @blur="validateRoomNo(form.roomNo)"/>
+        <van-field v-model="form.duty" label="职务" placeholder="请选择职务" error-message="" @focus="showPicker" @blur="validateduty(form.duty)"/>
+        <van-field v-model="form.cardNo" label="身份证号" placeholder="请输入身份证号" error-message="" @blur="validateCardNo(form.cardNo)"/>-->
+      </van-cell-group>
+      <van-popup v-model="show" class="pop-container" position="bottom">
+        <van-picker :columns="pickerArr" @change="onChange" show-toolbar @cancel="cancel" @confirm="confirm"/>
+      </van-popup>
+      <!-- 未注册 -->
+      <van-button v-if="user.userStatus === 'UNRegister'" class="submit-btn" size="large" @click="submit('已提交认证，请耐心等待！')">认证</van-button>
+      <!-- 注册失败 -->
+      <van-button v-if="user.userStatus === 'deny'" class="submit-btn" size="large" @click="submit('已提交认证，请耐心等待！')">重新认证</van-button>
+      <!-- 审核 user.userStatus === 'register'-->
+      <van-button v-if="user.userStatus === 'register'" disabled class="submit-btn" size="large">努力认证中，请您稍等...</van-button>
+      <!-- 审核 user.userStatus === 'created'-->
+      <van-button v-if="user.userStatus === 'created'" class="submit-btn" size="large" @click="submit('保存成功！')">保存</van-button>
+    </div>
   </div>
 </template>
 
@@ -69,6 +81,10 @@
         unregister,
         fail,
         user:this.$store.state.admin.user,
+        value: '',
+        searchIn: false,
+        search:'',
+        searchList: [],
         pickerArr:[],
         currentProperty:'',
         postDic:[],
@@ -133,25 +149,23 @@
     },
     
     created() {
-      console.log(this.user)
       // 获取职务字典项 dutyId
       getPostDic.bind(this)('dutyId').then(res=>{
         this.postDic = res
       })
-      // 获取所在单位字典项
-      getCompony.bind(this)().then(res=>{
-        console.log(res)
-        this.componys = res
-      })
       this.initForm()
       this.readonlyTable()
+    },
+    watch:{
+      value(val) {
+        this.search = val;
+      }
     },
     methods: {
       init() {
         let proxy_key = ''
         if(process&&process.env&&process.env.NODE_ENV === 'proxy') proxy_key = 'proxy'
         getUser(proxy_key).then(res=>{
-          console.log(res.data.data)
           this.$store.commit('admin/updateUser',res.data.data)
           this.user = this.$store.state.admin.user
           this.initForm()
@@ -214,6 +228,13 @@
           })
         }
       },
+      searchResult(it){
+        this.form.OrgIdValue = it;
+        this.searchIn = false;
+      },
+      showSearch(){
+        this.searchIn = true;
+      },
       // 显示 picker
       showPicker(item) {
         this.currentProperty = this._.cloneDeep(item)
@@ -227,6 +248,29 @@
           }
           this.show = true
         }
+      },
+      onCancel(){
+        this.searchList = [];
+        this.searchIn = false;
+      },
+      onSearch(){
+        let _this = this;
+        // 获取所在单位字典项
+        getCompony.bind(this)().then(res=>{
+          this.componys = res;
+          if (this.search) {
+            this.componys = this.componys.filter(function(compony) {
+              return Object.keys(compony).some(function(key) {
+                if(key=='text'){
+                  return String(compony[key]).toLowerCase().indexOf(_this.search) > -1
+                }
+              })
+            })
+            this.searchList = this.componys;
+          }else{
+            this.searchList = []
+          }
+        })
       },
       // 获取picker值
       onChange(v) {
@@ -324,6 +368,14 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss">
+  .search-list{
+    padding:0 16px;
+    li{
+      line-height: 40px;
+      border-bottom: solid 1px #eee;
+      height: 40px;
+    }
+  }
   .auth {
     height:100%;
     background:#F2F2F2;

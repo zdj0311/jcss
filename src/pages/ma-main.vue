@@ -37,11 +37,14 @@
         if(name === 'order_list') {
           this.active = 1
         }
-        if(name === 'feedback') {
+        if(name === 'order_history') {
           this.active = 2
         }
-        if(name === 'user_center') {
+        if(name === 'feedback') {
           this.active = 3
+        }
+        if(name === 'user_center') {
+          this.active = 4
         }
       }
     }
