@@ -65,7 +65,7 @@
           label="子项目名称" @confirm="confirm($event,'subProject')"></form-item>
       </div>
       <!--下一节点 -->
-      <div class="info-container">
+      <!--<div class="info-container">
         <h2 class="downNode">下一节点</h2>
         <ul class="nextNode">
           <li v-for="(item,index) in nextNodesList" :key="index">
@@ -81,7 +81,30 @@
             <span>{{item.displayName}}</span>
           </li>
         </ul>
-      </div>
+      </div>-->
+      <van-dialog v-model="showNode" show-cancel-button :before-close="beforeCloseNode">
+        <div class="model">
+          <div class="model-content">
+            <div class="work-con">
+              <h2 class="downNode">下一节点</h2>
+              <ul class="nextNode">
+                <li v-for="(item,index) in nextNodesList" :key="index">
+                  <input v-if="curNode.choice=='single'" type='radio' v-model='selectNodes' :value='item.componentId' name="nodes"/>
+                  <input v-else type='checkbox' v-model='selectNodes' :value='item.componentId'/>
+                  <span>{{item.name}}</span>
+                </li>        
+              </ul>
+              <ul class="nextUser clearfix">
+                <li v-for="(item,index) in chooseUser" :key="index">
+                  <input v-if="chooseUser.choice=='single'" v-model="selectUsers" class="users" type="radio" :value='item.id' name="users">
+                  <input v-else v-model="selectUsers" class="users" type="checkbox" :value='item.id'>
+                  <span>{{item.displayName}}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </van-dialog>
     <!--附件信息 -->
       <div class="info-container">
         <h2>附件信息</h2>
@@ -163,6 +186,7 @@ export default {
       chooseUser:[], // 选择的人
       confirmNodeId_: '',
       confirmRouteId_: '',
+      showNode:false, // 下一节点弹出框
     };
   },
   filters: {
@@ -442,13 +466,19 @@ export default {
       this.itemIndex = index
     },
     submit() {
+      this.showNode = true
+    },
+    beforeCloseNode(action, done) {
       if(!this.clickAble) return
-      this.$validator.validateAll().then(result=>{
-        if(result) {
-          this.clickAble = false
-          this.createOrResolver()
-        }
-      })
+      if(action) {
+        this.$validator.validateAll().then(result=>{
+          if(result) {
+            this.clickAble = false
+            this.createOrResolver()
+          }
+          done()
+        })
+      }else { done() }
     },
     confirm(v,property) {
       this[property] = v
@@ -577,50 +607,6 @@ export default {
           }
         }
       }
-      /* 下一节点*/
-     .downNode {
-      margin-bottom:1rem;
-    }
-    .nextNode {
-      display: flex;
-      flex-wrap: wrap;
-      padding:0 1rem;
-      li {
-        width: 49%;
-        height: 2.5rem;
-        line-height: 2.5rem;
-        background: #f5f5f5;
-        border: solid 1px #e9e9e9;
-        border-radius: 3px;
-        margin-right: 2%;
-        margin-bottom: 0.4rem;
-        &:nth-child(even) {
-          margin-right: 0;
-        }
-        padding-left: 0.8rem;
-      }
-      padding-bottom: 0.8rem;
-      border-bottom: dashed 1px #ddd;
-    }
-    .nextUser {
-      display: flex;
-      padding:.8rem 1rem 0 1rem;
-      flex-wrap: wrap;
-      li {
-        width: 49%;
-        margin-right: 2%;
-        height: 2.5rem;
-        line-height: 2.5rem;
-        background: #f5f5f5;
-        border: solid 1px #e9e9e9;
-        border-radius: 3px;
-        padding-left: 0.8rem;
-        margin-bottom: 0.4rem;
-        &:nth-child(even) {
-          margin-right: 0;
-        }
-      }
-    }
     }
     .authenTab {
       display:flex;
@@ -676,7 +662,56 @@ export default {
     margin-top: 2rem;
     background:#4a79df;
   }
-  
+    /* 下一节点*/
+    .downNode {
+      font-size: 1.1rem;
+      font-weight: bold;
+      padding:1rem;
+    }
+    .nextNode {
+      display: flex;
+      flex-wrap: wrap;
+      padding:0 1rem;
+      li {
+        width: 49%;
+        height: 2.5rem;
+        line-height: 2.5rem;
+        background: #f5f5f5;
+        border: solid 1px #e9e9e9;
+        border-radius: 3px;
+        margin-right: 2%;
+        margin-bottom: 0.4rem;
+        &:nth-child(even) {
+          margin-right: 0;
+        }
+        padding-left: 0.8rem;
+      }
+      padding-bottom: 0.8rem;
+      border-bottom: dashed 1px #ddd;
+    }
+    .nextUser {
+      display: flex;
+      padding:.8rem 1rem 0 1rem;
+      flex-wrap: wrap;
+      li {
+        width: 49%;
+        margin-right: 2%;
+        height: 2.5rem;
+        line-height: 2.5rem;
+        background: #f5f5f5;
+        border: solid 1px #e9e9e9;
+        border-radius: 3px;
+        padding-left: 0.8rem;
+        margin-bottom: 0.4rem;
+        &:nth-child(even) {
+          margin-right: 0;
+        }
+      }
+    }
+    .model-content {
+      height:30vh;
+      overflow-y:scroll;
+    }
     input[type="radio"],
     input[type="checkbox"] {
       width: 1.07rem;
