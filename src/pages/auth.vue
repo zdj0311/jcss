@@ -32,7 +32,7 @@
           <span>{{ user.wxUser&&user.wxUser.nicknameuser || user.userName }}</span>
           <span class="certified"><img :src="certified"/></span>
         </div>
-        <div class="edit" @click="onEdit"><img :src="edit"/></div>
+        <div class="edit" v-if="user.userStatus === 'created'" @click="onEdit"><img :src="edit"/></div>
       </header>
       <van-cell-group>
         <template v-for="(item,index) in table">
