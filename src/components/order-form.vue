@@ -20,11 +20,11 @@
       </div>
     </div>
     <div class="order" v-else>
-      <header v-if="fData">
-        <!-- 办理，不是创建 -->
+      <!-- <header v-if="fData">
         <span class="statu">{{fData.billData.billFlowStatusValue}}</span>
-        <h2 class="sub">{{fData.billData.customerOrgName}}-{{fData.billData.subject}}</h2>
-      </header>
+        <h2 class="sub" v-if="openType!='View'">办理工单</h2>
+        <h2 class="sub" v-if="openType=='View'">查看工单</h2>
+      </header> -->
       <van-cell-group>
         <h2 v-if="openType!='TODO'" class="base">基本信息</h2>
         <template v-for="(item,index) in table">
@@ -247,12 +247,14 @@
             @click="assetsList(item.id,item.assetsTypeName,index)"
             :class="{active:index == itemIndex}"
           >
+            <img :src="checkimg"/>
             <span :dataId="item.id">{{item.assetsTypeName}}</span>
             <i></i>
           </li>
         </ul>
         <ul class="ificat clearfix tabsList" v-else>
           <li v-for="(item,index) in assetTypeDic" :key="index" class="active">
+            <img :src="checkimg"/>
             <span :dataId="item.id">{{item.assetsTypeName}}</span>
             <i></i>
           </li>
@@ -275,7 +277,7 @@
           </li>
         </ul>
       </div>
-      <ul class="authen mb" v-if="openType=='TODO'">
+      <!-- <ul class="authen mb" v-if="openType=='TODO'">
         <li>
           <div class="adDetail-bottom">
             <h2 class="downNode">下一节点</h2>
@@ -308,7 +310,30 @@
             </ul>
           </div>
         </li>
-      </ul>
+      </ul> -->
+      <van-dialog v-model="showNode" show-cancel-button :before-close="beforeCloseNode">
+        <div class="model">
+          <div class="model-content">
+            <div class="work-con">
+              <h2 class="downNode">下一节点</h2>
+              <ul class="nextNode">
+                <li v-for="(item,index) in nextNodesList" :key="index">
+                  <input v-if="curNode.choice=='single'" type='radio' v-model='selectNodes' :value='item.componentId' name="nodes"/>
+                  <input v-else type='checkbox' v-model='selectNodes' :value='item.componentId'/>
+                  <span>{{item.name}}</span>
+                </li>        
+              </ul>
+              <ul class="nextUser clearfix">
+                <li v-for="(item,index) in chooseUser" :key="index">
+                  <input v-if="chooseUser.choice=='single'" v-model="selectUsers" class="users" type="radio" :value='item.id' name="users">
+                  <input v-else v-model="selectUsers" class="users" type="checkbox" :value='item.id'>
+                  <span>{{item.displayName}}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </van-dialog>
       <ul class="authen nomr" v-if="openType=='TODO'">
         <li>
           <div class="authenTab">
@@ -407,6 +432,7 @@ saveWorkflow
 } from "controller/order-create";
 import tool from "utils/tool";
 import { Dialog } from "vant";
+import checkimg from 'assets/check.png'
 export default {
   components: {},
   props: {
@@ -432,6 +458,7 @@ export default {
   },
   data() {
     return {
+      checkimg,
       check: [],
       gotoNodesList: [],
       showGoto: false,
@@ -459,6 +486,7 @@ export default {
       form: {},
       curNode: {},
       show: false,
+      showNode: false,
       showTime: false,
       button: [],
       chooseUser: [],
@@ -492,6 +520,10 @@ export default {
         Goto: true
       },
       table: [
+        {
+          key_name: "code",
+          title: "工单编号"
+        },
         {
           key_name: "appUserName",
           title: "申请人"
@@ -551,10 +583,7 @@ export default {
           key_name: "subProjectName",
           title: "子项目"
         },
-        {
-          key_name: "code",
-          title: "工单编号"
-        },
+        
         {
           key_name: "billRes",
           title: "事件结果"
@@ -734,8 +763,8 @@ export default {
     confirm(v) {
       let _this = this;
       this.form[this.keyName] = v;
-      this.validateEmpty(3);
       this.validateEmpty(4);
+      this.validateEmpty(5);
       // 选择客户
       if (
         this.keyName == "customerOrgName" &&
@@ -792,9 +821,9 @@ export default {
               );
             }
           });
-        if (this.form["busiTypeName"] != "") {
-          this.startWorkflow();
-        }
+        // if (this.form["busiTypeName"] != "") {
+        //   this.startWorkflow();
+        // }
       }
       // 子项目
       if (
@@ -812,6 +841,11 @@ export default {
         this.form["customerOrgName"] != ""
       ) {
         this.startWorkflow();
+      }
+      if (
+        this.keyName == "customerName"
+      ) {
+        this.getNextNodes();
       }
       this.show = false;
     },
@@ -1198,6 +1232,7 @@ export default {
               _this.chooseUser = v.assignees;
               _this.chooseUser.choice = "multiple";
               _this.selectUsers = [];
+              _this.selectUsers.push(v.assignees[0].id);
             }
           }
           //配置人员为空,显示人员选择
@@ -1251,6 +1286,7 @@ export default {
           else {
             this.chooseUser = assignees;
             this.chooseUser.choice = "multiple";
+            this.selectUsers = [];
             this.selectUsers.push(assignees[0].id);
           }
         });
@@ -1410,6 +1446,17 @@ export default {
       }
       return result;
     },
+    // 关闭下一节点弹出
+    beforeCloseNode(action, done){
+      let flowStatus = this.fData
+        ? this.fData.workflowBean.flowStatus_
+        : this.form.flowStatus_;
+      if (action === "confirm") {
+        this.createOrResolver('Submit', flowStatus)
+      } else {
+        done();
+      }
+    },
     // 创建或修改工单
     createOrResolver(type, flowStatus) {
       this.form.submitType_ = type;
@@ -1472,7 +1519,12 @@ export default {
         : this.form.flowStatus_;
       // 提交
       if (type == "Submit") {
-        this.createOrResolver(type, flowStatus);
+        if(this.nextNodesList.length==1){
+          this.createOrResolver(type, flowStatus);
+        }else{
+          this.showNode = true;
+        }
+        // this.createOrResolver(type, flowStatus);
         // 暂存
       } else if (type == "Save") {
         Dialog.confirm({
@@ -1714,13 +1766,10 @@ body {
   .order {
     padding-bottom: 4.08rem;
   }
-  .adDetail-bottom {
-    background: #fff;
-    border-top: solid 1px #eee;
-    border-bottom: solid 1px #eee;
-    padding: 0 1.1rem;
-    padding-bottom: 1.1rem;
-    .downNode {
+  .work-con{
+    padding:0 0.8rem;
+  }
+  .downNode {
       font-size: 1rem;
       font-weight: bold;
       color: #000;
@@ -1769,6 +1818,12 @@ body {
         }
       }
     }
+  .adDetail-bottom {
+    background: #fff;
+    border-top: solid 1px #eee;
+    border-bottom: solid 1px #eee;
+    padding: 0 1.1rem;
+    padding-bottom: 1.1rem;
   }
   .van-field__label {
     color: #000;
@@ -1858,7 +1913,7 @@ body {
 .order-resolver {
   .van-cell-group {
     padding-top: 1rem;
-    margin-top: 1rem;
+    // margin-top: 1rem;
   }
 
   .van-cell {
@@ -2008,16 +2063,24 @@ body {
       &:last-child {
         margin-right: 0;
       }
-      height: 2.58rem;
-      line-height: 2.58rem;
-      font-size: 1rem;
+      display:flex;
+      align-items:center;
+      padding:.4rem;
       color: #000;
       background: #f5f5f5;
       border: solid 1px #e9e9e9;
-      text-align: center;
+      img {
+        width:1.07rem;
+        height:1.07rem;
+        background:#ddd;
+        margin:0 .6rem;
+      }
       &.active {
-        background: #4a79df;
-        color: #fff;
+        /*background: #4a79df;
+        color: #fff;*/
+        img {
+          background:#4a79df;
+        }
       }
     }
   }

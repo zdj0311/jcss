@@ -378,6 +378,7 @@ export default {
               _this.chooseUser = v.assignees;
               _this.chooseUser.choice = "multiple";
               _this.selectUsers = [];
+              _this.selectUsers.push(v.assignees[0].id);
             }
           }
           //配置人员为空,显示人员选择
@@ -431,6 +432,7 @@ export default {
           else {
             this.chooseUser = assignees;
             this.chooseUser.choice = "multiple";
+            this.selectUsers = [];
             this.selectUsers.push(assignees[0].id);
           }
         });

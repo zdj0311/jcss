@@ -245,6 +245,8 @@
               if (v.assignees.length != 0) {
                 _this.chooseUser = v.assignees;
                 _this.chooseUser.choice = 'multiple'
+                _this.selectUsers = [];
+                _this.selectUsers.push(v.assignees[0].id);
               }
             }
             //配置人员为空,显示人员选择
@@ -286,13 +288,16 @@
           if (nextNodesList.dealType == 4) {
             this.chooseUser = assignees;
             this.chooseUser.choice = 'single'
+            this.selectUsers = "";
+            this.selectUsers = assignees[0].id;
           }
           //多人处理及多人单一签核(人员树多选)
           else {
             this.chooseUser = assignees;
             this.chooseUser.choice = 'multiple'
+            this.selectUsers = [];
+            this.selectUsers.push(assignees[0].id);
           }
-          this.selectUsers = assignees[0].id;
         })
       },
       getForm(){

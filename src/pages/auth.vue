@@ -30,13 +30,15 @@
         </div>
         <div  v-if="user.userStatus === 'created'" class="">
           <span>{{ user.wxUser&&user.wxUser.nicknameuser || user.userName }}</span>
+          <span class="certified"><img :src="certified"/></span>
         </div>
+        <div class="edit" @click="onEdit"><img :src="edit"/></div>
       </header>
       <van-cell-group>
         <template v-for="(item,index) in table">
           <van-field v-if="(item.key_name === 'OrgIdValue') && user.userStatus !== 'register'" v-model="form[item.key_name]&&form[item.key_name]['text']" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" :readonly="item.readonly" @focus="user.userStatus !== 'created' && showSearch()" />
           <van-field v-if="(item.key_name === 'OrgIdValue') && (user.userStatus === 'register')" v-model="form[item.key_name]&&form[item.key_name]['text']" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" :readonly="item.readonly" />
-          <van-field v-if="item.key_name !== 'OrgIdValue'" :maxlength="item.length" v-model="form[item.key_name]" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" @input="!item.readonly?item.validate(index):''" :readonly="item.readonly"/>
+          <van-field v-if="item.key_name !== 'OrgIdValue'" v-bind:class="{ kedit: editUser }" :maxlength="item.length" v-model="form[item.key_name]" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" @input="!item.readonly?item.validate(index):''" :readonly="item.readonly"/>
         </template>
         <!--<van-field v-model="form.userName" label="姓名" placeholder="请输入姓名" error-message="" @blur="validateUserName(form.userName)"/>
         <van-field v-model="form.mobile" label="联系电话" placeholder="请输入联系电话" error-message="" @blur="validateMobile(form.mobile)"/>
@@ -54,7 +56,7 @@
       <!-- 审核 user.userStatus === 'register'-->
       <van-button v-if="user.userStatus === 'register'" disabled class="submit-btn" size="large">努力认证中，请您稍等...</van-button>
       <!-- 审核 user.userStatus === 'created'-->
-      <van-button v-if="user.userStatus === 'created'" class="submit-btn" size="large" @click="submit('保存成功！')">保存</van-button>
+      <van-button v-if="user.userStatus === 'created' && editUser==true" class="submit-btn" size="large" @click="submit('保存成功！')">保存</van-button>
     </div>
   </div>
 </template>
@@ -63,6 +65,8 @@
   import avatar from 'assets/img/avatar.png'
   import register from 'assets/img/register.png'
   import unregister from 'assets/img/unregister.png'
+  import certified from 'assets/certified.png'
+  import edit from 'assets/edit.png'
   import fail from 'assets/img/fail.png'
   import { getPostDic,bindUser,getCompony } from 'controller/auth' // 职务列表
   import getUser from 'utils/getUser'
@@ -80,6 +84,9 @@
         register,
         unregister,
         fail,
+        certified,
+        edit,
+        editUser:false,
         user:this.$store.state.admin.user,
         value: '',
         searchIn: false,
@@ -153,6 +160,10 @@
       getPostDic.bind(this)('dutyId').then(res=>{
         this.postDic = res
       })
+      // 获取所在单位字典项
+      getCompony.bind(this)().then(res=>{
+        this.allComponys = res;
+      })
       this.initForm()
       this.readonlyTable()
     },
@@ -170,6 +181,14 @@
           this.user = this.$store.state.admin.user
           this.initForm()
           this.readonlyTable()
+        })
+      },
+      onEdit(){
+        this.editUser=true;
+        this.table.forEach(item=>{
+          if(item.key_name!='OrgIdValue'){
+            item.readonly = false
+          }     
         })
       },
       initForm(form) {
@@ -198,9 +217,8 @@
       },
       // 将整个form置为readonly
       readonlyTable() {
-//      if(this.user.userStatus === 'register' ||this.user.userStatus === 'created' ) {
-        if(this.user.userStatus === 'register') {
-            this.table.forEach(item=>{
+        if(this.user.userStatus === 'register'||this.user.userStatus === 'created' ) {
+          this.table.forEach(item=>{
             item.readonly = true
           })
         }
@@ -222,6 +240,10 @@
         if(result) {
           bindUser.bind(this)(this.form).then(res=>{
             this.$toast(msg)
+            this.editUser = false;
+            this.table.forEach(item=>{
+              item.readonly = true
+            })
             this.init() 
           }).catch(err=>{
             this.$toast(err.message || '网络错误')
@@ -233,7 +255,9 @@
         this.searchIn = false;
       },
       showSearch(){
-        this.searchIn = true;
+        if(this.allComponys.length>0){
+          this.searchIn = true;
+        }
       },
       // 显示 picker
       showPicker(item) {
@@ -256,21 +280,18 @@
       onSearch(){
         let _this = this;
         // 获取所在单位字典项
-        getCompony.bind(this)().then(res=>{
-          this.componys = res;
-          if (this.search) {
-            this.componys = this.componys.filter(function(compony) {
-              return Object.keys(compony).some(function(key) {
-                if(key=='text'){
-                  return String(compony[key]).toLowerCase().indexOf(_this.search) > -1
-                }
-              })
+        if (this.search) {
+          this.componys = this.allComponys.filter(function(compony) {
+            return Object.keys(compony).some(function(key) {
+              if(key=='text'){
+                return String(compony[key]).toLowerCase().indexOf(_this.search) > -1
+              }
             })
-            this.searchList = this.componys;
-          }else{
-            this.searchList = []
-          }
-        })
+          })
+          this.searchList = this.componys;
+        }else{
+          this.searchList = []
+        }
       },
       // 获取picker值
       onChange(v) {
@@ -385,6 +406,25 @@
       background:#fff;
       margin-bottom:.8rem;
       padding:1rem;
+      .certified{
+        vertical-align: middle;
+        display: inline-block;
+        margin-left: 0.2rem;
+        img{
+          width: 5.5rem;
+          height: 1.5rem;
+          display: inline-block;
+        }
+      }
+      .edit{
+        position: absolute;
+        right: 15px;
+        top: 28px;
+        img{
+          width: 1.43rem;
+          height: 1.39rem;
+        }
+      }
     }
     .header .avatar {
       width:3.2rem;
@@ -440,6 +480,12 @@
       color:#fff;
       background:#4a79df;
       margin-top:2rem;
+    }
+    .kedit{
+      input{
+        background:#efefef;
+        padding:0.2rem;
+      }
     }
   }
 </style>

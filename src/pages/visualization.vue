@@ -8,7 +8,7 @@
             <div class="border-line"></div>
             <span>工单列表</span>
           </header>
-            <load-more class="container list-con" :onInfinite="onInfinite" ref="scroll0">
+            <load-more class="container list-con" :onInfinite="onInfinite" ref="scroll0" v-if="tableData[0].length>0">
               <li v-for="(item,index) in tableData[0]" :key="index">
                 <div class="list">
                   <label>工单编号：</label>
@@ -29,8 +29,8 @@
               </li>
               <div v-if="finished" slot="infinite" class="text-center">没有更多数据</div>
             </load-more>
+            <empty v-else></empty>
         </div>
-        <empty v-else></empty>
       </van-tab>
       <van-tab title="本周工单">
         <div class="content" v-if="source[1].length>0">
@@ -39,7 +39,7 @@
             <div class="border-line"></div>
             <span>工单列表</span>
           </header>
-          <load-more class="container list-con" :onInfinite="onInfinite" ref="scroll1">
+          <load-more class="container list-con" :onInfinite="onInfinite" ref="scroll1" v-if="tableData[1].length>0">
             <li v-for="(item,index) in tableData[1]" :key="index">
               <div class="list">
                 <label>工单编号：</label>
@@ -60,8 +60,8 @@
               </li>
             <div v-if="finished" slot="infinite" class="text-center">没有更多数据</div>
           </load-more>
+          <empty v-else></empty>
         </div>
-        <empty v-else></empty>
       </van-tab>
       <van-tab title="本月工单">
         <div class="content" v-if="source[2].length>0">
@@ -70,7 +70,7 @@
             <div class="border-line"></div>
             <span>工单列表</span>
           </header>
-            <load-more class="container list-con" :onInfinite="onInfinite" ref="scroll2">
+            <load-more class="container list-con" :onInfinite="onInfinite" ref="scroll2" v-if="tableData[2].length>0">
                 <li v-for="(item,index) in tableData[2]" :key="index">
                   <div class="list">
                     <label>工单编号：</label>
@@ -91,8 +91,8 @@
                 </li>
               <div v-if="finished" slot="infinite" class="text-center">没有更多数据</div>
             </load-more>
-        </div>
-        <empty v-else></empty>
+            <empty v-else></empty>
+        </div> 
       </van-tab>
     </van-tabs>
   </div>
@@ -125,7 +125,7 @@
     created() {
       // 初始化 table source 数据
       this.getAll({
-        modeList:'CREATE,UN_END,END,OUTTIME',
+        modeList:'CREATE,UN_END,END,ALLOUTTIME',
         dateType: 'Day',
       },{
         dateType: 'Day',
@@ -148,16 +148,19 @@
       getAll(countParams,params,done) {
         // dateType = Week 本周，Month 本月，Day 本日
         let promiseGetStatistic = this.getStatistic(params)
-        // modeList=CREATE,UN_END,END,OUTTIME
+        // modeList=CREATE,UN_END,END,ALLOUTTIME
         let promisegetStatisticCount = this.getStatisticCount(countParams)
         Promise.all([promiseGetStatistic,promisegetStatisticCount]).then(res=>{
-          this.source[this.active] = this.setSource(res[1].CREATE,res[1].END,res[1].UN_END,res[1].OUTTIME)
-          this.$set(this.source,this.active,this.setSource(res[1].CREATE,res[1].END,res[1].UN_END,res[1].OUTTIME))
+          this.source[this.active] = this.setSource(res[1].CREATE,res[1].END,res[1].UN_END,res[1].ALLOUTTIME)
+          this.$set(this.source,this.active,this.setSource(res[1].CREATE,res[1].END,res[1].UN_END,res[1].ALLOUTTIME))
           this.setTable(res[0])
           this.totalCount = res[0].totalCount
-          this.canTouch = true
+          this.canTouch = true 
           if(done){
             done();
+          }
+          if(this.totalCount==this.tableData[this.active].length){
+            this.finished = true;
           }
         })
       },
@@ -186,7 +189,7 @@
         },{
             name: '未完成 ' + un_end, x:'1', y: un_end / sum, value:'UN_END',count:un_end
         },{
-            name: '超时 ' + outtime, x:'1', y: outtime / sum, value:'OUTTIME',count:outtime
+            name: '超时 ' + outtime, x:'1', y: outtime / sum, value:'ALLOUTTIME',count:outtime
         }]
         if(sum === 0) source = []
         return source
@@ -196,7 +199,7 @@
         this.page = 0;
         this.tableData = [[],[],[]];
         this.getAll({
-          modeList:'CREATE,UN_END,END,OUTTIME',
+          modeList:'CREATE,UN_END,END,ALLOUTTIME',
           dateType: this.orderType[this.active],
         },{
           dateType: this.orderType[this.active],
@@ -225,7 +228,7 @@
           
             this.tableData = [[],[],[]];
             this.getAll({
-              modeList:'CREATE,UN_END,END,OUTTIME',
+              modeList:'CREATE,UN_END,END,ALLOUTTIME',
               dateType: this.orderType[this.active],
             },{
               dateType: this.orderType[this.active],
@@ -242,7 +245,7 @@
           return;
         }
         this.getAll({
-          modeList:'CREATE,UN_END,END,OUTTIME',
+          modeList:'CREATE,UN_END,END,ALLOUTTIME',
           dateType: this.orderType[this.active],
         },{
           dateType: this.orderType[this.active],
@@ -265,6 +268,9 @@
         background:#fff;
         padding: 0 1.07rem;
       }
+    }
+    .empty{
+      margin-top:20%;
     }
     .scroll{
       top:21.5rem !important;

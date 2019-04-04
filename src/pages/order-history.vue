@@ -70,7 +70,7 @@
         finished:false,
         properties:[
           [{name:'在办',value:'UN_END',tab:0,cur:0  },
-          {name:'超时',value:'OUTTIME',tab:0,cur:1  },
+          {name:'超时',value:'ALLOUTTIME',tab:0,cur:1  },
           {name:'完成',value:'END',tab:0,cur:2  }],
           [{name:'本日',value:'Day',tab:1,cur:0  },
           {name:'本周',value:'Week',tab:1,cur:1 },
@@ -79,14 +79,14 @@
         defaultCon: {
           dataScope:'AllBill',
           dateType: 'Day',
-          mode: 'TODO',
+          mode: 'UN_END',
           pageRows:10,
           page:0,
         },
         getAll:{
           dataScope:'AllBill',
           dateType: 'Day',
-          mode: 'TODO',
+          mode: 'UN_END',
           pageRows:10,
           page:0,
         },
