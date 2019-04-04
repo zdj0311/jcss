@@ -7,7 +7,7 @@
       </div>
       <ma-select v-model="show" :current="current" :properties="variable" @change="change"></ma-select>
     </div>
-    <load-more class="container" :onRefresh="onRefresh" :onInfinite="onInfinite" v-if="orderList.length>0">
+    <load-more ref="scroll" v-scroll class="container" :onRefresh="onRefresh" :onInfinite="onInfinite" v-if="orderList.length>0">
       <div class="content" v-for="(item,index) in orderList">
         <header>
           <span class="header-mark" :class="item.status==2?'overtime':'statu'" >{{item.statusValue}}</span>
@@ -24,8 +24,8 @@
               <img :src="showDetails[index]?flwoUp:flwoDown"/>
             </div>
             <div class="flow-btn">
-               <!--<span @click="routeTo('order_detail',item)">查看</span>--> 
-              <span @click="routeTo('order_resolver',item)">办理</span>
+               <span v-if="container(item)==-1" @click="routeTo('order_resolver',item)">查看</span> 
+              <span v-if="container(item)!=-1" @click="routeTo('order_resolver',item)">办理</span>
             </div>
           </div>
           <ul class="history-list" v-show="showDetails[index]">
@@ -104,7 +104,7 @@
     },
     
     created() {
-      
+      this.user = this.$store.state.admin.user
     },
     mounted() {
       this.getAll.dateType = this.$route.params._type
@@ -122,9 +122,19 @@
         })
       })
     },
+    directives: {
+      'scroll':function(el,binding,vnode){
+        el.addEventListener('scroll', function(e) {
+          el.dataset.top = e.target.scrollTop
+        })
+      }
+    },
     methods: {
       init() {
         this.showDetails = []
+      },
+      container(it){
+        return it.nowUser.indexOf(this.user.userId);
       },
       showPannel(i) {
         this.show = true;
@@ -230,11 +240,13 @@
     },
     activated() {
       if(this.$route.params._type !== this.getAll.dateType || this.$route.params._mode !== this.getAll.mode) {
-          this.getAll.dateType = this.$route.params._type
-          this.getAll.mode = this.$route.params._mode
-          this.getStatistic(this.getAll)
-          this.menus = [this.$route.params._mode,this.$route.params._type]
-        }
+        this.getAll.dateType = this.$route.params._type
+        this.getAll.mode = this.$route.params._mode
+        this.getStatistic(this.getAll)
+        this.menus = [this.$route.params._mode,this.$route.params._type]
+      }else{
+        this.$refs['scroll'].$el.scrollTop = this.$refs['scroll'].$el.dataset.top
+      }
     }
   }
 </script>

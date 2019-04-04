@@ -1769,6 +1769,10 @@ body {
   .work-con{
     padding:0 0.8rem;
   }
+  .model-content{
+    height:30vh;
+    overflow-y:scroll;
+  }
   .downNode {
       font-size: 1rem;
       font-weight: bold;
@@ -1801,8 +1805,12 @@ body {
     }
     .nextUser {
       display: flex;
-      padding-top: 0.8rem;
+      padding-top:0.8rem;
       flex-wrap: wrap;
+      // max-height: 29vh;
+      // overflow-y: scroll;
+      padding-bottom: 0.8rem;
+      border-bottom: solid 1px #ddd;
       li {
         width: 49%;
         margin-right: 2%;

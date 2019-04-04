@@ -1,9 +1,9 @@
 <template>
   <div class='ma-main'>
-    <!--<keep-alive include="order_list">
+    <keep-alive include="order_list,order_history">
       <router-view/>
-    </keep-alive>-->
-    <router-view/>
+    </keep-alive>
+    <!-- <router-view/> -->
     <tab-bar v-model="active"></tab-bar>
   </div>
 </template>

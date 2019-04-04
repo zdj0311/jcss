@@ -630,6 +630,8 @@
       }
       .model-content{
         padding:0.8rem;
+        height:30vh;
+        overflow-y:scroll;
         .line{
           border-bottom:solid 1px #ddd;
           padding-bottom:0.8rem;
@@ -681,8 +683,8 @@
           display: flex;
           padding-top:0.8rem;
           flex-wrap: wrap;
-          max-height: 29vh;
-          overflow-y: scroll;
+          // max-height: 29vh;
+          // overflow-y: scroll;
           padding-bottom: 0.8rem;
           border-bottom: solid 1px #ddd;
           li{
