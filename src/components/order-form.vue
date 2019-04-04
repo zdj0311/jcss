@@ -533,7 +533,7 @@ export default {
           title: "联系方式"
         },
         {
-          key_name: "startTimeStr",
+          key_name: "startTime",
           title: "申请时间"
         },
         {
@@ -1053,7 +1053,7 @@ export default {
       formData.append("appUser", this.isNull(this.form.appUser));
       formData.append("appUserName", this.isNull(this.form.appUserName));
       formData.append("appUserPhone", this.isNull(this.form.appUserPhone));
-      formData.append("startTimeStr", this.isNull(this.form.startTime));
+      formData.append("startTime", this.isNull(this.form.startTime));
       formData.append("status", this.isNull(this.form.status));
       formData.append("statusValue", this.isNull(this.form.statusValue));
       formData.append("code", this.isNull(this.form.code));
@@ -1085,7 +1085,7 @@ export default {
       );
       formData.append("urgency", this.isNull(this.form.urgencyValue.code));
       formData.append("urgencyValue", this.isNull(this.form.urgencyValue.text));
-      formData.append("planStartTimeStr", this.isNull(this.form.startTime));
+      formData.append("planStartTime", this.isNull(this.form.startTime));
       formData.append("planEndTimeStr", this.isNull(this.form.planEndTime));
       formData.append("subject", this.isNull(this.form.subject));
       formData.append("billPlan", this.isNull(this.form.billPlan));
