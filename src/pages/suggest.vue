@@ -1,5 +1,15 @@
 <template>
   <div class="auth">
+    <header class="header">
+      <img :src="feed"/>
+      <span>致力为您提供专业、高效、高品质的韵味服务，  欢迎您提供宝贵的意见和建议。</span>
+    </header>
+    <div class="item-container">
+      <header class="item-header">
+        <img :src="suggest"/>
+        <span>投诉建议</span>
+      </header>
+    </div>
     <van-cell-group>
       <template v-for="(item,index) in table">
         <van-field v-model="form[item.key_name]" :type="item.type?item.type:'input'" :required="item.required" :label="item.title" :placeholder="item.placeholder" :error-message="item.message" @input="item.validate?item.validate(index):''" :readonly="item.readonly"/>
@@ -10,12 +20,16 @@
 </template>
 
 <script>
+  import feed from 'assets/img/feed.png'
+  import suggest from 'assets/img/suggest.png'
   import { feedback } from 'controller/feedback' // 职务列表
   export default {
     name: 'suggest',
     data() {
       return {
         user:this.$store.state.admin.user,
+        feed,
+        suggest,
         check:[],
         form:{},
         table:[{
@@ -112,19 +126,36 @@
   .auth {
     height:100%;
     background:#F2F2F2;
+    .item-container{
+      margin-top:0.8rem;
+    }
+    .item-header {
+      display:flex;
+      align-items: center;
+      padding:.8rem;
+      background: #fff;
+    }
+    .item-header img {
+      width:20px;
+      height:20px;
+    }
+    .item-header span {
+      font-size:1.1rem;
+      font-weight: bold;
+      margin-left:.8rem;
+    }
     .header {
       display:flex;
       align-items: center;
       background:#fff;
-      margin-bottom:.8rem;
       padding:1rem;
     }
-    .header .avatar {
+    .header img {
       width:3.2rem;
-      height:3.2rem;
-      overflow: hidden;
-      border-radius: 50%;
-      margin-right:1rem;
+      height:auto;
+    }
+    .header span {
+      margin-left:1rem;
     }
     .statu-mark {
       display:flex;

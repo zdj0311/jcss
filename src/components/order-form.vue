@@ -3,14 +3,16 @@
     <!-- 评价页 -->
     <div class="evaluation" v-if="mode=='evaluation'">
       <div class="eva-head">
-        <div class="eva-h">
+        <!-- <div class="eva-h">
           <div class="eva-status">{{fData && fData.billData.statusValue}}</div>
           <div
             class="eva-subject"
           >{{fData && fData.billData.customerOrgName}}-{{fData && fData.billData.subject}}</div>
-        </div>
-        <div class="eva-result">事件结果：{{fData && fData.billData.billRes}}</div>
-        <div class="eva-result">事件描述：{{fData && fData.billData.billPlan}}</div>
+        </div> -->
+        <div class="eva-result"><label>工单编号</label><span>{{fData && fData.billData.code}}</span></div>
+        <div class="eva-result"><label>工单主题</label><span>{{fData && fData.billData.subject}}</span></div>
+        <div class="eva-result"><label>处理结果</label><span>{{fData && fData.billData.billRes}}</span></div>
+        <div class="eva-result"><label>工单描述</label><span>{{fData && fData.billData.billPlan}}</span></div>
       </div>
       <div class="eva-content">
         <div class="eva-title">工单评价</div>
@@ -1702,7 +1704,7 @@ body {
     background: #fff;
     border-top: solid 1px #eee;
     border-bottom: solid 1px #eee;
-    padding: 1.71rem 0;
+    padding: 1rem 0 1.6rem;
     .eva-h {
       display: flex;
       .eva-subject {
@@ -1712,10 +1714,23 @@ body {
       }
     }
     .eva-result {
-      margin-top: 0.71rem;
-      margin-left: 1.07rem;
+      margin: 0 15px;
       color: #666;
       font-size: 1rem;
+      border: solid 1px #eee;
+      padding: 6px 0.8rem;
+      border-bottom: none;
+      &:last-child{
+        border-bottom: solid 1px #eee;
+      }
+      label{
+        width: 28%;
+        display: inline-block;
+        border-right: solid 1px #eee;
+      }
+      span{
+        padding-left:0.8rem;
+      }
     }
   }
   .eva-status {
