@@ -12,6 +12,9 @@
         <!-- 客户名称 -->
         <form-item name="customerOrg" :columns="customerOrgDic" v-model="customerOrg && customerOrg.text" type="select" 
           label="客户名称" required v-validate="'required'" @confirm="confirm($event,'customerOrg')"></form-item>
+        <!-- 业务类型 -->  
+        <form-item name="workflowRel" :columns="workflowRelDic" v-model="workflowRel && workflowRel.text" type="select" label="业务类型"
+           required @confirm="confirm($event,'workflowRel')"></form-item>
         <!-- 工单类型 -->  
         <form-item name="busiType" :columns="busiTypeDic" v-model="busiType && busiType.text" type="select" label="工单类型"
            required @confirm="confirm($event,'busiType')"></form-item>
@@ -37,7 +40,7 @@
         <div class="asset-container">
           <h3>资产分类</h3>
           <ul class="ificat">
-            <li v-for="(item,index) in assetTypeDic" :key="index" :class="{active:index === itemIndex}" @click="changeAsset(index)">
+            <li v-for="(item,index) in assetTypeDic" :key="index" :class="{active:index === itemIndex}" @click="changeAsset(item,index)">
               <img :src="check"/>
               <span :dataId="item.id">{{item.assetsTypeName}}</span>
             </li>
@@ -89,8 +92,8 @@
               <h2 class="downNode">下一节点</h2>
               <ul class="nextNode">
                 <li v-for="(item,index) in nextNodesList" :key="index">
-                  <input v-if="curNode.choice=='single'" type='radio' v-model='selectNodes' :value='item.componentId' name="nodes"/>
-                  <input v-else type='checkbox' v-model='selectNodes' :value='item.componentId'/>
+                  <input v-if="curNode.choice=='single'" type='radio' v-model='selectNodes' :value='item.componentId' name="nodes" @change="toSelectUser"/>
+                  <input v-else type='checkbox' v-model='selectNodes' :value='item.componentId' @change="toSelectUser"/>
                   <span>{{item.name}}</span>
                 </li>        
               </ul>
@@ -134,7 +137,7 @@
 </template>
 
 <script>
-import { getCustomerOrgDic,getBtDic,getUrgencyDic,getAssetType,getAssetsList,getProjectDic
+import { getCustomerOrgDic,getBtDic,getWkDicList,getUrgencyDic,getAssetType,getAssetsList,getProjectDic
   ,getProjectSubDic,upload,deleteFile,saveWorkflow,startWorkflow,getNextNodes,getCustomerAndJcAllDeptAndUser
 } from "controller/orderCreate"
 import tool from "utils/tool"
@@ -151,6 +154,7 @@ export default {
       // 表单数据项
       customerOrg:{}, // 当前客户
       busiType:{}, // 当前工单类型
+      workflowRel:{}, // 当前业务类型
       urgency:{}, // 当前紧急程度
       subject:'', // 当前事件主题
       billPlan: '', // 当前事件描述
@@ -173,6 +177,7 @@ export default {
       // 字典数据    
       customerOrgDic:[], // 客户字典
       busiTypeDic:[], // 工单类型字典
+      workflowRelDic:[],// 业务类型字典
       urgencyDic:[], // 紧急程度
       assetTypeDic:[], // 资产分类
       relatedAsset: [], // 关联资产
@@ -209,6 +214,8 @@ export default {
       this.getCustomerOrgDic()
       // 获取紧急程度
       this.getUrgencyDic()
+      // 获取工单类型
+      this.getBtDic()
     },
     // 获取客户picker
     getCustomerOrgDic(code,index) {
@@ -218,21 +225,32 @@ export default {
         this.customerOrgDic = res
         this.customerOrg = res[i]
         codeTemp = code || this.customerOrg.code
-        this.getBtDic(codeTemp)
+        this.getWkDicList(codeTemp)
         this.getAssetType(codeTemp)
         this.getProjectDic(codeTemp)
       })
     },
     // 获取工单分类 picker
-    getBtDic(code,index) {
-      getBtDic.bind(this)(code).then(res => {
+    getBtDic() {
+      getBtDic.bind(this)().then(res => {
         if(res.length>0) {
           this.busiTypeDic = res
           this.busiType = res[0]
+        }else {
+          this.$toast('工单类型不能为空！')
+        }
+      })
+    },
+    // 获取业务类型 picker
+    getWkDicList(code,index) {
+      getWkDicList.bind(this)(code).then(res => {
+        if(res.length>0) {
+          this.workflowRelDic = res
+          this.workflowRel = res[0]
           // 获取工作流
           this.startWorkflow()
         }else {
-          this.$toast('工单类型不能为空！')
+          this.$toast('业务类型不能为空！')
         }
       })
     },
@@ -305,14 +323,22 @@ export default {
       form.append('startTimeStr',new Date().Format("yyyy-MM-dd hh:mm:ss"))
       form.append('customerOrg',this.customerOrg.code)
       form.append('customerOrgName',this.customerOrg.text)
+      form.append('workflowRelCode',this.workflowRel.code)
+      form.append('workflowRelName',this.workflowRel.text)
       form.append('busiTypeCode',this.busiType.code)
       form.append('busiTypeName',this.busiType.text)
       form.append('urgency',this.urgency.code)
       form.append('urgencyValue',this.urgency.text)
       form.append('planStartTimeStr',new Date().Format("yyyy-MM-dd hh:mm:ss"))
       form.append('subject',this.subject)
+      form.append('billPlan',this.billPlan)
+      form.append('projectId',this.project.code?this.project.code:'')
+      form.append('projectName',this.project.text?this.project.text:'')
+      form.append('subProjectId',this.subProject.code?this.subProject.code:'')
+      form.append('subProjectName',this.subProject.text?this.subProject.text:'')
       form.append('assetTypeId',this.assetType.code)
       form.append('assetTypeName',this.assetType.text)
+      form.append('assetsRelList',this.relatedAssetCheck.join(","))
       form.append('attachFile',this.attachFile)
       form.append('deleteAttachFile',this.deleteAttachFile)
       form.append('attachFileMode','EDIT')
@@ -349,7 +375,7 @@ export default {
     },
     // 开始工作流
     startWorkflow() {
-      startWorkflow.bind(this)(this.customerOrg.code,this.busiType.code)
+      startWorkflow.bind(this)(this.customerOrg.code,this.workflowRel.code)
         .then(res => {
           this.curNodeId_ = res.workflowBean.curNodeId_;
           this.definitionId_ = res.workflowBean.definitionId_;
@@ -462,15 +488,20 @@ export default {
         });
     },
     // 选择资产分类
-    changeAsset(index) {
-      this.itemIndex = index
+    changeAsset(item,index) {
+      this.itemIndex = index;
+      this.assetType = {
+        'code': item.id,
+        'text': item.assetsTypeName
+      }
+      this.getRelatedAsset(this.customerOrg.code,item.id)
     },
     submit() {
       this.showNode = true
     },
     beforeCloseNode(action, done) {
       if(!this.clickAble) return
-      if(action) {
+      if (action === 'confirm') {
         this.$validator.validateAll().then(result=>{
           if(result) {
             this.clickAble = false
@@ -484,13 +515,18 @@ export default {
       this[property] = v
       // 切换客户
       if(property === 'customerOrg') {
-        this.getBtDic(v.code)
+        this.getWkDicList(v.code)
         this.getAssetType(v.code)
         this.getProjectDic(v.code)
       }
       // 切换工单列表
       if(property === 'busiType') {
         
+      }
+      // 切换业务列表
+      if(property === 'workflowRel') {
+        // 获取工作流
+        this.startWorkflow()
       }
       // 切换项目
       if(property === 'project') {
@@ -672,6 +708,8 @@ export default {
       display: flex;
       flex-wrap: wrap;
       padding:0 1rem;
+      max-height:15vh;
+      overflow-y:scroll;
       li {
         width: 49%;
         height: 2.5rem;
@@ -693,6 +731,8 @@ export default {
       display: flex;
       padding:.8rem 1rem 0 1rem;
       flex-wrap: wrap;
+      max-height:15vh;
+      overflow-y:scroll;
       li {
         width: 49%;
         margin-right: 2%;
@@ -709,8 +749,7 @@ export default {
       }
     }
     .model-content {
-      height:30vh;
-      overflow-y:scroll;
+      
     }
     input[type="radio"],
     input[type="checkbox"] {

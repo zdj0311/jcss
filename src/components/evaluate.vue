@@ -3,7 +3,7 @@
       <div class="eva-head">
         <div class="eva-result"><label>工单编号</label><span>{{fData && fData.billData.code}}</span></div>
         <div class="eva-result"><label>工单主题</label><span>{{fData && fData.billData.subject}}</span></div>
-        <div class="eva-result"><label>处理结果</label><span>{{fData && fData.billData.billRes}}</span></div>
+        <div class="eva-result"><label>工单结果</label><span>{{fData && fData.billData.billRes}}</span></div>
         <div class="eva-result"><label>工单描述</label><span>{{fData && fData.billData.billPlan}}</span></div>
       </div>
       <div class="eva-content">

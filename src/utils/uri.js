@@ -18,7 +18,8 @@ let uri = function(api){
     getCustomerOrgDic:api + 'api/wk/dic/customerDicList.action', // 获取客户名称字典列表
     getCustomerDic:api + 'api/jcdept/getCustomerDeptAndUser.action', // 获取客户负责人字典列表
     getCustomerAndJcAllDeptAndUser:api + 'api/jcdept/getCustomerAndJcAllDeptAndUser.action', // 获取客户和部门和公司负责人列表
-    getBtDic:api + 'api/wk/dic/btDicList.action', // 获取工单类型字典列表
+    getBtDic:api + 'api/wk/dic/newBtDicList.action', // 获取工单类型字典列表
+    getWkDicList:api + 'api/wk/dic/wkDicList.action', // 获取业务类型字典列表
     getUrgencyDic:api + 'api/wk/dic/dicList.action', // 获取紧急程度字典列表
     getProjectDic:api + 'api/wk/dic/projectDicList.action', // 获取项目字典列表
     getProjectSubDic:api + 'api/wk/dic/projectSubDicList.action', // 获取子项目字典列表

@@ -19,7 +19,6 @@ return new Promise((resolve,reject)=>{
 //})
 }
 function makeData(res) {
-  console.log(res)
   let obj = {
     baseInfo:[], // 基本信息
     auditInfo:[], // 审批信息

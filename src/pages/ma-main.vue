@@ -1,6 +1,6 @@
 <template>
   <div class='ma-main'>
-    <keep-alive include="order_list,order_history">
+    <keep-alive include="order_list">
       <router-view/>
     </keep-alive>
     <!-- <router-view/> -->
@@ -37,14 +37,14 @@
         if(name === 'order_list') {
           this.active = 1
         }
-        if(name === 'order_history') {
+        // if(name === 'order_history') {
+        //   this.active = 1
+        // }
+        if(name === 'feedback') {
           this.active = 2
         }
-        if(name === 'feedback') {
-          this.active = 3
-        }
         if(name === 'user_center') {
-          this.active = 4
+          this.active = 3
         }
       }
     }

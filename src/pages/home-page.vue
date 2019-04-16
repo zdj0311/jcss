@@ -55,8 +55,8 @@
               <h2 class="downNode">下一节点</h2>
               <ul class="nextNode">
                 <li v-for="(item,index) in nextNodesList" :key="index">
-                  <input v-if="curNode.choice=='single'" type='radio' v-model='selectNodes' :value='item.componentId' name="nodes"/>
-                  <input v-else type='checkbox' v-model='selectNodes' :value='item.componentId'/>
+                  <input v-if="curNode.choice=='single'" type='radio' v-model='selectNodes' :value='item.componentId' name="nodes" @change="toSelectUser"/>
+                  <input v-else type='checkbox' v-model='selectNodes' :value='item.componentId' @change="toSelectUser"/>
                   <span>{{item.name}}</span>
                 </li>        
               </ul>
@@ -110,7 +110,7 @@
   import { Dialog } from 'vant';
   import tool from 'utils/tool'
   import $ from 'jquery'
-  import {getCustomerDic,getCustomerAndJcAllDeptAndUser,getBtDic,startWorkflow,saveWorkflow,getAssetTypeTop,getAssetType,getStatisticCount,getUrgencyDic} from 'controller/order-create'
+  import {getCustomerDic,getWkDicList,getCustomerAndJcAllDeptAndUser,getBtDic,startWorkflow,saveWorkflow,getAssetTypeTop,getAssetType,getStatisticCount,getUrgencyDic} from 'controller/order-create'
   import form from 'utils/form-all'
   export default {
     name: 'home_page',
@@ -124,7 +124,7 @@
         {name:'超时工单',value:'OUTTIME',img:'d-ico',bg:'#f07616',bimg:'static/img/outtime.png'},
         {name:'完成工单',value:'END',img:'b-ico',bg:'#13baf1',bimg:'static/img/end.png'}],
         assetsArray:[],
-        statistics: [{name:'本日',value:'Day'},{name:'本周',value:'Week'},{name:'本月',value:'Month'}],
+        statistics: [{name:'本日',value:'Day'},{name:'本周',value:'Week'},{name:'本月',value:'Month'},{name:'全部',value:'All'}],
         active: 0,
         statisticsCount: {},
         show: false,
@@ -137,11 +137,6 @@
         dateType:''
       }
     },
-    watch:{
-      selectNodes(){
-        this.toSelectUser();
-      }
-    },
     mounted() {
       this.user = this.$store.state.admin.user;
       this.getInfo();
@@ -151,14 +146,18 @@
       getInfo(){
         getAssetTypeTop.bind(this)(this.user.orgId).then(res=>{
           let copyArr =  res.slice(0,res.length)
-          let len = Math.ceil(res.length/6);
+          let len = Math.ceil(res.length/3);
           for(var i=0;i<len;i++){
-             this.assetsArray.push(copyArr.splice(0,6))
+             this.assetsArray.push(copyArr.splice(0,3))
           }
         })
         getUrgencyDic.bind(this)("urgency", "jcss").then(res=>{
           this.form.urgency = res.length>0?res[0].code:'';
           this.form.urgencyValue = res.length>0?res[0].text:'';
+        })
+        getBtDic.bind(this)().then(res=>{
+          this.form.busiTypeCode = res.length>0?res[0].code:'';
+          this.form.busiTypeName = res.length>0?res[0].text:'';
         })
       },
       getNum(status){
@@ -176,15 +175,6 @@
           name: 'order_create'
         })
       },
-      // routerToHistory() {
-      //   this.$router.push({
-      //     name: 'order_history',
-      //     params: {
-      //       _type: "Day",
-      //       _mode: "UN_END"
-      //     }
-      //   })
-      // },
       toList(item){
         this.$router.push({
           name: 'order_list',
@@ -198,16 +188,16 @@
         this.form.assets = it;
         this.form.customerOrg = it.customerId;
         this.form.customerOrgName = it.customerIdValue;
-        getBtDic.bind(this)(this.form.customerOrg).then(res=>{
-          this.form.busiTypeCode = res.length>0?res[0].code:'';
-          this.form.busiTypeName = res.length>0?res[0].text:'';
+        getWkDicList.bind(this)(this.form.customerOrg).then(res=>{
+          this.form.workflowRelCode = res.length>0?res[0].code:'';
+          this.form.workflowRelName = res.length>0?res[0].text:'';
           if(res.length==0){
             Dialog.alert({
-              message: "无工单类型，不可创建工单"
+              message: "无业务类型，不可创建工单"
             });
             return false;
           }
-          startWorkflow.bind(this)(this.form.customerOrg,this.form.busiTypeCode).then(res=>{
+          startWorkflow.bind(this)(this.form.customerOrg,this.form.workflowRelCode).then(res=>{
             this.form.curNodeId_ = res.workflowBean.curNodeId_;
             this.form.definitionId_ = res.workflowBean.definitionId_;
             this.form.wUserType = res.wUserType;
@@ -250,6 +240,7 @@
               }
             }
             //配置人员为空,显示人员选择
+            console.log(v.assignees.length)
             if(v.assignees.length == 0) {
               _this.getAllUser(v);    
             }else{
@@ -306,6 +297,8 @@
         formData.append('customerOrgName',this.form.customerOrgName)
         formData.append('busiTypeCode',this.form.busiTypeCode)
         formData.append('busiTypeName',this.form.busiTypeName)
+        formData.append('workflowRelCode',this.form.workflowRelCode)
+        formData.append('workflowRelName',this.form.workflowRelName)
         formData.append('subject',this.form.customerOrgName+this.form.assets.assetsTypeName)
         formData.append('billPlan',this.form.customerOrgName+this.form.assets.assetsTypeName)
         formData.append('assetTypeId',this.form.assets.id)
@@ -435,6 +428,7 @@
           }
           .van-tab{
             line-height: 1.5rem;
+            padding: 0 1px;
             .filter-ico{
               width: 1rem;
               height: 1rem;
@@ -442,7 +436,7 @@
               background: #ddd url('~@/assets/duih.png') no-repeat .15rem .25rem;
               background-size: .8rem .5rem;
               display: inline-block;
-              margin-right: 5px;
+              margin-right: 0px;
               vertical-align: middle;
               margin-top: -3px;
             }
@@ -630,8 +624,6 @@
       }
       .model-content{
         padding:0.8rem;
-        height:30vh;
-        overflow-y:scroll;
         .line{
           border-bottom:solid 1px #ddd;
           padding-bottom:0.8rem;
@@ -661,6 +653,8 @@
         .nextNode{
           display: flex;
           flex-wrap: wrap;
+          max-height: 15vh;
+          overflow-y: scroll;
           li{
             width:49%;
             height:2.5rem;
@@ -683,8 +677,8 @@
           display: flex;
           padding-top:0.8rem;
           flex-wrap: wrap;
-          // max-height: 29vh;
-          // overflow-y: scroll;
+          max-height: 15vh;
+          overflow-y: scroll;
           padding-bottom: 0.8rem;
           border-bottom: solid 1px #ddd;
           li{

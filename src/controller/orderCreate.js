@@ -30,10 +30,24 @@ function makeData(res) {
 /**
  * @desc 获取工单类型
  */
-function getBtDic(customerId) {
+function getBtDic() {
+  return new Promise((resolve,reject)=>{
+    this.$get(uri.getBtDic).then(res=>{
+      resolve(makeData(res))
+    })
+    .catch(err=>{
+      reject(err)
+    })
+  })
+}
+
+/**
+ * @desc 获取业务类型
+ */
+function getWkDicList(customerId) {
   return new Promise((resolve,reject)=>{
     let data = {customerId:customerId}
-    this.$get(uri.getBtDic,{params:data}).then(res=>{
+    this.$get(uri.getWkDicList,{params:data}).then(res=>{
       resolve(makeData(res))
     })
     .catch(err=>{
@@ -192,9 +206,9 @@ function saveWorkflow(formData) {
  * @desc 开始创建工作流
  * @params
  */
-function startWorkflow(customerOrg,busiTypeCode) {
+function startWorkflow(customerOrg,workflowRelCode) {
   return new Promise((resolve,reject)=>{
-    let data = {customerOrg:customerOrg,busiTypeCode:busiTypeCode}
+    let data = {customerOrg:customerOrg,workflowRelCode:workflowRelCode}
     this.$get(uri.startWorkflow,{params:data}).then(res=>{
       resolve(res)
     })
@@ -234,6 +248,6 @@ function getNextNodes(formData) {
   })
 }
 export {
-  getCustomerOrgDic,getBtDic,getUrgencyDic,getAssetType,getAssetsList,getProjectDic,getProjectSubDic,upload,deleteFile
+  getCustomerOrgDic,getBtDic,getWkDicList,getUrgencyDic,getAssetType,getAssetsList,getProjectDic,getProjectSubDic,upload,deleteFile
   ,saveWorkflow,startWorkflow,getNextNodes,getCustomerAndJcAllDeptAndUser
 }

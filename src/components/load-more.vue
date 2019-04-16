@@ -154,7 +154,6 @@
         this.infiniteLoading = false
       },
       onScroll (e) {
-        console.log(444)
         if (this.infiniteLoading) {
           return
         }

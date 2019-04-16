@@ -75,7 +75,8 @@
           {name:'完成',value:'END',tab:0,cur:3  }],
           [{name:'本日',value:'Day',tab:1,cur:0  },
           {name:'本周',value:'Week',tab:1,cur:1 },
-          {name:'本月',value:'Month',tab:1,cur:2 }],
+          {name:'本月',value:'Month',tab:1,cur:2 },
+          {name:'全部',value:'All',tab:1,cur:3 }],
         ],
         defaultCon: {
           dataScope:'MyBill',
@@ -245,7 +246,9 @@
         this.getStatistic(this.getAll)
         this.menus = [this.$route.params._mode,this.$route.params._type]
       }else{
-        this.$refs['scroll'].$el.scrollTop = this.$refs['scroll'].$el.dataset.top
+        if(this.$refs['scroll']){
+          this.$refs['scroll'].$el.scrollTop = this.$refs['scroll'].$el.dataset.top
+        }
       }
     }
   }

@@ -56,7 +56,7 @@
   import empty from 'components/empty'
   import tool from 'utils/tool'
   export default {
-    name:'order_list',
+    name:'order_history',
     components: { maSelect,empty,loadMore},
     data() {
       return {
@@ -240,7 +240,9 @@
         this.getStatistic(this.getAll)
         this.menus = [this.$route.params._mode,this.$route.params._type]
       }else{
-        this.$refs['scroll'].$el.scrollTop = this.$refs['scroll'].$el.dataset.top
+        if(this.$refs['scroll']){
+          this.$refs['scroll'].$el.scrollTop = this.$refs['scroll'].$el.dataset.top
+        }
       }
     }
   }
