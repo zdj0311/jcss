@@ -21,10 +21,10 @@
         <!-- 紧急程度 -->
         <form-item name="urgency" :columns="urgencyDic" v-model="urgency && urgency.text" type="select" label="紧急程度"
            @confirm="confirm($event,'urgency')"></form-item>
-        <!-- 事件主题 -->
-        <form-item name="subject" v-validate="'required'" v-model="subject" label="事件主题" required :errorMessage="errors.first('subject')"></form-item>
-        <!-- 事件描述 -->
-        <form-item name="billPlan" v-validate="'required'" type="textarea" v-model="billPlan" label="事件描述" required 
+        <!-- 工单主题 -->
+        <form-item name="subject" v-validate="'required'" v-model="subject" label="工单主题" required :errorMessage="errors.first('subject')"></form-item>
+        <!-- 工单描述 -->
+        <form-item name="billPlan" v-validate="'required'" type="textarea" v-model="billPlan" label="工单描述" required 
           :errorMessage="errors.first('billPlan')"></form-item>
         <!--<show-more>-->
           <!-- 申请人 -->
@@ -125,7 +125,7 @@
           <li class="photoList" v-for="(item,index) in files" :key="index">
             <span class="fuj"></span>
             <label class="auTitle">
-              <a :href="addPath(item.url)">{{item.name}}</a>
+              <a :href="addPath(item.url+'?fileName='+item.fileName+'&resourcesName='+item.resourcesName)">{{item.name}}</a>
             </label>
             <div class="delect delete" @click="deleteFile(item.id)"></div>
           </li>

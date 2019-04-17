@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="search" v-if="searchIn">
-      <van-search v-model="value" placeholder="请输入搜索所在单位" show-action @keyup="onSearch" @cancel="onCancel">
+      <van-search v-model="value" placeholder="请输入搜索所在单位" show-action @keyup="onSearch" @keydown="onSearch" @cancel="onCancel">
       </van-search>
       <ul class="search-list">
         <li v-for="(item,index) in searchList" :key="index" v-if="searchList.length>0" @click="searchResult(item)">

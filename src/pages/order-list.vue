@@ -33,8 +33,8 @@
               <div class="line"></div>
               <h2 class="m-b6 none-back" v-if="item.status==99 || item.status==90">{{obj.actName}}</h2>
               <h2 class="m-b6" v-else>{{obj.actName}}</h2>
-              <p class="m-b6" v-if="i !== (orderHistoryList[index].length-1)">{{obj.endTime | timeFilter}}</p>
-              <p class="m-b6" v-else-if="item.status==99 || item.status==90">{{obj.endTime | timeFilter}}</p>
+              <p class="m-b6" v-if="i !== (orderHistoryList[index].length-1)" v-text="toString(obj.endTime)"></p>
+              <p class="m-b6" v-else-if="item.status==99 || item.status==90" v-text="toString(obj.endTime)"></p>
               <p class="m-b6">{{obj.assigneeValue}}</p>
             </li>
           </ul>
@@ -131,6 +131,14 @@
       }
     },
     methods: {
+      toString(time) {
+        let newTime = time.replace(/-| |:/g,",");
+        let arr = [];
+        newTime.split(',').forEach((item,index)=>{
+          arr.push(item.replace(/^[0]+/g,""));
+        })
+        return new Date(arr[0],arr[1],arr[2],arr[3],arr[4],arr[5]).Format("MM-dd hh:mm");
+      },
       init() {
         this.showDetails = []
       },
@@ -240,9 +248,18 @@
       }
     },
     activated() {
+      let _this =this;
       if(this.$route.params._type !== this.getAll.dateType || this.$route.params._mode !== this.getAll.mode) {
         this.getAll.dateType = this.$route.params._type
         this.getAll.mode = this.$route.params._mode
+        // 默认
+        this.properties.forEach(function(item,i){
+          item.forEach(function(it){
+            if(it.value==_this.$route.params._mode || it.value==_this.$route.params._type){
+              _this.saveCurrent[i] = it.cur;
+            } 
+          })
+        })
         this.getStatistic(this.getAll)
         this.menus = [this.$route.params._mode,this.$route.params._type]
       }else{

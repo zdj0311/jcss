@@ -102,7 +102,12 @@ export default {
   },
   methods: {
     toString(time) {
-      return new Date(time).Format("yyyy-MM-dd hh:mm:ss");
+      let newTime = time.replace(/-| |:/g,",");
+      let arr = [];
+      newTime.split(',').forEach((item,index)=>{
+        arr.push(item.replace(/^[0]+/g,""));
+      })
+      return new Date(arr[0],arr[1],arr[2],arr[3],arr[4],arr[5]).Format("yyyy-MM-dd hh:mm:ss");
     },
   }
 }
@@ -110,8 +115,7 @@ export default {
 <style lang='scss'>
   .dispose{
     padding-bottom: 3.28rem;
-  }
-  .authenTab {
+    .authenTab {
     background: #fff;
     display: flex;
     height: 2rem;
@@ -161,4 +165,6 @@ export default {
     background-size: 1.29rem 1.29rem;
     margin-top: 0.61rem;
   }
+  }
+  
 </style>
