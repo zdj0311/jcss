@@ -14,7 +14,7 @@
         <!-- 办理页 -->
         <dispose :fData=fData v-if="openType=='TODO'&&fData.workflowConfig.canEditEvaluate!='must'&&fData.workflowConfig.canEditEvaluate!='edit'">
           <div slot="busiTypeName">
-            <div v-if="fData.workflowConfig.canEditBusiType=='must'||fData.workflowConfig.canEditBusiType=='edit'">
+            <div :class="'highlight'" v-if="fData.workflowConfig.canEditBusiType=='must'||fData.workflowConfig.canEditBusiType=='edit'">
               <van-field
                 v-model="form['busiTypeName']&&form['busiTypeName']['text']"
                 label="工单类型"
@@ -28,7 +28,7 @@
             </div>
           </div>
           <div slot="urgencyValue">
-            <div v-if="fData.workflowConfig.canEditUrgency=='must'||fData.workflowConfig.canEditUrgency=='edit'">
+            <div :class="'highlight'" v-if="fData.workflowConfig.canEditUrgency=='must'||fData.workflowConfig.canEditUrgency=='edit'">
               <van-field
                 v-model="form['urgencyValue']&&form['urgencyValue']['text']"
                 label="紧急程度"
@@ -42,7 +42,7 @@
             </div>
           </div>
           <div slot="customerName">
-            <div v-if="fData.workflowConfig.canEditCustomerUser=='must'||fData.workflowConfig.canEditCustomerUser=='edit'">
+            <div :class="'highlight'" v-if="fData.workflowConfig.canEditCustomerUser=='must'||fData.workflowConfig.canEditCustomerUser=='edit'">
               <van-field
                 v-model="form['customerName']&&form['customerName']['text']"
                 label="审批人员"
@@ -56,7 +56,7 @@
             </div>
           </div>
           <div slot="billRes">
-            <div class="row bill" v-if="fData.workflowConfig.canEditBillRes=='must'||fData.workflowConfig.canEditBillRes=='edit'">
+            <div class="row bill" :class="'highlight'" v-if="fData.workflowConfig.canEditBillRes=='must'||fData.workflowConfig.canEditBillRes=='edit'">
               <van-field
                 type="textarea"
                 v-model="form['billRes']"
@@ -70,7 +70,7 @@
             </div>
           </div>
           <div slot="workOrderSuggest">
-            <div class="row bill last" v-if="fData.workflowConfig.workOrderSuggest=='must'||fData.workflowConfig.workOrderSuggest=='edit'">
+            <div class="row bill last" :class="'highlight'" v-if="fData.workflowConfig.workOrderSuggest=='must'||fData.workflowConfig.workOrderSuggest=='edit'">
               <van-field
                 type="textarea"
                 v-model="form['workOrderSuggest']"
@@ -80,7 +80,7 @@
             </div>
           </div>
           <div slot="assetsRelList">
-            <div v-if="fData.workflowConfig.canRelAssets=='must'||fData.workflowConfig.canRelAssets=='edit'">
+            <div :class="'highlight'" v-if="fData.workflowConfig.canRelAssets=='must'||fData.workflowConfig.canRelAssets=='edit'">
               <div class="assets">
                 <h3 class="zcflTitle">关联资产</h3>
                 <ul class="ificat clearfix tabsList">
@@ -101,7 +101,7 @@
             </div>
           </div>
           <div slot="fileList">
-            <div class="authenTab" v-if="fData.workflowConfig.canEditAttach=='must'||fData.workflowConfig.canEditAttach=='edit'">
+            <div class="authenTab" :class="'highlight'" v-if="fData.workflowConfig.canEditAttach=='must'||fData.workflowConfig.canEditAttach=='edit'">
               <label class="auTitle">上传附件</label>
               <template>
                 <span class="fileinput-button">
@@ -111,7 +111,7 @@
               </template>
             </div>
             <!-- 文件列表 -->
-            <ul class="fileList" v-if="fData.workflowConfig.canEditAttach=='must'||fData.workflowConfig.canEditAttach=='edit'">
+            <ul class="fileList" :class="'highlight'" v-if="fData.workflowConfig.canEditAttach=='must'||fData.workflowConfig.canEditAttach=='edit'">
               <li class="photoList" v-for="(item,index) in files" :key="index">
                 <span class="fuj"></span>
                 <label class="auTitle">
@@ -319,21 +319,31 @@ export default {
         getCustomerDic
           .bind(this)(this.fData.billData.customerOrg)
           .then(res => {
+            console.log(res)
             var user = [],_this=this;
-            user = tool.showAll(res, user);
-            user.forEach(function(v, k) {
+//          user = tool.showAll(res, user);
+//          user.forEach(function(v, k) {
+//            _this.customerDic.push({
+//              code: v.id,
+//              text: v.displayName
+//            });
+//          });
+            // 审批人员列表为空，改为如下
+            res.forEach((item, index) => {
               _this.customerDic.push({
-                code: v.id,
-                text: v.displayName
+                code: item.id,
+                text: item.name
               });
             });
-            if(this.fData.billData.customer){
+            console.log(this.fData.billData)
+            if(this.fData.billData.customer) {
               this.form.customerName = {
                 code: this.fData.billData.customer,
                 text: this.fData.billData.customerName
               };
             }else{
-              this.form.urgencyValue = this.customerDic[0];
+              // customerDic 改为 urgencyDic
+              this.form.urgencyValue = this.urgencyDic[0];
             }
           });
         getAssetsList
@@ -806,6 +816,7 @@ export default {
     },
     // 创建或修改工单
     createOrResolver(type, flowStatus) {
+      // type = Submit flowStatus = SUBMIT
       this.form.submitType_ = type;
       if (this.validateSumit()) {
         this.status[type] = false;
@@ -866,16 +877,17 @@ export default {
       formData.append(
         "customerOrgName",this.isNull(this.fData.billData.customerOrgName)
       );
-      formData.append("customer", this.isNull(this.form.customerName.code));
-      formData.append("customerName", this.isNull(this.form.customerName.text));
+      formData.append("customer", this.isNull(this.form.customerName&&this.form.customerName.code));
+      formData.append("customerName", this.isNull(this.form.customerName&&this.form.customerName.text));
       formData.append(
         "busiTypeCode",this.isNull(this.form.busiTypeName.code)
       );
       formData.append(
         "busiTypeName",this.isNull(this.form.busiTypeName.text)
       );
-      formData.append("urgency", this.isNull(this.form.urgencyValue.code));
-      formData.append("urgencyValue", this.isNull(this.form.urgencyValue.text));
+      // urgencyValue 可能为空
+      formData.append("urgency", this.isNull(this.form.urgencyValue&&this.form.urgencyValue.code));
+      formData.append("urgencyValue", this.isNull(this.form.urgencyValue&&this.form.urgencyValue.text));
       formData.append("planStartTimeStr", this.isNull(this.fData.billData.planStartTime));
       formData.append("planEndTimeStr", this.isNull(this.fData.billData.planEndTime));
       formData.append("subject", this.isNull(this.fData.billData.subject));
@@ -971,6 +983,7 @@ export default {
           return false;
         }
       }else{
+        console.log(this.form)
         if (
           !this.form.busiTypeName.code &&
           this.fData.workflowConfig.canEditBusiType == "must"
@@ -980,24 +993,24 @@ export default {
           });
           return false;
         }
-        if (
-          !this.form.urgencyValue.code &&
-          this.fData.workflowConfig.canEditUrgency == "must"
-        ) {
-          Dialog.alert({
-            message: "请选择紧急程度"
-          });
-          return false;
-        }
-        if (
-          !this.form.customerName.code &&
-          this.fData.workflowConfig.canEditCustomerUser == "must"
-        ) {
-          Dialog.alert({
-            message: "请选择审批人员"
-          });
-          return false;
-        } 
+//      if (
+//        !this.form.urgencyValue.code &&
+//        this.fData.workflowConfig.canEditUrgency == "must"
+//      ) {
+//        Dialog.alert({
+//          message: "请选择紧急程度"
+//        });
+//        return false;
+//      }
+//      if (
+//        !this.form.customerName.code &&
+//        this.fData.workflowConfig.canEditCustomerUser == "must"
+//      ) {
+//        Dialog.alert({
+//          message: "请选择审批人员"
+//        });
+//        return false;
+//      } 
         if (
           !this.form.billRes &&
           this.fData.workflowConfig.canEditBillRes == "must"
@@ -1387,6 +1400,15 @@ body {
       margin-bottom: 0.4rem;
     }
   }
+}
+
+.highlight .van-cell .van-field__label {
+    span {
+      color:#4a79df !important;
+    }
+  }
+.highlight .zcflTitle, .highlight .auTitle {
+  color:#4a79df !important;
 }
 input[type="radio"],
 input[type="checkbox"] {

@@ -11,21 +11,21 @@
         <h2>基本信息</h2>
         <!-- 客户名称 -->
         <form-item name="customerOrg" :columns="customerOrgDic" v-model="customerOrg && customerOrg.text" type="select" 
-          label="客户名称" required v-validate="'required'" @confirm="confirm($event,'customerOrg')"></form-item>
+          label="客户名称" required v-validate="'required'" @confirm="confirm($event,'customerOrg')" :errorMessage="errors.first('customerOrg') | msgFilter"></form-item>
         <!-- 业务类型 -->  
         <form-item name="workflowRel" :columns="workflowRelDic" v-model="workflowRel && workflowRel.text" type="select" label="业务类型"
-           required @confirm="confirm($event,'workflowRel')"></form-item>
+           required v-validate="'required'" @confirm="confirm($event,'workflowRel')" :errorMessage="errors.first('workflowRel') | msgFilter"></form-item>
         <!-- 工单类型 -->  
-        <form-item name="busiType" :columns="busiTypeDic" v-model="busiType && busiType.text" type="select" label="工单类型"
-           required @confirm="confirm($event,'busiType')"></form-item>
+        <!--<form-item name="busiType" :columns="busiTypeDic" v-model="busiType && busiType.text" type="select" label="工单类型"
+           required v-validate="'required'" @confirm="confirm($event,'busiType')" :errorMessage="errors.first('busiType') | msgFilter"></form-item>-->
         <!-- 紧急程度 -->
         <form-item name="urgency" :columns="urgencyDic" v-model="urgency && urgency.text" type="select" label="紧急程度"
-           @confirm="confirm($event,'urgency')"></form-item>
+          required @confirm="confirm($event,'urgency')"></form-item>
         <!-- 工单主题 -->
-        <form-item name="subject" v-validate="'required'" v-model="subject" label="工单主题" required :errorMessage="errors.first('subject')"></form-item>
+        <form-item name="subject" v-validate="'required'" v-model="subject" label="工单主题" required :errorMessage="errors.first('subject') | msgFilter"></form-item>
         <!-- 工单描述 -->
         <form-item name="billPlan" v-validate="'required'" type="textarea" v-model="billPlan" label="工单描述" required 
-          :errorMessage="errors.first('billPlan')"></form-item>
+          :errorMessage="errors.first('billPlan') | msgFilter"></form-item>
         <!--<show-more>-->
           <!-- 申请人 -->
           <!--<form-item name="userName" v-model="user.userName" label="申请人" readonly></form-item>-->
@@ -202,6 +202,24 @@ export default {
         _result = v.substr(0,7) 
       }
       return _result
+    },
+    msgFilter(msg) {
+      if (!msg) return;
+      if(msg.indexOf('customerOrg') > -1) {
+        return '客户名称是必须的'
+      }
+      if(msg.indexOf('workflowRel') > -1) {
+        return '业务类型是必须的'
+      }
+//    if(msg.indexOf('busiType') > -1) {
+//      return '工单类型是必须的'
+//    }
+      if(msg.indexOf('subject') > -1) {
+        return '工单主题是必须的'
+      }
+      if(msg.indexOf('billPlan') > -1) {
+        return '工单描述是必须的'
+      }
     }
   },
   mounted() {
@@ -215,7 +233,7 @@ export default {
       // 获取紧急程度
       this.getUrgencyDic()
       // 获取工单类型
-      this.getBtDic()
+//    this.getBtDic()
     },
     // 获取客户picker
     getCustomerOrgDic(code,index) {
@@ -231,16 +249,16 @@ export default {
       })
     },
     // 获取工单分类 picker
-    getBtDic() {
-      getBtDic.bind(this)().then(res => {
-        if(res.length>0) {
-          this.busiTypeDic = res
-          this.busiType = res[0]
-        }else {
-          this.$toast('工单类型不能为空！')
-        }
-      })
-    },
+//  getBtDic() {
+//    getBtDic.bind(this)().then(res => {
+//      if(res.length>0) {
+//        this.busiTypeDic = res
+////        this.busiType = res[0]
+//      }else {
+////        this.$toast('工单类型不能为空！')
+//      }
+//    })
+//  },
     // 获取业务类型 picker
     getWkDicList(code,index) {
       getWkDicList.bind(this)(code).then(res => {
@@ -250,7 +268,11 @@ export default {
           // 获取工作流
           this.startWorkflow()
         }else {
-          this.$toast('业务类型不能为空！')
+//        this.$toast('业务类型不能为空！')
+//        this.$dialog.alert({
+//          message: '您所在的单位未配置业务类型，不能进行手工创建工单，请联系管理员!'
+//        }).then(() => {
+//        });
         }
       })
     },
@@ -325,8 +347,8 @@ export default {
       form.append('customerOrgName',this.customerOrg.text)
       form.append('workflowRelCode',this.workflowRel.code)
       form.append('workflowRelName',this.workflowRel.text)
-      form.append('busiTypeCode',this.busiType.code)
-      form.append('busiTypeName',this.busiType.text)
+//    form.append('busiTypeCode',this.busiType.code)
+//    form.append('busiTypeName',this.busiType.text)
       form.append('urgency',this.urgency.code)
       form.append('urgencyValue',this.urgency.text)
       form.append('planStartTimeStr',new Date().Format("yyyy-MM-dd hh:mm:ss"))
@@ -702,22 +724,26 @@ export default {
     .downNode {
       font-size: 1.1rem;
       font-weight: bold;
+      color:#fff;
+      background:#4a79df;
       padding:1rem;
+      margin-bottom:1rem;
     }
     .nextNode {
       display: flex;
       flex-wrap: wrap;
       padding:0 1rem;
-      max-height:15vh;
+      max-height:16vh;
       overflow-y:scroll;
       li {
-        width: 49%;
+        font-size:1rem;
+        width: 45%;
         height: 2.5rem;
         line-height: 2.5rem;
         background: #f5f5f5;
         border: solid 1px #e9e9e9;
         border-radius: 3px;
-        margin-right: 2%;
+        margin-right: 4%;
         margin-bottom: 0.4rem;
         &:nth-child(even) {
           margin-right: 0;
@@ -731,18 +757,19 @@ export default {
       display: flex;
       padding:.8rem 1rem 0 1rem;
       flex-wrap: wrap;
-      max-height:15vh;
+      max-height:20vh;
       overflow-y:scroll;
       li {
-        width: 49%;
-        margin-right: 2%;
+        font-size:1rem;
+        width: 45%;
+        margin-right: 4%;
         height: 2.5rem;
         line-height: 2.5rem;
         background: #f5f5f5;
         border: solid 1px #e9e9e9;
         border-radius: 3px;
         padding-left: 0.8rem;
-        margin-bottom: 0.4rem;
+        margin-bottom: 1rem;
         &:nth-child(even) {
           margin-right: 0;
         }

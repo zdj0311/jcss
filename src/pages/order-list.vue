@@ -9,16 +9,24 @@
     </div>
     <load-more ref="scroll" v-scroll class="container" :onRefresh="onRefresh" :onInfinite="onInfinite" v-if="orderList.length>0">
       <div class="content" v-for="(item,index) in orderList">
-        <header>
-          <span class="header-mark" :class="item.status==2?'overtime':'statu'" >{{item.statusValue}}</span>
-          <h2>{{item.subject}}</h2>
+        <header class="item__header">
+          <!--<span class="header-mark" :class="item.status==2?'overtime':'statu'" >{{item.statusValue}}</span>-->
+          <div class="left">
+            <img class="item-icon" :src="itemIcon" />
+            <h2>{{item.subject}}</h2>
+          </div>
+          <div class="right">
+            <span :class="item.status==2?'overtime':'statu'" @click="routeTo('order_resolver',item)">{{item.statusValue}}</span> 
+            <img class="arrow" :src="arrow" />
+          </div>
         </header>
         <div class="body">
-          <div class="set-time">
+          <!-- remove at 19-05-09 -->
+          <!--<div class="set-time">
             <span>创建时间</span>
             <time>{{item.planStartTime}}</time>
-          </div>
-          <div class="flow">
+          </div>-->
+          <!--<div class="flow">
             <div class="flow-details" @click="showFlow(item.id,index)">
               流转详情
               <img :src="showDetails[index]?flwoUp:flwoDown"/>
@@ -27,8 +35,9 @@
                <span v-if="container(item)==-1" @click="routeTo('order_resolver',item)">查看</span> 
               <span v-if="container(item)!=-1" @click="routeTo('order_resolver',item)">办理</span>
             </div>
-          </div>
-          <ul class="history-list" v-show="showDetails[index]">
+          </div>-->
+          <!-- v-show="showDetails[index]" -->
+          <ul class="history-list" v-show="true">
             <li class="his-item" v-for="(obj,i) in orderHistoryList[index]">
               <div class="line"></div>
               <h2 class="m-b6 none-back" v-if="item.status==99 || item.status==90">{{obj.actName}}</h2>
@@ -51,6 +60,8 @@
   import sele from 'assets/img/sele.png'
   import flwoUp from 'assets/img/flow-up.png'
   import flwoDown from 'assets/img/flow-down.png'
+  import arrow from 'assets/img/arrow.png'
+  import itemIcon from 'assets/img/order-item.png'
   import { getStatistic,getHistory } from 'controller/order-list' // 职务列表
   import loadMore from 'components/load-more'
   import empty from 'components/empty'
@@ -60,7 +71,7 @@
     components: { maSelect,empty,loadMore},
     data() {
       return {
-        sele,flwoUp,flwoDown, // 图片
+        sele,flwoUp,flwoDown,arrow,itemIcon, // 图片
         menus:[], // tabs 显示
         value_list:['mode','dateType'], // 为提交表单的字段建立一个字典，分别代表我的 时间 流程状态
         showDetails:[],
@@ -137,7 +148,7 @@
         newTime.split(',').forEach((item,index)=>{
           arr.push(item.replace(/^[0]+/g,""));
         })
-        return new Date(arr[0],arr[1],arr[2],arr[3],arr[4],arr[5]).Format("MM-dd hh:mm");
+        return new Date(arr[0],arr[1] - 1,arr[2],arr[3],arr[4],arr[5]).Format("MM-dd hh:mm");
       },
       init() {
         this.showDetails = []
@@ -178,6 +189,8 @@
           res.data.forEach((item,index)=>{
             this.showDetails.push(false)
             this.orderHistoryList.push([])
+            // 增加一行代码，流转详情由点击切换显示改为默认显示
+            this.getHistory(item.id, index);
           })
           if(this.orderList.length<this.getAll.pageRows){
             this.finished = true;
@@ -191,7 +204,6 @@
         let _this = this;
         getHistory.bind(this)(id).then(res=>{
           _this.orderHistoryList[index] = res;
-          console.log(res)
           this.$set(_this.orderHistoryList,index,res)
         })
         .catch(err=>{
@@ -239,6 +251,8 @@
           res.data.forEach((item,index)=>{
             this.showDetails.push(false)
             this.orderHistoryList.push([])
+            // 增加一行代码，流转详情由点击切换显示改为默认显示
+            this.getHistory(item.id, this.getAll.page*this.getAll.pageRows + index);
           })
           done()
         })
@@ -311,26 +325,53 @@
           margin-left:1rem;
         }
       }
-      .statu {
+      /*new header*/
+     .item__header {
+       display:flex;
+       justify-content: space-between;
+       align-items: center;
+       .left {
+         display:flex;
+         align-items: center;
+         .item-icon {
+          width:2rem;
+         }
+       }
+       .right {
+         display:flex;
+         align-items: center;
+         .arrow {
+           margin-left:.4rem;
+           width:1.2rem;
+         }
+       }
+     }
+      /*.statu {
         color:#fff;
         padding:.3rem .8rem;
         background:-webkit-linear-gradient(to left, #4a79df, #7db6ff);
         background: linear-gradient(to left, #4a79df, #7db6ff);
         border-radius: 5px;
+      }*/
+      .statu {
+        color:#4a79df;
       }
       .header-mark {
         min-width:4.6rem;
       }
-      .overtime {
+      /*.overtime {
         color:#fff;
         padding:.3rem .8rem;
         background: linear-gradient(to left, #ff322f, #ff6a2f);
         border-radius: 5px;
+      }*/
+      .overtime {
+        color:#ff322f;
       }
       
       .set-time{
         color:#666;
-        padding: 0 1rem;
+        padding: 0 1rem 1rem 1rem;
         span{
           margin-right: 1rem;
         }

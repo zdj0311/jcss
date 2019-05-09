@@ -1,6 +1,36 @@
 <template>
   <div class='visualization'>
-    <van-tabs v-model="active" @change="change">
+    <div class="content" v-if="source[0].length>0">
+          <charts geom="pie" :source="source[0]" @chart_tap="tap"></charts>
+          <header class="header">
+            <div class="border-line"></div>
+            <span>工单列表</span>
+          </header>
+            <load-more class="container list-con" :onInfinite="onInfinite" ref="scroll0" v-if="tableData[0].length>0">
+              <li v-for="(item,index) in tableData[0]" :key="index">
+                <div class="list">
+                  <label>工单编号：</label>
+                  <span>{{item.code}}</span>
+                </div>
+                <div class="list">
+                  <label>工单主题：</label>
+                  <span>{{item.subject}}</span>
+                </div>
+                <div class="list">
+                  <label>客户名称：</label>
+                  <span>{{item.customerOrgName}}</span>
+                </div>
+                <div class="list">
+                  <label>创建时间：</label>
+                  <span>{{item.createDate}}</span>
+                </div>
+              </li>
+              <div v-if="finished" slot="infinite" class="text-center">没有更多数据</div>
+            </load-more>
+            <empty v-else></empty>
+        </div>
+        <empty v-else></empty>
+    <!--<van-tabs v-model="active" @change="change">
       <van-tab title="本日工单">
         <div class="content" v-if="source[0].length>0">
           <charts geom="pie" :source="source[0]" @chart_tap="tap"></charts>
@@ -94,7 +124,7 @@
             <empty v-else></empty>
         </div> 
       </van-tab>
-    </van-tabs>
+    </van-tabs>-->
   </div>
 </template>
 
@@ -103,13 +133,14 @@
   import empty from 'components/empty'
   import loadMore from 'components/load-more'
   import { getStatistic,getStatisticCount } from 'controller/visualization' // 职务列表
+  import getVariable from 'utils/getVariable'
   export default {
     name: 'visualization',
     components: { charts,empty,loadMore },
     data() {
       return {
         active:0, // tab 触发
-        currentPie:'CREATE',
+        currentPie:'STA_CREATE',
         orderType:['Day','Week','Month'], // 工单类型
         canTouch: true, // 是否可以点击饼图
         sum: 0,
@@ -119,17 +150,30 @@
         finished: false,
         page:0,
         totalCount:0,
-        mode: 'CREATE'
+        mode: 'STA_CREATE',
+        modeList: 'STA_CREATE,STA_UN_END,STA_OUTTIME,STA_END',
+        begin: null,
+        end : null
       };
     },
     created() {
-      // 初始化 table source 数据
+      // 初始化 table source 数据 
+      /*
+       @desc 19-05-06 改为只显示本日，本周，并增加开始结束时间参数，去掉类型参数
+       * */
+      this.begin = getVariable('planStartTimeBegin');
+      this.end = getVariable('planStartTimeEnd');
       this.getAll({
-        modeList:'CREATE,UN_END,END,ALLOUTTIME',
-        dateType: 'Day',
+//      modeList:'CREATE,UN_END,END,ALLOUTTIME',
+        modeList: this.modeList,
+        planStartTimeBegin: this.begin,
+        planStartTimeEnd: this.end
+//      dateType: 'Day',
       },{
-        dateType: 'Day',
-        mode: 'CREATE',
+//      dateType: 'Day',
+        mode: 'STA_CREATE',
+        planStartTimeBegin: this.begin,
+        planStartTimeEnd: this.end,
         pageRows:this.count,
         page:0
       })
@@ -151,8 +195,8 @@
         // modeList=CREATE,UN_END,END,ALLOUTTIME
         let promisegetStatisticCount = this.getStatisticCount(countParams)
         Promise.all([promiseGetStatistic,promisegetStatisticCount]).then(res=>{
-          this.source[this.active] = this.setSource(res[1].CREATE,res[1].END,res[1].UN_END,res[1].ALLOUTTIME)
-          this.$set(this.source,this.active,this.setSource(res[1].CREATE,res[1].END,res[1].UN_END,res[1].ALLOUTTIME))
+          this.source[this.active] = this.setSource(res[1].STA_CREATE,res[1].STA_END,res[1].STA_UN_END,res[1].STA_OUTTIME)
+          this.$set(this.source,this.active,this.setSource(res[1].STA_CREATE,res[1].STA_END,res[1].STA_UN_END,res[1].STA_OUTTIME))
           this.setTable(res[0])
           this.totalCount = res[0].totalCount
           this.canTouch = true 
@@ -183,13 +227,13 @@
         let source = null
         let sum = create + un_end + end + outtime
         source = [{
-            name: '新建 ' + create, x:'1', y: create / sum, value:'CREATE',count:create
+            name: '新建 ' + create, x:'1', y: create / sum, value:'STA_CREATE',count:create
         },{
-            name: '完成 ' + end, x:'1', y: end / sum, value:'END',count:end
+            name: '完成 ' + end, x:'1', y: end / sum, value:'STA_END',count:end
         },{
-            name: '未完成 ' + un_end, x:'1', y: un_end / sum, value:'UN_END',count:un_end
+            name: '在办 ' + un_end, x:'1', y: un_end / sum, value:'STA_UN_END',count:un_end
         },{
-            name: '超时 ' + outtime, x:'1', y: outtime / sum, value:'ALLOUTTIME',count:outtime
+            name: '超时 ' + outtime, x:'1', y: outtime / sum, value:'STA_OUTTIME',count:outtime
         }]
         if(sum === 0) source = []
         return source
@@ -199,7 +243,7 @@
         this.page = 0;
         this.tableData = [[],[],[]];
         this.getAll({
-          modeList:'CREATE,UN_END,END,ALLOUTTIME',
+          modeList:this.modeList,
           dateType: this.orderType[this.active],
         },{
           dateType: this.orderType[this.active],
@@ -228,10 +272,14 @@
           
             this.tableData = [[],[],[]];
             this.getAll({
-              modeList:'CREATE,UN_END,END,ALLOUTTIME',
-              dateType: this.orderType[this.active],
+              modeList:this.modeList,
+              planStartTimeBegin: this.begin,
+              planStartTimeEnd: this.end,
+//            dateType: this.orderType[this.active],
             },{
-              dateType: this.orderType[this.active],
+//            dateType: this.orderType[this.active],
+              planStartTimeBegin: this.begin,
+              planStartTimeEnd: this.end,
               mode: this.currentPie,
               pageRows:this.count,
               page:this.page
@@ -245,10 +293,14 @@
           return;
         }
         this.getAll({
-          modeList:'CREATE,UN_END,END,ALLOUTTIME',
-          dateType: this.orderType[this.active],
+          modeList:this.modeList,
+          planStartTimeBegin: this.begin,
+          planStartTimeEnd: this.end
+//        dateType: this.orderType[this.active],
         },{
-          dateType: this.orderType[this.active],
+//        dateType: this.orderType[this.active],
+          planStartTimeBegin: this.begin,
+          planStartTimeEnd: this.end,
           mode: this.currentPie,
           pageRows:this.count,
           page:++this.page
@@ -273,7 +325,7 @@
       margin-top:20%;
     }
     .scroll{
-      top:21.5rem !important;
+      top:19rem !important;
       bottom:0 !important;
     }
     .header {
@@ -300,9 +352,10 @@
       li{
         padding: .71rem 1.07rem;
         margin-bottom: .71rem;
-        background: #fff url("~@/assets/next.png") no-repeat;
-        background-size: .43rem .79rem;
-        background-position:calc(100% - 1.07rem) 50%;
+        background: #fff;
+        /*background: #fff url("~@/assets/next.png") no-repeat;*/
+        /*background-size: .43rem .79rem;
+        background-position:calc(100% - 1.07rem) 50%;*/
         list-style:none;
         .list{
           line-height: 1.96rem;

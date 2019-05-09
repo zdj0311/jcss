@@ -43,7 +43,7 @@
                 <span>{{form.assets?form.assets.assetsTypeName:''}}报单</span>
               </div>
               <div class="con-line">
-                <label>联系人：</label>
+                <label>联系人员：</label>
                 <span>{{user.userName}}</span>
               </div>
               <div class="con-line">
@@ -184,11 +184,12 @@
           }
         })
       },
-      createOrder(it,e){
+      createOrder(it,e) {
         this.form.assets = it;
         this.form.customerOrg = it.customerId;
         this.form.customerOrgName = it.customerIdValue;
         getWkDicList.bind(this)(this.form.customerOrg).then(res=>{
+          // 取默认不是取第一个
           this.form.workflowRelCode = res.length>0?res[0].code:'';
           this.form.workflowRelName = res.length>0?res[0].text:'';
           if(res.length==0){
@@ -295,8 +296,8 @@
         var formData = new FormData();
         formData.append('customerOrg',this.form.customerOrg)
         formData.append('customerOrgName',this.form.customerOrgName)
-        formData.append('busiTypeCode',this.form.busiTypeCode)
-        formData.append('busiTypeName',this.form.busiTypeName)
+//      formData.append('busiTypeCode',this.form.busiTypeCode)
+//      formData.append('busiTypeName',this.form.busiTypeName)
         formData.append('workflowRelCode',this.form.workflowRelCode)
         formData.append('workflowRelName',this.form.workflowRelName)
         formData.append('subject',this.form.customerOrgName+this.form.assets.assetsTypeName)
@@ -656,14 +657,15 @@
           max-height: 15vh;
           overflow-y: scroll;
           li{
-            width:49%;
+            font-size:1rem;
+            width:45%;
             height:2.5rem;
             line-height: 2.5rem;
             background:#f5f5f5;
             border:solid 1px #e9e9e9;
             border-radius: 3px;
             font-size: 1rem;
-            margin-right:2%;
+            margin-right:4%;
             margin-bottom:0.4rem;
             &:nth-child(even){
               margin-right:0;
@@ -677,20 +679,21 @@
           display: flex;
           padding-top:0.8rem;
           flex-wrap: wrap;
-          max-height: 15vh;
+          max-height: 20vh;
           overflow-y: scroll;
           padding-bottom: 0.8rem;
           border-bottom: solid 1px #ddd;
           li{
-            width:49%;
-            margin-right:2%;
+            font-size:1rem;
+            width:45%;
+            margin-right:4%;
             height:2.5rem;
             line-height: 2.5rem;
             background:#f5f5f5;
             border:solid 1px #e9e9e9;
             border-radius: 3px;
             padding-left:0.8rem;
-            margin-bottom: 0.4rem;
+            margin-bottom: 1rem;
             font-size: 1rem;
             &:nth-child(even){
               margin-right: 0;

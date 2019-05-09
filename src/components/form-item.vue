@@ -6,7 +6,7 @@
     <!-- input -->
     <!-- select -->
     <van-field v-if="type==='select'" v-model="inputValue" :placeholder="placeholder" :label="label" :required="required" readonly 
-      @click="showPicker(readonly)" right-icon="arrow"/>
+      @click="showPicker(readonly)" right-icon="arrow" :error-message="errorMessage"/>
     <van-popup v-if="type==='select'" v-model="show" class="pop-container" position="bottom">
       <van-picker :columns="columns" @change="change" show-toolbar @cancel="cancel" @confirm="confirm"/>
     </van-popup>

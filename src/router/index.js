@@ -12,12 +12,19 @@ import OrderResolver from '@/pages/order-resolver'
 import OrderDetail from '@/pages/order-detail'
 import Evaluation from '@/pages/evaluation'
 import Auth from '@/pages/auth'
+import Edit from '@/pages/edit'
 import DailyLog from '@/pages/daily-log'
 import visualization from '@/pages/visualization'
 import config from 'config'
 import surveyList from '@/pages/survey-list'
 import surveyDetail from '@/pages/survey-detail'
 import suggest from '@/pages/suggest'
+import netsafe from '@/pages/knowladge/netsafe'
+import management from '@/pages/knowladge/management'
+import database from '@/pages/knowladge/database'
+import others from '@/pages/knowladge/others'
+import output from '@/pages/knowladge/output'
+import Knowladge from '@/pages/knowladge'
 Vue.use(Router)
 export default new Router({
   base:config.route_proxy?'/jcss/jcss_app':'',
@@ -72,7 +79,7 @@ export default new Router({
     {
       path: '/user-center',
       name: 'user_center',
-      component: Auth,
+      component: userCenter,
       meta: {
         keepAlive: false,
         title: '个人中心'
@@ -139,6 +146,16 @@ export default new Router({
         title: '身份认证'
       }
     },
+    // 信息修改
+    {
+      path: '/edit',
+      name: 'edit',
+      component: Edit,
+      meta: {
+        keepAlive: false,
+        title: '信息修改'
+      }
+    },
     // 日报
     {
       path: '/daily-log',
@@ -146,7 +163,7 @@ export default new Router({
       component: DailyLog,
       meta: {
         keepAlive: false,
-        title: '日报'
+        title: '报表'
       }
     },
     // 问卷列表
@@ -176,7 +193,7 @@ export default new Router({
       component: visualization,
       meta: {
         keepAlive: false,
-        title: '日报'
+        title: '报表'
       }
     },
     // 投诉建议
@@ -189,5 +206,57 @@ export default new Router({
         title: '投诉建议'
       }
     },
+    // 知识库
+    {
+      path: '/knowladge',
+      name: 'knowladge',
+      component: Knowladge,
+        children:[{
+          path: 'netsafe',
+          name: 'netsafe',
+          component: netsafe,
+          meta: {
+            keepAlive: false,
+            title: '网络安全'
+          }
+        },{
+          path: 'database',
+          name: 'database',
+          component: database,
+          meta: {
+            keepAlive: false,
+            title: '数据存储'
+          }
+        },{
+          path: 'output',
+          name: 'output',
+          component: output,
+          meta: {
+            keepAlive: false,
+            title: '终端外设'
+          }
+        },{
+          path: 'management',
+          name: 'management',
+          component: management,
+          meta: {
+            keepAlive: false,
+            title: '管理制度'
+          }
+        },{
+          path: 'others',
+          name: 'others',
+          component: others,
+          meta: {
+            keepAlive: false,
+            title: '其他'
+          }
+        }],
+      meta: {
+        keepAlive: false,
+        title: '知识库'
+      }
+    },
+    
   ]
 })

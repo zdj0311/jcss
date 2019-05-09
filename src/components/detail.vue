@@ -136,6 +136,9 @@
         },{
           title:'申请时间',
           value:res.billData.createDate
+        },{ // 增加联系方式
+          title:'联系方式',
+          value:res.billData.appUserPhone
         },{
           title:'业务类型',
           value:res.billData.workflowRelName
@@ -149,7 +152,8 @@
           title:'审批人员',
           value:res.billData.customerName
         },{
-          title:'结束时间',
+          // title:'结束时间',
+          title:'处理完成',
           value:res.billData.planEndTime
         },{
           title:'工单主题',

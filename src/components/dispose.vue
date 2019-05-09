@@ -19,6 +19,11 @@
           <span class="title">申请时间</span>
           <span class="value">{{ fData.billData.createDate }}</span>
         </div>
+        <!--增加联系方式 05-07 -->
+        <div class="row">
+          <span class="title">联系方式</span>
+          <span class="value">{{ fData.billData.appUserPhone }}</span>
+        </div>
         <div class="row">
           <span class="title">业务类型</span>
           <span class="value">{{ fData.billData.workflowRelName }}</span>
@@ -27,7 +32,8 @@
         <slot name="urgencyValue"></slot>
         <slot name="customerName"></slot>
         <div class="row">
-          <span class="title">结束时间</span>
+          <!--<span class="title">结束时间</span>-->
+          <span class="title">处理完成</span>
           <span class="value">{{ fData.billData.planEndTime }}</span>
         </div>
         <div class="row">
@@ -102,7 +108,8 @@ export default {
   },
   methods: {
     toString(time) {
-      let newTime = time.replace(/-| |:/g,",");
+      console.log(time)
+      let newTime = time.replace(/-| |:/g, ",");
       let arr = [];
       newTime.split(',').forEach((item,index)=>{
         arr.push(item.replace(/^[0]+/g,""));
