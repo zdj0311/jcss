@@ -1,12 +1,14 @@
 <template>
   <div class="others">
-    others
+    <news-page></news-page>
   </div>
 </template>
 
 <script>
+  import newsPage from './news-page';
   export default {
     name: 'others',
+    components: { newsPage },
     data() {
       return {
         active: 0,

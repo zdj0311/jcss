@@ -1,6 +1,6 @@
 <template>
   <div class="knowladge">
-    <van-tabs v-model="active" @change="change">
+    <van-tabs class="tab-container" v-model="active" @change="change">
       <van-tab title="网络安全"></van-tab>
       <van-tab title="数据存储"></van-tab>
       <van-tab title="终端外设"></van-tab>
@@ -25,7 +25,7 @@
             route: 'database',
           },{
               name: '终端外设',
-              route: 'output',
+              route: 'out_put',
           },{
               name: '管理制度',
               route: 'management',
@@ -52,6 +52,10 @@
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss">
   .knowladge {
+    .van-tabs__wrap {
+      position:fixed;
+      top:0;
+    }
     .van-tabs__line {
       background-color: #54a7fe;
     }

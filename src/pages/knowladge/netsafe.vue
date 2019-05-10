@@ -1,12 +1,14 @@
 <template>
   <div class="netsage">
-    netsafe
+    <news-page></news-page>
   </div>
 </template>
 
 <script>
+  import newsPage from './news-page';
   export default {
     name: 'netsage',
+    components: { newsPage },
     data() {
       return {
         active: 0,

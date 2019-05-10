@@ -1,12 +1,14 @@
 <template>
-  <div class="output">
-    output
+  <div class="out-put">
+    <news-page></news-page>
   </div>
 </template>
 
 <script>
+  import newsPage from './news-page';
   export default {
-    name: 'output',
+    name: 'out_put',
+    components: { newsPage },
     data() {
       return {
         active: 0,
@@ -18,7 +20,7 @@
             route: 'database',
           },{
               name: '终端外设',
-              route: 'output',
+              route: 'out_put',
           },{
               name: '管理制度',
               route: 'management',
@@ -44,7 +46,7 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss">
-  .output {
+  .out-put {
     .van-tabs__line {
       background-color: #54a7fe;
     }

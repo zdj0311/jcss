@@ -23,7 +23,7 @@ import netsafe from '@/pages/knowladge/netsafe'
 import management from '@/pages/knowladge/management'
 import database from '@/pages/knowladge/database'
 import others from '@/pages/knowladge/others'
-import output from '@/pages/knowladge/output'
+import outPut from '@/pages/knowladge/out-put'
 import Knowladge from '@/pages/knowladge'
 Vue.use(Router)
 export default new Router({
@@ -228,9 +228,9 @@ export default new Router({
             title: '数据存储'
           }
         },{
-          path: 'output',
-          name: 'output',
-          component: output,
+          path: 'out_put',
+          name: 'out_put',
+          component: outPut,
           meta: {
             keepAlive: false,
             title: '终端外设'

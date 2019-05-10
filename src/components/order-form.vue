@@ -557,7 +557,7 @@ export default {
         {
           key_name: "planEndTime",
           // title: "工单结束时间"
-          title: "处理完成"
+          title: "完成时间"
         },
         {
           key_name: "subject",

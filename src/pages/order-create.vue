@@ -92,15 +92,23 @@
               <h2 class="downNode">下一节点</h2>
               <ul class="nextNode">
                 <li v-for="(item,index) in nextNodesList" :key="index">
-                  <input v-if="curNode.choice=='single'" type='radio' v-model='selectNodes' :value='item.componentId' name="nodes" @change="toSelectUser"/>
-                  <input v-else type='checkbox' v-model='selectNodes' :value='item.componentId' @change="toSelectUser"/>
+                  <label :for="'radio' + index">
+                    <img class="check" v-if="item.componentId === selectNodes" :src="rightWhite" />
+                    <img class="uncheck" v-else :src="rightWhite" />
+                  </label>
+                  <input :id="'radio' + index" v-if="curNode.choice=='single'" type='radio' v-model='selectNodes' :value='item.componentId' name="nodes" @change="toSelectUser"/>
+                  <input :id="'radio' + index" type='checkbox' v-else v-model='selectNodes' :value='item.componentId' @change="toSelectUser"/>
                   <span>{{item.name}}</span>
                 </li>        
               </ul>
               <ul class="nextUser clearfix">
                 <li v-for="(item,index) in chooseUser" :key="index">
-                  <input v-if="chooseUser.choice=='single'" v-model="selectUsers" class="users" type="radio" :value='item.id' name="users">
-                  <input v-else v-model="selectUsers" class="users" type="checkbox" :value='item.id'>
+                  <label :for="'user' + index">
+                    <img class="check" v-if="item.id === selectUsers" :src="rightWhite" />
+                    <img class="uncheck" v-else :src="rightWhite" />
+                  </label>
+                  <input :id="'user' + index" v-if="chooseUser.choice=='single'" v-model="selectUsers" class="users" type="radio" :value='item.id' name="users">
+                  <input :id="'user' + index" v-else v-model="selectUsers" class="users" type="checkbox" :value='item.id'>
                   <span>{{item.displayName}}</span>
                 </li>
               </ul>
@@ -145,11 +153,13 @@ import showMore from 'components/show-more'
 import formItem from 'components/form-item'
 import exam from 'assets/img/exam.png'
 import check from 'assets/check.png'
+import rightWhite from 'assets/img/right-white.png'
+
 export default {
   components: { showMore,formItem },
   data() {
     return {
-      exam,check,
+      exam,check,rightWhite,
       user: '',
       // 表单数据项
       customerOrg:{}, // 当前客户
@@ -720,6 +730,23 @@ export default {
     margin-top: 2rem;
     background:#4a79df;
   }
+  .work-con{
+          padding-top: 0.8rem;
+          input {
+            display:none;
+          }
+        }
+  .nextNode, .nextUser {
+          img {
+            width:1rem;
+          }
+          .check {
+            background:#4a79df;
+          }
+          .uncheck {
+            background:#bbbbbb;
+          }
+        }
     /* 下一节点*/
     .downNode {
       font-size: 1.1rem;
@@ -777,43 +804,6 @@ export default {
     }
     .model-content {
       
-    }
-    input[type="radio"],
-    input[type="checkbox"] {
-      width: 1.07rem;
-      height: 1.07rem;
-      display: inline-block;
-      text-align: center;
-      vertical-align: middle;
-      line-height: 1.07rem;
-      position: relative;
-      margin-top: -2px;
-      margin-right: 0.36rem;
-    }
-    input[type="radio"]::before,
-    input[type="checkbox"]::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      background: #ddd url("~@/assets/check.png");
-      width: 100%;
-      height: 100%;
-      background-size: 1.07rem 1.07rem;
-    }
-    input[type="radio"]::before {
-      border-radius: 50%;
-    }
-    input[type="radio"]:checked::before,
-    input[type="checkbox"]:checked::before {
-      content: "";
-      background: #4a79df url("~@/assets/check.png");
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-size: 1.07rem 1.07rem;
     }
     .van-cell {
       border-bottom: 1px solid #F0F0F0;

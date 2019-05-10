@@ -1,12 +1,14 @@
 <template>
   <div class="database">
-    database
+    <news-page></news-page>
   </div>
 </template>
 
 <script>
+  import newsPage from './news-page';
   export default {
     name: 'database',
+    components: { newsPage },
     data() {
       return {
         active: 0,

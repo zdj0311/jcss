@@ -153,7 +153,7 @@
           value:res.billData.customerName
         },{
           // title:'结束时间',
-          title:'处理完成',
+          title:'完成时间',
           value:res.billData.planEndTime
         },{
           title:'工单主题',

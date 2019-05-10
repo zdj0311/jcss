@@ -55,15 +55,23 @@
               <h2 class="downNode">下一节点</h2>
               <ul class="nextNode">
                 <li v-for="(item,index) in nextNodesList" :key="index">
-                  <input v-if="curNode.choice=='single'" type='radio' v-model='selectNodes' :value='item.componentId' name="nodes" @change="toSelectUser"/>
-                  <input v-else type='checkbox' v-model='selectNodes' :value='item.componentId' @change="toSelectUser"/>
+                  <label :for="'radio' + index">
+                    <img class="check" v-if="item.componentId === selectNodes" :src="rightWhite" />
+                    <img class="uncheck" v-else :src="rightWhite" />
+                  </label>
+                  <input :id="'radio' + index" v-if="curNode.choice=='single'" type='radio' v-model='selectNodes' :value='item.componentId' name="nodes" @change="toSelectUser"/>
+                  <input :id="'radio' + index" type='checkbox' v-else v-model='selectNodes' :value='item.componentId' @change="toSelectUser"/>
                   <span>{{item.name}}</span>
                 </li>        
               </ul>
               <ul class="nextUser clearfix">
                 <li v-for="(item,index) in chooseUser" :key="index">
-                  <input v-if="chooseUser.choice=='single'" v-model="selectUsers" class="users" type="radio" :value='item.id' name="users">
-                  <input v-else v-model="selectUsers" class="users" type="checkbox" :value='item.id'>
+                  <label :for="'user' + index">
+                    <img class="check" v-if="item.id === selectUsers" :src="rightWhite" />
+                    <img class="uncheck" v-else :src="rightWhite" />
+                  </label>
+                  <input :id="'user' + index" v-if="chooseUser.choice=='single'" v-model="selectUsers" class="users" type="radio" :value='item.id' name="users">
+                  <input :id="'user' + index" v-else v-model="selectUsers" class="users" type="checkbox" :value='item.id'>
                   <span>{{item.displayName}}</span>
                 </li>
               </ul>
@@ -107,6 +115,8 @@
 <script> 
   import banner from 'assets/banner.jpg'
   import kicon from 'assets/kicon.png'
+  import rightWhite from 'assets/img/right-white.png'
+  import rightBlue from 'assets/img/right-blue.png'
   import { Dialog } from 'vant';
   import tool from 'utils/tool'
   import $ from 'jquery'
@@ -116,6 +126,7 @@
     name: 'home_page',
     data() {
       return {
+        rightWhite, rightBlue,
         user:{},
         banner,
         kicon,
@@ -645,11 +656,25 @@
         }
         .work-con{
           padding-top: 0.8rem;
+          input {
+            display:none;
+          }
         }
         .downNode{
           font-size: 1rem;
           margin-bottom: 0.8rem;
           color:#000;
+        }
+        .nextNode, .nextUser {
+          img {
+            width:1rem;
+          }
+          .check {
+            background:#4a79df;
+          }
+          .uncheck {
+            background:#bbbbbb;
+          }
         }
         .nextNode{
           display: flex;
@@ -707,7 +732,7 @@
         }
       }
     }
-    input[type="radio"],input[type="checkbox"]{
+    /*input[type="radio"],input[type="checkbox"]{
       width: 1.07rem;
       height: 1.07rem;
       display: inline-block;
@@ -740,6 +765,6 @@
       width:100%;
       height: 100%;
       background-size:1.07rem 1.07rem;
-    }
+    }*/
   }
 </style>

@@ -33,7 +33,7 @@
         <slot name="customerName"></slot>
         <div class="row">
           <!--<span class="title">结束时间</span>-->
-          <span class="title">处理完成</span>
+          <span class="title">完成时间</span>
           <span class="value">{{ fData.billData.planEndTime }}</span>
         </div>
         <div class="row">

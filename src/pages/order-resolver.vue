@@ -145,15 +145,23 @@
               <h2 class="downNode">下一节点</h2>
               <ul class="nextNode">
                 <li v-for="(item,index) in nextNodesList" :key="index">
-                  <input v-if="curNode.choice=='single'" type='radio' v-model='selectNodes' :value='item.componentId' name="nodes" @change="toSelectUser"/>
-                  <input v-else type='checkbox' v-model='selectNodes' :value='item.componentId' @change="toSelectUser"/>
+                  <label :for="'resolve' + index">
+                    <img class="check" v-if="item.componentId === selectNodes" :src="rightWhite" />
+                    <img class="uncheck" v-else :src="rightWhite" />
+                  </label>
+                  <input :id="'resolve' + index" v-if="curNode.choice=='single'" type='radio' v-model='selectNodes' :value='item.componentId' name="nodes" @change="toSelectUser"/>
+                  <input :id="'resolve' + index" v-else type='checkbox' v-model='selectNodes' :value='item.componentId' @change="toSelectUser"/>
                   <span>{{item.name}}</span>
                 </li>        
               </ul>
               <ul class="nextUser clearfix">
                 <li v-for="(item,index) in chooseUser" :key="index">
-                  <input v-if="chooseUser.choice=='single'" v-model="selectUsers" class="users" type="radio" :value='item.id' name="users">
-                  <input v-else v-model="selectUsers" class="users" type="checkbox" :value='item.id'>
+                  <label :for="'user' + index">
+                    <img class="check" v-if="item.id === selectUsers" :src="rightWhite" />
+                    <img class="uncheck" v-else :src="rightWhite" />
+                  </label>
+                  <input :id="'user' + index" v-if="chooseUser.choice=='single'" v-model="selectUsers" class="users" type="radio" :value='item.id' name="users">
+                  <input :id="'user' + index" v-else v-model="selectUsers" class="users" type="checkbox" :value='item.id'>
                   <span>{{item.displayName}}</span>
                 </li>
               </ul>
@@ -220,11 +228,13 @@ import evaluate from 'components/evaluate'
 import {Dialog} from 'vant';
 import tool from "utils/tool";
 import checkimg from 'assets/check.png'
+import rightWhite from 'assets/img/right-white.png'
+
 export default {
   components: {detail,dispose,evaluate},
   data() {
     return {
-      checkimg,
+      checkimg, rightWhite,
       openType:'',
       canEditEvaluate:'',
       fData:null,
@@ -1058,37 +1068,47 @@ export default {
 body {
   background: #f2f2f2;
 }
-
-.order-form {
-  .order {
-    padding-bottom: 4.08rem;
-  }
+.order-resolver {
   .work-con{
-    padding:0 0.8rem;
+  padding-top: 0.8rem;
+  input {
+    display:none;
   }
-  .downNode {
-      font-size: 1rem;
+}
+.nextNode, .nextUser {
+  img {
+    width:1rem;
+  }
+  .check {
+    background:#4a79df;
+  }
+  .uncheck {
+    background:#bbbbbb;
+  }
+}
+.downNode {
+      font-size: 1.1rem;
       font-weight: bold;
-      color: #000;
-      height: 3.2rem;
-      line-height: 3.2rem;
-      margin: 0;
-      font-weight: normal;
-      padding: 0;
+      color:#fff;
+      background:#4a79df;
+      padding:1rem;
+      margin-bottom:1rem;
     }
     .nextNode {
       display: flex;
       flex-wrap: wrap;
-      max-height:15vh;
+      padding:0 1rem;
+      max-height:16vh;
       overflow-y:scroll;
       li {
-        width: 49%;
+        font-size:1rem;
+        width: 45%;
         height: 2.5rem;
         line-height: 2.5rem;
         background: #f5f5f5;
         border: solid 1px #e9e9e9;
         border-radius: 3px;
-        margin-right: 2%;
+        margin-right: 4%;
         margin-bottom: 0.4rem;
         &:nth-child(even) {
           margin-right: 0;
@@ -1098,29 +1118,35 @@ body {
       padding-bottom: 0.8rem;
       border-bottom: dashed 1px #ddd;
     }
-    .nextUser {
+.nextUser {
       display: flex;
-      padding-top:0.8rem;
+      padding:.8rem 1rem 0 1rem;
       flex-wrap: wrap;
-      max-height:15vh;
+      max-height:20vh;
       overflow-y:scroll;
-      padding-bottom: 0.8rem;
-      border-bottom: solid 1px #ddd;
       li {
-        width: 49%;
-        margin-right: 2%;
+        font-size:1rem;
+        width: 45%;
+        margin-right: 4%;
         height: 2.5rem;
         line-height: 2.5rem;
         background: #f5f5f5;
         border: solid 1px #e9e9e9;
         border-radius: 3px;
         padding-left: 0.8rem;
-        margin-bottom: 0.4rem;
+        margin-bottom: 1rem;
         &:nth-child(even) {
           margin-right: 0;
         }
       }
     }
+}
+
+.order-form {
+  .order {
+    padding-bottom: 4.08rem;
+  }
+
   .adDetail-bottom {
     background: #fff;
     border-top: solid 1px #eee;
@@ -1410,7 +1436,7 @@ body {
 .highlight .zcflTitle, .highlight .auTitle {
   color:#4a79df !important;
 }
-input[type="radio"],
+/*input[type="radio"],*/
 input[type="checkbox"] {
   width: 1.07rem;
   height: 1.07rem;
@@ -1422,7 +1448,7 @@ input[type="checkbox"] {
   margin-top: -2px;
   margin-right: 0.36rem;
 }
-input[type="radio"]::before,
+/*input[type="radio"]::before,*/
 input[type="checkbox"]::before {
   content: "";
   position: absolute;
@@ -1433,10 +1459,10 @@ input[type="checkbox"]::before {
   height: 100%;
   background-size: 1.07rem 1.07rem;
 }
-input[type="radio"]::before {
+/*input[type="radio"]::before {
   border-radius: 50%;
-}
-input[type="radio"]:checked::before,
+}*/
+/*input[type="radio"]:checked::before,*/
 input[type="checkbox"]:checked::before {
   content: "";
   background: #4a79df url("~@/assets/check.png");
