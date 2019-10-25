@@ -43,6 +43,8 @@ let uri = function(api){
     logout: api + 'api/wx/logout.action', // 退出登录
     feedback: api + 'api/wx/message/feedback.action', // 投诉意见
     getCompony: api + 'api/wx/user/customerList.action', // 所在部门列表
+    reminder: api + 'api/wk/urge.action', // 催单
+    getInfo:api + 'api/wx/message/notice.action', // 信息发布
   }
 }
 let exportUri = {}

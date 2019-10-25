@@ -36,10 +36,7 @@
           <span class="title">完成时间</span>
           <span class="value">{{ fData.billData.planEndTime }}</span>
         </div>
-        <div class="row">
-          <span class="title">工单主题</span>
-          <span class="value">{{ fData.billData.subject }}</span>
-        </div>
+        <slot name="subject"></slot>
         <div class="row">
           <span class="title">工单描述</span>
           <span class="value">{{ fData.billData.billPlan }}</span>
@@ -77,7 +74,7 @@
       <div class="info-container">
         <h2>资产信息</h2>
         <!-- 资产分类 -->
-        <div class="row">
+        <div class="row last">
           <span class="title">资产分类</span>
           <span class="value">{{ fData.billData.assetTypeName }}</span>
         </div>
@@ -108,13 +105,14 @@ export default {
   },
   methods: {
     toString(time) {
-      console.log(time)
-      let newTime = time.replace(/-| |:/g, ",");
-      let arr = [];
-      newTime.split(',').forEach((item,index)=>{
-        arr.push(item.replace(/^[0]+/g,""));
-      })
-      return new Date(arr[0],arr[1],arr[2],arr[3],arr[4],arr[5]).Format("yyyy-MM-dd hh:mm:ss");
+      if(time){
+        let newTime = time.replace(/-| |:/g, ",");
+        let arr = [];
+        newTime.split(',').forEach((item,index)=>{
+          arr.push(item.replace(/^[0]+/g,""));
+        })
+        return new Date(arr[0],arr[1],arr[2],arr[3],arr[4],arr[5]).Format("yyyy-MM-dd hh:mm:ss");
+      }
     },
   }
 }
@@ -152,7 +150,7 @@ export default {
   .photoList {
     border-bottom: 1px solid #eee;
     margin: 0 .8rem;
-    height: 2.5rem;
+ 
     line-height: 2.5rem;
     color: #000;
     .fuj {
@@ -170,7 +168,7 @@ export default {
     height: 1.29rem;
     background: url("~@/assets/del.png");
     background-size: 1.29rem 1.29rem;
-    margin-top: 0.61rem;
+    margin-top: 0.67rem;
   }
   }
   

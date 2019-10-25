@@ -55,8 +55,18 @@
               <span class="value">{{ form.customerName&&form.customerName.text }}</span>
             </div>
           </div>
+          <div slot="subject">
+            <div class="row bill" :class="'highlight'">
+              <van-field
+                type="input"
+                v-model="form['subject']"
+                label="工单主题"
+                placeholder="请输入"
+              />
+            </div>
+          </div>
           <div slot="billRes">
-            <div class="row bill" :class="'highlight'" v-if="fData.workflowConfig.canEditBillRes=='must'||fData.workflowConfig.canEditBillRes=='edit'">
+            <div class="row bill last" :class="'highlight'" v-if="fData.workflowConfig.canEditBillRes=='must'||fData.workflowConfig.canEditBillRes=='edit'">
               <van-field
                 type="textarea"
                 v-model="form['billRes']"
@@ -111,26 +121,19 @@
               </template>
             </div>
             <!-- 文件列表 -->
-            <ul class="fileList" :class="'highlight'" v-if="fData.workflowConfig.canEditAttach=='must'||fData.workflowConfig.canEditAttach=='edit'">
+            <ul class="fileList" :class="{'highlight':(fData.workflowConfig.canEditAttach=='must'||fData.workflowConfig.canEditAttach=='edit')}">
               <li class="photoList" v-for="(item,index) in files" :key="index">
                 <span class="fuj"></span>
-                <label class="auTitle">
-                  <a :href="addPath(item.url)">{{item.name}}</a>
+                <label class="auTitle show-img">
+                  <a @click="hasImg(item,$event)">{{item.fileName}}</a>
                 </label>
-                <div class="delect delete" @click="deleteFile(item.id)"></div>
-              </li>
-            </ul>
-            <ul class="fileList"  v-else>
-              <li class="photoList" v-for="(item,index) in files" :key="index">
-                <span class="fuj"></span>
-                <label class="auTitle">
-                  <a :href="addPath(item.url)">{{item.name}}</a>
-                </label>
+                <div class="delect delete" @click="deleteFile(item.id)" v-if="fData.workflowConfig.canEditAttach=='must'||fData.workflowConfig.canEditAttach=='edit'"></div>
               </li>
             </ul>
           </div>
         </dispose>
       </template>
+      <van-popup v-model="showImg"><img :src="addPath(popupUrl)" style="width:100%;display:block"/></van-popup>
       <!-- 按钮 -->
       <div class="workflowFormButton" v-if="openType!='VIEW'">
         <div class="work-btn" v-for="(item,index) in button" :key="index">
@@ -287,6 +290,8 @@ export default {
         { zscore: "2", name: "不满意" },
         { zscore: "1", name: "非常不满意" }
       ],
+      showImg: false,
+      popupUrl:''
     };
   }, 
   created(){  
@@ -361,6 +366,7 @@ export default {
           .then(res => {
             this.assetsDic = res;
           });
+        this.form.subject = this.fData.billData.subject;
         this.form.billRes = this.fData.billData.billRes;
         this.form.billAssess = this.fData.billData.billAssess;
         this.form.publishSuggest = this.fData.billData.publishSuggest;
@@ -374,6 +380,25 @@ export default {
       })
   },
   methods: {
+    hasImg(file,event){
+      const PICTURE_EXPRESSION = /(png|jpe?g|gif|svg)(\?.*)?$/
+      const picReg = new RegExp (PICTURE_EXPRESSION)
+      if(picReg.test(file.fileName.split('.')[1])){
+        if(file.url.indexOf('?')==-1){
+          this.popupUrl = file.url+'?fileName='+file.fileName+'&resourcesName='+file.resourcesName;
+        }else{
+          this.popupUrl = file.url
+        } 
+        this.showImg = true;
+      }else{
+        if(file.url.indexOf('?')==-1){
+          event.currentTarget.setAttribute('href',this.addPath(file.url+'?fileName='+file.fileName+'&resourcesName='+file.resourcesName))
+        }else{
+          event.currentTarget.setAttribute('href',this.addPath(file.url))
+        } 
+        
+      }
+    },
     // 显示 picker
     showPicker(item) {
       if (item == "busiTypeName") {
@@ -483,6 +508,12 @@ export default {
           this.nextNodesList = res.nextNodesList;
           this.curNode = res.curNode;
           this.selectNodes = res.nextNodesList[0].componentId;
+          let _this = this;
+          res.nextNodesList.forEach(function(item){
+            if(item.name=='处理完成'){
+              _this.selectNodes = item.componentId;
+            }
+          })
           this.toSelectUser();
         });
     },
@@ -819,7 +850,8 @@ export default {
     beforeCloseNode(action, done){
       let flowStatus = this.fData.workflowBean.flowStatus_;
       if (action === "confirm") {
-        this.createOrResolver('Submit', flowStatus)
+        this.createOrResolver('Submit', flowStatus);
+        done();
       } else {
         done();
       }
@@ -900,7 +932,7 @@ export default {
       formData.append("urgencyValue", this.isNull(this.form.urgencyValue&&this.form.urgencyValue.text));
       formData.append("planStartTimeStr", this.isNull(this.fData.billData.planStartTime));
       formData.append("planEndTimeStr", this.isNull(this.fData.billData.planEndTime));
-      formData.append("subject", this.isNull(this.fData.billData.subject));
+      formData.append("subject", this.isNull(this.form.subject));
       formData.append("billPlan", this.isNull(this.fData.billData.billPlan));
       formData.append("billRes", this.isNull(this.form.billRes));
       formData.append(
@@ -1070,7 +1102,7 @@ body {
 }
 .order-resolver {
   .work-con{
-  padding-top: 0.8rem;
+  // padding-top: 0.8rem;
   input {
     display:none;
   }
@@ -1112,6 +1144,10 @@ body {
         margin-bottom: 0.4rem;
         &:nth-child(even) {
           margin-right: 0;
+        }
+        label{
+          vertical-align: -2px;
+          margin-right:2px;
         }
         padding-left: 0.8rem;
       }
@@ -1204,6 +1240,7 @@ body {
       background-size: 0.86rem 0.79rem;
       display: inline-block;
       margin-right: 0.36rem;
+      vertical-align: middle;
     }
   }
   .delect {
@@ -1250,6 +1287,7 @@ body {
     width: auto;
     border-bottom: none;
     padding: 4px 0.6rem;
+    width:100%;
     .van-field__label {
       color: #000;
       border-right: solid 1px #eee;
@@ -1262,6 +1300,9 @@ body {
       vertical-align: middle;
       padding-left: 0.8rem;
       padding-right: 0.8rem;
+      input{
+        background-color:#efefef;
+      }
     }
   }
   .suggest {
@@ -1315,6 +1356,9 @@ body {
     font-weight: bold;
     margin-bottom: 0.8rem;
     padding-left: 0;
+  }
+  .last{
+    border-bottom: 1px solid #eeeeee;
   }
   .row {
     display: flex;
@@ -1377,7 +1421,7 @@ body {
   background: #fff;
   .zcflTitle {
     height: 2rem;
-    border-top: solid 1px #eee;
+    // border-top: solid 1px #eee;
     /* border-bottom: solid 1px #eee; */
     line-height: 2rem;
     background: #fff;
@@ -1419,6 +1463,9 @@ body {
           background:#4a79df;
         }
       }
+      input[type="checkbox"] {
+        margin: 0 0.5rem 0 0.3rem;
+      }
     }
   }
   .ificatList {
@@ -1435,11 +1482,17 @@ body {
   }
 .highlight .zcflTitle, .highlight .auTitle {
   color:#4a79df !important;
+  width: 80%;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    vertical-align: middle;
 }
 /*input[type="radio"],*/
 input[type="checkbox"] {
-  width: 1.07rem;
-  height: 1.07rem;
+  // width: 1.07rem;
+  // height: 1.07rem;
   display: inline-block;
   text-align: center;
   vertical-align: middle;
@@ -1455,9 +1508,11 @@ input[type="checkbox"]::before {
   top: 0;
   left: 0;
   background: #ddd url("~@/assets/check.png");
-  width: 100%;
-  height: 100%;
+  // width: 100%;
+  // height: 100%;
   background-size: 1.07rem 1.07rem;
+  width: 1.07rem;
+    height: 1.07rem;
 }
 /*input[type="radio"]::before {
   border-radius: 50%;
@@ -1469,11 +1524,20 @@ input[type="checkbox"]:checked::before {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  // width: 100%;
+  // height: 100%;
   background-size: 1.07rem 1.07rem;
+  width: 1.07rem;
+    height: 1.07rem;
 }
 .table {
   padding: 0.8rem;
 }
+.order-resolver .van-popup{
+  width:80%;
+}
+.order-resolver .pop-container{
+  width:100%;
+}
+
 </style>

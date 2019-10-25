@@ -6,7 +6,7 @@ var hostname = null
 var route_proxy = false
 var publicPath = ''
 if(process.env.NODE_ENV === 'development') {
-  publicPath = 'http://192.168.200.50:9095'
+  publicPath = 'http://192.168.200.50'
 }
 if(process.env.NODE_ENV === 'production') {
   publicPath = 'http://www.jiachengnet.com'
@@ -24,7 +24,7 @@ module.exports = {
   route_proxy:route_proxy,
   proxy: {
     assetsSubDirectory: 'static',
-    assetsPublicPath: '/jcss/jcss_app/',
+    assetsPublicPath: '/mobilejcss',
     proxyTable: {
     },
     host: '0.0.0.0', // can be overwritten by process.env.HOST
@@ -44,7 +44,7 @@ module.exports = {
     assetsPublicPath: '',
     proxyTable: {
       '/': {
-        target: 'http://192.168.200.50:8080', //目标接口域名
+        target: 'http://192.168.200.50', //目标接口域名
         changeOrigin: true, //是否跨域
       }
     },

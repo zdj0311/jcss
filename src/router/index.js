@@ -10,6 +10,7 @@ import ServiceTrace from '@/pages/service-trace'
 import OrderCreate from '@/pages/order-create'
 import OrderResolver from '@/pages/order-resolver'
 import OrderDetail from '@/pages/order-detail'
+import InfoDetail from '@/pages/info-detail'
 import Evaluation from '@/pages/evaluation'
 import Auth from '@/pages/auth'
 import Edit from '@/pages/edit'
@@ -124,6 +125,16 @@ export default new Router({
       meta: {
         keepAlive: false,
         title: '工单详情'
+      }
+    },
+    // 信息发布详情
+    {
+      path: '/info-detail/:id',
+      name: 'info_detail',
+      component: InfoDetail,
+      meta: {
+        keepAlive: false,
+        title: '信息发布详情'
       }
     },
     // 评价

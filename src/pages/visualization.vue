@@ -7,7 +7,7 @@
             <span>工单列表</span>
           </header>
             <load-more class="container list-con" :onInfinite="onInfinite" ref="scroll0" v-if="tableData[0].length>0">
-              <li v-for="(item,index) in tableData[0]" :key="index">
+              <li v-for="(item,index) in tableData[0]" :key="index" @click="routeToDetail(item.id)">
                 <div class="list">
                   <label>工单编号：</label>
                   <span>{{item.code}}</span>
@@ -134,6 +134,7 @@
   import loadMore from 'components/load-more'
   import { getStatistic,getStatisticCount } from 'controller/visualization' // 职务列表
   import getVariable from 'utils/getVariable'
+  
   export default {
     name: 'visualization',
     components: { charts,empty,loadMore },
@@ -180,6 +181,12 @@
       
     },
     methods: {
+      routeToDetail(id){
+        this.$router.push({
+          name:'order_detail',
+          params:{_id:id}
+        })
+      },
       // 返回 Promise 获取工单列表
       getStatistic(params) {
         return getStatistic.bind(this)(params)
@@ -217,6 +224,7 @@
                 customerOrgName:item.customerOrgName,
                 createDate:item.createDate,
                 subject:item.subject,
+                id:item.id
               }
               this.tableData[this.active].push(obj) 
             })
@@ -314,6 +322,9 @@
     background:#F2F2F2;
   }
   .visualization {
+    .infinite-preloader[data-v-743c31fc]{
+      width:auto
+    }
     height: 100%;
     .content {
       .charts{

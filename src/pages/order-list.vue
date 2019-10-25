@@ -16,6 +16,7 @@
             <h2>{{item.subject}}</h2>
           </div>
           <div class="right">
+            <span class="remind" @click="reminders(item.id)" v-if="item.urge=='true'">催单</span>
             <span :class="item.status==2?'overtime':'statu'" @click="routeTo('order_resolver',item)">{{item.statusValue}}</span> 
             <img class="arrow" :src="arrow" />
           </div>
@@ -62,10 +63,11 @@
   import flwoDown from 'assets/img/flow-down.png'
   import arrow from 'assets/img/arrow.png'
   import itemIcon from 'assets/img/order-item.png'
-  import { getStatistic,getHistory } from 'controller/order-list' // 职务列表
+  import { getStatistic,getHistory,reminder } from 'controller/order-list' // 职务列表
   import loadMore from 'components/load-more'
   import empty from 'components/empty'
   import tool from 'utils/tool'
+  import { Toast  } from 'vant';
   export default {
     name:'order_list',
     components: { maSelect,empty,loadMore},
@@ -142,13 +144,22 @@
       }
     },
     methods: {
-      toString(time) {
-        let newTime = time.replace(/-| |:/g,",");
-        let arr = [];
-        newTime.split(',').forEach((item,index)=>{
-          arr.push(item.replace(/^[0]+/g,""));
+      reminders(id){
+        reminder.bind(this)(id).then(res=>{
+          Toast.success('催单成功');
+        }).catch(res=>{
+          Toast(res.message);
         })
-        return new Date(arr[0],arr[1] - 1,arr[2],arr[3],arr[4],arr[5]).Format("MM-dd hh:mm");
+      },
+      toString(time) {
+        if(time){
+          let newTime = time.replace(/-| |:/g,",");
+          let arr = [];
+          newTime.split(',').forEach((item,index)=>{
+            arr.push(item.replace(/^[0]+/g,""));
+          })
+          return new Date(arr[0],arr[1] - 1,arr[2],arr[3],arr[4],arr[5]).Format("MM-dd hh:mm");
+        }
       },
       init() {
         this.showDetails = []
@@ -293,7 +304,7 @@
       position:fixed;
       width:100%;
       display:flex;
-      z-index: 3014;
+      z-index: 2000;
     }
     .menu-item {
       display:flex;
@@ -333,6 +344,7 @@
        .left {
          display:flex;
          align-items: center;
+         flex:1;
          .item-icon {
           width:2rem;
          }
@@ -340,6 +352,11 @@
        .right {
          display:flex;
          align-items: center;
+         .remind{
+           padding: 0 0.5rem;
+            color: #4a79df;
+           flex:1
+         }
          .arrow {
            margin-left:.4rem;
            width:1.2rem;

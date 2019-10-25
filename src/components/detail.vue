@@ -78,13 +78,14 @@
         <div class="row" v-for="(item,index) in fileInfo" :key="index">
           <span class="title">{{ item.title }}</span>
           <div class="value" v-if="item.value.length>0">
-            <div v-for="(obj,i) in item.value">
-              <a :href="addPath(obj.url)">{{obj.fileName}}</a>
+            <div v-for="(obj,i) in item.value" style="margin-bottom:0.3rem">
+              <a @click="hasImg(obj,$event)">{{obj.fileName}}</a>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <van-popup v-model="showImg"><img style="width:100%;display:block" :src="addPath(popupUrl)"/></van-popup>
   </div>
 </template>
 
@@ -104,12 +105,24 @@
         projectInfo:[], // 项目信息
         assetInfo:[], // 资产信息
         fileInfo:[], // 附件信息
+        showImg: false,
+        popupUrl:''
       };
     },
     created() {
       this.makeData(this.fData);
     },
     methods: {
+      hasImg(file,event){
+        const PICTURE_EXPRESSION = /(png|jpe?g|gif|svg)(\?.*)?$/
+        const picReg = new RegExp (PICTURE_EXPRESSION)
+        if(picReg.test(file.fileName.split('.')[1])){
+          this.popupUrl = file.url
+          this.showImg = true;
+        }else{
+          event.currentTarget.setAttribute('href',this.addPath(file.url))
+        }
+      },
       toString(time) {
         return new Date(time).Format("yyyy-MM-dd hh:mm:ss");
       },
@@ -257,6 +270,9 @@
       color:#fff;
       background:#4884fe;
       margin-top:2rem;
+    }
+    .van-popup{
+      width:80%;
     }
   }
 </style>
