@@ -3,9 +3,9 @@
 > A Vue.js project
 
 ## 项目部署
-访问项目[地址](http://jwgit.jcinfo.com:7990/projects/INTEAR/repos/smartcasefront/browse)，克隆到本地。
+访问项目[地址](https://github.com/zdj0311/jcss.git)，克隆到本地。
 ```javascript
-git clone http://suixin@jwgit.jcinfo.com:7990/scm/intear/smartcasefront.git
+git clone https://github.com/zdj0311/jcss.git
 ```
 ## 部署本地 node 环境
 ## 下载项目依赖
